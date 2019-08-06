@@ -1,0 +1,32 @@
+const app = Application('Keynote')
+app.activate();
+
+let doc;
+if (app.documents.length) {
+  doc = app.documents[0];
+} else {
+  doc = app.Document();
+  app.documents.push(doc);
+}
+
+doc.documentTheme = app.themes[1];
+doc.width = 1920;
+doc.height = 1080;
+
+function addSlide() {
+  const slide = app.Slide({
+    baseSlide: doc.masterSlides.last(),
+  });
+
+  doc.slides.push(slide);
+
+  slide.transitionProperties = {
+    automaticTransition: false,
+    transitionEffect: "magic move",
+    transitionDuration: 0.7
+  }
+
+  return slide;
+}
+
+addSlide();
