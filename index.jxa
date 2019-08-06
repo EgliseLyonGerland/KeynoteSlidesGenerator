@@ -1,4 +1,4 @@
-const app = Application('Keynote')
+const app = Application("Keynote");
 app.activate();
 
 let doc;
@@ -15,7 +15,7 @@ doc.height = 1080;
 
 function addSlide() {
   const slide = app.Slide({
-    baseSlide: doc.masterSlides.last(),
+    baseSlide: doc.masterSlides.last()
   });
 
   doc.slides.push(slide);
@@ -24,7 +24,7 @@ function addSlide() {
     automaticTransition: false,
     transitionEffect: "magic move",
     transitionDuration: 0.7
-  }
+  };
 
   return slide;
 }

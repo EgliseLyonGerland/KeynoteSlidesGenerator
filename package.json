@@ -1,0 +1,11 @@
+{
+  "name": "KeynoteSlidesGenerator",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "Nicolas Bazille <oltodo@msn.com>",
+  "license": "MIT",
+  "dependencies": {},
+  "devDependencies": {
+    "prettier": "1.18.2"
+  }
+}
