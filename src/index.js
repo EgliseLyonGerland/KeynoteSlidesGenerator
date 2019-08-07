@@ -1,3 +1,6 @@
+const _ = require("lodash");
+const songs = require("./songs").default;
+
 const STANDART_BACKGROUNDS_RANGE = [1, 9];
 const SONG_BACKGROUNDS_RANGE = [10, 13];
 
@@ -38,9 +41,10 @@ function addText(text) {
   });
   slide.textItems.push(textItem);
   textItem.objectText.size = 100;
-  textItem.objectText.color = [0, 0, 65535];
+  textItem.objectText.color = [65535, 65535, 65535];
   textItem.objectText.font = "AdobeHebrew-BoldItalic";
 }
 
-addSlide(2);
-addText("Hello World!");
+addSlide(SONG_BACKGROUNDS_RANGE[0]);
+const song = songs["a-l-ageau-de-dieu"];
+addText(song.title);

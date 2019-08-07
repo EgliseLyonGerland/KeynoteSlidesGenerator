@@ -8,5 +8,13 @@ module.exports = {
   output: {
     path: path.join(rootPath, "/dist"),
     filename: "index.jxa"
+  },
+  module: {
+    rules: [
+      {
+        test: /\.song$/,
+        use: `${__dirname}/song-loader`
+      }
+    ]
   }
 };
