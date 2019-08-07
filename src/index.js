@@ -1,25 +1,51 @@
 const _ = require("lodash");
 const songs = require("./songs").default;
 
-const STANDART_BACKGROUNDS_RANGE = [1, 9];
-const SONG_BACKGROUNDS_RANGE = [10, 13];
+const regularBackgroundsRange = [1, 9];
+const songBackgroundsRange = [10, 13];
+const documentWidth = 1920;
+const documentHeight = 1080;
 
-const app = Application("Keynote");
-app.activate();
+/**
+ * Fonts:
+ *
+ *  - SourceSansPro-Semibold
+ *  - SourceSansPro-Bold
+ *  - SourceSansPro-Black
+ *  - AdobeHebrew-BoldItalic
+ */
+
+const typography = {
+  songTitle: {
+    font: "SourceSansPro-Bold",
+    size: 72
+  },
+  songVerse: {
+    font: "SourceSansPro-Semibold",
+    size: 72
+  },
+  songChorus: {
+    font: "AdobeHebrew-BoldItalic",
+    size: 72
+  }
+};
+
+const keynote = Application("Keynote");
+keynote.activate();
 
 let doc;
-if (app.documents.length) {
-  doc = app.documents[0];
+if (keynote.documents.length) {
+  doc = keynote.documents[0];
 } else {
-  doc = app.Document();
-  app.documents.push(doc);
+  doc = keynote.Document();
+  keynote.documents.push(doc);
 }
 
-doc.width = 1920;
-doc.height = 1080;
+doc.width = documentWidth;
+doc.height = documentHeight;
 
 function addSlide(backgroundId = 1) {
-  const slide = app.Slide({
+  const slide = keynote.Slide({
     baseSlide: doc.masterSlides[backgroundId]
   });
 
@@ -34,17 +60,39 @@ function addSlide(backgroundId = 1) {
   return slide;
 }
 
-function addText(text) {
+function addText(text, format) {
+  const textProperties = typography[format];
   const slide = doc.currentSlide;
-  const textItem = app.TextItem({
+  const textItem = keynote.TextItem({
     objectText: text
   });
   slide.textItems.push(textItem);
-  textItem.objectText.size = 100;
+  textItem.objectText.size = textProperties.size;
+  textItem.objectText.font = textProperties.font;
   textItem.objectText.color = [65535, 65535, 65535];
-  textItem.objectText.font = "AdobeHebrew-BoldItalic";
+
+  return textItem;
 }
 
-addSlide(SONG_BACKGROUNDS_RANGE[0]);
-const song = songs["a-l-ageau-de-dieu"];
-addText(song.title);
+function addSongSlide(song) {
+  addSlide(songBackgroundsRange[0]);
+  addText(song.title, "songTitle");
+
+  _.forEach(song.lyrics, (part, index) => {
+    const format = part.type === "chorus" ? "songChorus" : "songVerse";
+    const text = part.lines.join(`\n${" ".repeat(index)}`);
+
+    const prevTextItem = addText(text, format);
+    prevTextItem.width = documentWidth;
+    prevTextItem.opacity = index ? 50 : 0;
+    prevTextItem.position = { x: 0, y: 800 };
+
+    addSlide(songBackgroundsRange[0]);
+
+    const nextTextItem = addText(text, format);
+    nextTextItem.width = documentWidth;
+    nextTextItem.position = { x: 0, y: 200 };
+  });
+}
+
+addSongSlide(songs["a-l-ageau-de-dieu"]);
