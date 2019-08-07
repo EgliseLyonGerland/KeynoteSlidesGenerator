@@ -4,8 +4,14 @@
   "main": "index.js",
   "author": "Nicolas Bazille <oltodo@msn.com>",
   "license": "MIT",
-  "dependencies": {},
+  "scripts": {
+    "build": "webpack --config config/webpack",
+    "compile": "osacompile -l JavaScript -o dist/index.scpt dist/index.jxa",
+    "start": "osascript -l JavaScript dist/index.scpt"
+  },
   "devDependencies": {
-    "prettier": "1.18.2"
+    "prettier": "1.18.2",
+    "webpack": "4.39.1",
+    "webpack-cli": "3.3.6"
   }
 }
