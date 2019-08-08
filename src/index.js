@@ -30,6 +30,8 @@ const typography = {
   }
 };
 
+const systemEvent = Application("System Events");
+
 const keynote = Application("Keynote");
 keynote.activate();
 
@@ -43,6 +45,20 @@ if (keynote.documents.length) {
 
 doc.width = documentWidth;
 doc.height = documentHeight;
+
+function press(
+  key,
+  { shift = false, command = false, option = false, control = false } = {}
+) {
+  let using = [];
+  if (shift) using.push("shift down");
+  if (command) using.push("command down");
+  if (control) using.push("control down");
+  if (option) using.push("option down");
+
+  systemEvent.keystroke(key, { using });
+  delay(0.2);
+}
 
 function addSlide(backgroundId = 1) {
   const slide = keynote.Slide({
@@ -80,12 +96,16 @@ function addSongSlide(song) {
 
   _.forEach(song.lyrics, (part, index) => {
     const format = part.type === "chorus" ? "songChorus" : "songVerse";
-    const text = part.lines.join(`\n${" ".repeat(index)}`);
+    const text = part.lines.join(`${" ".repeat(index)}\n`);
 
     const prevTextItem = addText(text, format);
     prevTextItem.width = documentWidth;
     prevTextItem.opacity = index ? 50 : 0;
-    prevTextItem.position = { x: 0, y: 800 };
+    prevTextItem.position = { x: 0, y: 810 };
+
+    if (index) {
+      press("b", { shift: true, command: true });
+    }
 
     addSlide(songBackgroundsRange[0]);
 
