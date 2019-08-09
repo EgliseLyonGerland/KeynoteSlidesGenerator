@@ -50,6 +50,14 @@ if (keynote.documents.length) {
 doc.width = documentWidth;
 doc.height = documentHeight;
 
+function copyBubbles() {
+  const currentSlideIndex = _.indexOf(doc.slides, doc.currentSlide);
+  doc.currentSlide = doc.slides[1];
+  press("a", { command: true });
+  press("c", { command: true });
+  doc.currentSlide = doc.slides[currentSlideIndex];
+}
+
 function press(
   key,
   { shift = false, command = false, option = false, control = false } = {}
@@ -231,8 +239,22 @@ function addCurrentSongLyrics(text, format) {
   nextTextItem.position = { x: 0, y: 200 };
 }
 
+function addBubbles(index = 0) {
+  press("v", { command: true });
+
+  const { currentSlide: slide } = doc;
+
+  _.forEach(slide.images, (shape, position) => {
+    shape.position = {
+      x: 0,
+      y: -(position + 1) * 50 * index
+    };
+  });
+}
+
 function addSongSlide(song) {
   addSlide(songBackgroundsRange[0]);
+  addBubbles();
   addSongTitle(song);
 
   _.forEach(song.lyrics, (part, index) => {
@@ -242,10 +264,12 @@ function addSongSlide(song) {
 
     addNextSongLyrics(text, format, index, isLast);
     addSlide(songBackgroundsRange[0]);
+    addBubbles(index + 1);
     addCurrentSongLyrics(text, format);
   });
 }
 
 keynote.activate();
 delay(0.5);
+copyBubbles();
 addSongSlide(songs["a-l-ageau-de-dieu"]);
