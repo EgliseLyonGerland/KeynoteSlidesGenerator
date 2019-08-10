@@ -44,7 +44,7 @@ const typography = {
 
 const systemEvent = Application("System Events");
 const keynote = Application("Keynote");
-const mainWindow = systemEvent.processes["Keynote"].windows.byName("Test");
+const mainWindow = systemEvent.processes["Keynote"].windows.byName("Slides");
 
 let doc;
 if (keynote.documents.length) {
