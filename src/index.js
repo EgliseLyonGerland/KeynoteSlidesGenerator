@@ -98,22 +98,31 @@ function addSlide(backgroundId = 1) {
   return slide;
 }
 
-function addText(text, format) {
-  const textProperties = typography[format];
-  const slide = doc.currentSlide;
-  const textItem = keynote.TextItem({
-    objectText: text
+function debugElements(elements, recursive = false, maxDepth = 0, level = 0) {
+  _.forEach(elements, (element, index) => {
+    debug(
+      "  ".repeat(level),
+      index,
+      element.class(),
+      element.name(),
+      // element.description(),
+      // element.role(),
+      // element.roleDescription(),
+      element.title(),
+      // element.help(),
+      element.size(),
+      element.position()
+      // element.value()
+    );
+
+    if (
+      recursive &&
+      (maxDepth === 0 || level < maxDepth - 1) &&
+      element.uiElements
+    ) {
+      debugElements(element.uiElements, recursive, maxDepth, level + 1);
+    }
   });
-  slide.textItems.push(textItem);
-  textItem.objectText.size = textProperties.size;
-  textItem.objectText.font = textProperties.font;
-  textItem.objectText.color = [65535, 65535, 65535];
-
-  if (textProperties.opacity) {
-    textItem.opacity = textProperties.opacity;
-  }
-
-  return textItem;
 }
 
 function openInspector(tab = 0) {
@@ -149,6 +158,24 @@ function selectEffect(effect) {
   delay(0.2);
   addEffectButton.popOvers[0].scrollAreas[0].buttons.byName(effect).click();
   delay(0.2);
+}
+
+function addText(text, format) {
+  const textProperties = typography[format];
+  const slide = doc.currentSlide;
+  const textItem = keynote.TextItem({
+    objectText: text
+  });
+  slide.textItems.push(textItem);
+  textItem.objectText.size = textProperties.size;
+  textItem.objectText.font = textProperties.font;
+  textItem.objectText.color = [65535, 65535, 65535];
+
+  if (textProperties.opacity) {
+    textItem.opacity = textProperties.opacity;
+  }
+
+  return textItem;
 }
 
 function addSongTitleEntryEffect() {
