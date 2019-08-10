@@ -2,9 +2,11 @@ const _ = require("lodash");
 const songs = require("./songs").default;
 
 const regularBackgroundsRange = [1, 9];
-const songBackgroundsRange = [10, 13];
+const songBackgroundsRange = [10, 12];
 const documentWidth = 1920;
 const documentHeight = 1080;
+
+let currentSongBackground = 10;
 
 /**
  * Fonts:
@@ -49,6 +51,14 @@ if (keynote.documents.length) {
 
 doc.width = documentWidth;
 doc.height = documentHeight;
+
+function changeSongBackground() {
+  currentSongBackground++;
+
+  if (currentSongBackground > _.last(songBackgroundsRange)) {
+    currentSongBackground = songBackgroundsRange[0];
+  }
+}
 
 function copyBubbles() {
   const currentSlideIndex = _.indexOf(doc.slides, doc.currentSlide);
@@ -258,7 +268,7 @@ function addBubbles(index = 0) {
 }
 
 function addSongSlide(song) {
-  addSlide(songBackgroundsRange[0]);
+  addSlide(currentSongBackground);
   addBubbles();
   addSongTitle(song);
 
@@ -268,10 +278,12 @@ function addSongSlide(song) {
     const isLast = index === song.lyrics.length;
 
     addNextSongLyrics(text, format, index, isLast);
-    addSlide(songBackgroundsRange[0]);
+    addSlide(currentSongBackground);
     addBubbles(index + 1);
     addCurrentSongLyrics(text, format);
   });
+
+  changeSongBackground();
 }
 
 keynote.activate();
