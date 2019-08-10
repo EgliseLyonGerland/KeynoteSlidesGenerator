@@ -19,13 +19,18 @@ let currentSongBackground = 10;
 
 const typography = {
   songTitle: {
-    font: "SourceSansPro-Bold",
-    size: 72
+    font: "AdobeHebrew-BoldItalic",
+    size: 80
   },
-  songSubtitle: {
+  songAuthors: {
+    font: "SourceSansPro-Semibold",
+    size: 50,
+    opacity: 70
+  },
+  songExtras: {
     font: "SourceSansPro-Regular",
     size: 40,
-    opacity: 72
+    opacity: 40
   },
   songVerse: {
     font: "SourceSansPro-Semibold",
@@ -196,8 +201,9 @@ function addSongTitleEntryEffect() {
   buildOrderWindow.popUpButtons[0].menus[0].menuItems[1].click();
 }
 
-function addSongSubtitleEntryEffect() {
+function addSongAuthorsEntryEffect() {
   openInspector(1);
+  selectInspectorTab("Entrée");
   selectEffect("Fondu et déplacement");
 
   const scrollArea = mainWindow.scrollAreas[0];
@@ -214,6 +220,26 @@ function addSongSubtitleEntryEffect() {
   buildOrderWindow.textFields[0].value = "0,2 s";
 }
 
+function addSongExtrasEntryEffect() {
+  openInspector(1);
+  selectInspectorTab("Entrée");
+  selectEffect("Dissolution");
+
+  const scrollArea = mainWindow.scrollAreas[0];
+  scrollArea.textFields[0].value = "0,7 s";
+  scrollArea.popUpButtons[0].click();
+  scrollArea.popUpButtons[0].menus[0].menuItems.byName("Par caractère").click();
+  scrollArea.popUpButtons[1].click();
+  scrollArea.popUpButtons[1].menus[0].menuItems
+    .byName("Plan supérieur")
+    .click();
+
+  const buildOrderWindow = getBuildOrderWindow();
+  buildOrderWindow.popUpButtons[0].click();
+  buildOrderWindow.popUpButtons[0].menus[0].menuItems[2].click();
+  buildOrderWindow.textFields[0].value = "0,3 s";
+}
+
 function addSongTitle({
   title,
   copyright = "",
@@ -221,26 +247,41 @@ function addSongTitle({
   collection = ""
 }) {
   const titleTextItem = addText(title, "songTitle");
-  const subtitle = [];
 
-  if (authors) subtitle.push(authors);
-  if (copyright) subtitle.push(`© ${copyright}`);
-  if (collection) subtitle.push(collection);
+  if (authors) {
+    const authorsTextItem = addText(authors, "songAuthors");
 
-  const subtitleTextItem = addText(subtitle.join(" – "), "songSubtitle");
+    const margin = 16;
+    const height = titleTextItem.height() + authorsTextItem.height() + margin;
+    const y = (documentHeight - height) / 2;
 
-  const margin = 16;
-  const height = titleTextItem.height() + subtitleTextItem.height() + margin;
-  const y = (documentHeight - height) / 2;
+    titleTextItem.position = { x: titleTextItem.position().x, y };
+    addSongTitleEntryEffect();
 
-  titleTextItem.position = { x: titleTextItem.position().x, y };
-  addSongTitleEntryEffect();
+    authorsTextItem.position = {
+      x: authorsTextItem.position().x,
+      y: y + titleTextItem.height() + margin
+    };
+    addSongAuthorsEntryEffect();
+  } else {
+    titleTextItem.locked = false;
+    addSongTitleEntryEffect();
+  }
 
-  subtitleTextItem.position = {
-    x: subtitleTextItem.position().x,
-    y: y + titleTextItem.height() + margin
-  };
-  addSongSubtitleEntryEffect();
+  let extras = [];
+  if (copyright) extras.push(`© ${copyright}`);
+  if (collection) extras.push(collection);
+
+  if (extras.length) {
+    const extrasTextItem = addText(extras.join(" – "), "songExtras");
+
+    extrasTextItem.position = {
+      x: extrasTextItem.position().x,
+      y: 900
+    };
+
+    addSongExtrasEntryEffect();
+  }
 }
 
 function addNextSongLyricsEntryEffect() {
