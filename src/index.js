@@ -1,8 +1,8 @@
 const _ = require("lodash");
 const songs = require("./songs").default;
 
-const regularBackgroundsRange = [1, 9];
-const songBackgroundsRange = [10, 12];
+const regularBackgroundsRange = [1, 13];
+const songBackgroundsRange = [14, 16];
 const documentWidth = 1920;
 const documentHeight = 1080;
 
