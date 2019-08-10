@@ -116,6 +116,10 @@ function openInspector(tab = 0) {
   }
 }
 
+function selectInspectorTab(tab) {
+  mainWindow.radioGroups[0].radioButtons.byName(tab).click();
+}
+
 function openBuildOrderWindow() {
   openInspector(1);
   mainWindow.buttons.byName("Ordre de composition").click();
@@ -139,6 +143,7 @@ function selectEffect(effect) {
 
 function addSongTitleEntryEffect() {
   openInspector(1);
+  selectInspectorTab("Entrée");
   selectEffect("Fondu et déplacement");
 
   const scrollArea = mainWindow.scrollAreas[0];
