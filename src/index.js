@@ -1,12 +1,12 @@
 const _ = require("lodash");
 const songs = require("./songs").default;
 
-const regularBackgroundsRange = [1, 13];
-const songBackgroundsRange = [14, 16];
+const regularBackgroundsNumber = 13;
+const songBackgroundsNumber = 3;
 const documentWidth = 1920;
 const documentHeight = 1080;
 
-let currentSongBackground = 10;
+let currentSongBackground = 1;
 
 /**
  * Fonts:
@@ -60,8 +60,8 @@ doc.height = documentHeight;
 function changeSongBackground() {
   currentSongBackground++;
 
-  if (currentSongBackground > _.last(songBackgroundsRange)) {
-    currentSongBackground = songBackgroundsRange[0];
+  if (currentSongBackground > songBackgroundsNumber) {
+    currentSongBackground = 1;
   }
 }
 
@@ -87,9 +87,9 @@ function press(
   delay(0.2);
 }
 
-function addSlide(backgroundId = 1) {
+function addSlide(backgroundName) {
   const slide = keynote.Slide({
-    baseSlide: doc.masterSlides[backgroundId]
+    baseSlide: doc.masterSlides.byName(backgroundName)
   });
 
   doc.slides.push(slide);
@@ -336,7 +336,9 @@ function addBubbles(index = 0) {
 }
 
 function addSongSlide(song) {
-  addSlide(currentSongBackground);
+  const background = `backgroundS${currentSongBackground}`;
+
+  addSlide(background);
   addBubbles();
   addSongTitle(song);
 
@@ -346,7 +348,7 @@ function addSongSlide(song) {
     const isLast = index === song.lyrics.length;
 
     addNextSongLyrics(text, format, index, isLast);
-    addSlide(currentSongBackground);
+    addSlide(background);
     addBubbles(index + 1);
     addCurrentSongLyrics(text, format);
   });
