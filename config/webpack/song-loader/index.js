@@ -21,24 +21,26 @@ function stringifyLyrics(lyrics) {
 function parseLyrics(text) {
   let currentType = "verse";
 
+  const addParagraph = (lyrics, type = currentType) => {
+    if (lyrics.length === 0 || lyrics[lyrics.length - 1].lines.length > 0) {
+      return [...lyrics, { type, lines: [] }];
+    }
+
+    lyrics[lyrics.length - 1].type = type;
+
+    return lyrics;
+  };
+
   return text
     .trim()
     .split("\n")
     .reduce((acc, curr) => {
-      if (acc.length === 0 || isBlankLine(curr)) {
-        return [...acc, { type: currentType, lines: [] }];
+      if (isTypeLine(curr)) {
+        return addParagraph(acc, resolveType(curr));
       }
 
-      if (isTypeLine(curr)) {
-        currentType = resolveType(curr);
-
-        if (acc[acc.length - 1].lines.length) {
-          return [...acc, { type: currentType, lines: [] }];
-        }
-
-        acc[acc.length - 1].type = currentType;
-
-        return acc;
+      if (acc.length === 0 || isBlankLine(curr)) {
+        return addParagraph(acc);
       }
 
       acc[acc.length - 1].lines.push(curr);
