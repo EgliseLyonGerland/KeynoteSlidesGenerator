@@ -1,5 +1,5 @@
 {
-  "name": "KeynoteSlidesGenerator",
+  "name": "keynote-slides-generator",
   "version": "1.0.0",
   "main": "index.js",
   "author": "Nicolas Bazille <oltodo@msn.com>",
@@ -10,7 +10,14 @@
     "start": "osascript -l JavaScript dist/index.scpt"
   },
   "devDependencies": {
+    "eslint": "6.1.0",
+    "eslint-config-airbnb-base": "14.0.0",
+    "eslint-config-prettier": "6.0.0",
+    "eslint-plugin-import": "2.18.2",
+    "eslint-plugin-prettier": "3.1.0",
     "prettier": "1.18.2",
+    "prettier-eslint": "9.0.0",
+    "prettier-eslint-cli": "5.0.0",
     "webpack": "4.39.1",
     "webpack-cli": "3.3.6"
   },

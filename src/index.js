@@ -1,7 +1,8 @@
-const _ = require("lodash");
-const songs = require("./songs").default;
+const _ = require('lodash');
+// const debug = require('./utils/debug');
+const songs = require('./songs').default;
 
-const regularBackgroundsNumber = 13;
+// const regularBackgroundsNumber = 13;
 const songBackgroundsNumber = 3;
 const documentWidth = 1920;
 const documentHeight = 1080;
@@ -19,36 +20,36 @@ let currentSongBackground = 1;
 
 const typography = {
   songTitle: {
-    font: "AdobeHebrew-BoldItalic",
-    size: 80
+    font: 'AdobeHebrew-BoldItalic',
+    size: 80,
   },
   songAuthors: {
-    font: "SourceSansPro-Semibold",
+    font: 'SourceSansPro-Semibold',
     size: 50,
-    opacity: 70
+    opacity: 70,
   },
   songExtras: {
-    font: "SourceSansPro-Regular",
+    font: 'SourceSansPro-Regular',
     size: 40,
-    opacity: 40
+    opacity: 40,
   },
   songVerse: {
-    font: "SourceSansPro-Semibold",
-    size: 72
+    font: 'SourceSansPro-Semibold',
+    size: 72,
   },
   songChorus: {
-    font: "AdobeHebrew-BoldItalic",
-    size: 72
-  }
+    font: 'AdobeHebrew-BoldItalic',
+    size: 72,
+  },
 };
 
-const systemEvent = Application("System Events");
-const keynote = Application("Keynote");
-const mainWindow = systemEvent.processes["Keynote"].windows.byName("Slides");
+const systemEvent = Application('System Events');
+const keynote = Application('Keynote');
+const mainWindow = systemEvent.processes.Keynote.windows.byName('Slides');
 
 let doc;
 if (keynote.documents.length) {
-  doc = keynote.documents[0];
+  [doc] = keynote.documents;
 } else {
   doc = keynote.Document();
   keynote.documents.push(doc);
@@ -57,8 +58,22 @@ if (keynote.documents.length) {
 doc.width = documentWidth;
 doc.height = documentHeight;
 
+function press(
+  key,
+  { shift = false, command = false, option = false, control = false } = {},
+) {
+  const using = [];
+  if (shift) using.push('shift down');
+  if (command) using.push('command down');
+  if (control) using.push('control down');
+  if (option) using.push('option down');
+
+  systemEvent.keystroke(key, { using });
+  delay(0.2);
+}
+
 function changeSongBackground() {
-  currentSongBackground++;
+  currentSongBackground += 1;
 
   if (currentSongBackground > songBackgroundsNumber) {
     currentSongBackground = 1;
@@ -67,68 +82,54 @@ function changeSongBackground() {
 
 function copyBubbles() {
   const currentSlideIndex = _.indexOf(doc.slides, doc.currentSlide);
-  doc.currentSlide = doc.slides[1];
-  press("a", { command: true });
-  press("c", { command: true });
+  [doc.currentSlide] = doc.slides;
+  press('a', { command: true });
+  press('c', { command: true });
   doc.currentSlide = doc.slides[currentSlideIndex];
-}
-
-function press(
-  key,
-  { shift = false, command = false, option = false, control = false } = {}
-) {
-  let using = [];
-  if (shift) using.push("shift down");
-  if (command) using.push("command down");
-  if (control) using.push("control down");
-  if (option) using.push("option down");
-
-  systemEvent.keystroke(key, { using });
-  delay(0.2);
 }
 
 function addSlide(backgroundName) {
   const slide = keynote.Slide({
-    baseSlide: doc.masterSlides.byName(backgroundName)
+    baseSlide: doc.masterSlides.byName(backgroundName),
   });
 
   doc.slides.push(slide);
 
   slide.transitionProperties = {
     automaticTransition: false,
-    transitionEffect: "magic move",
-    transitionDuration: 0.7
+    transitionEffect: 'magic move',
+    transitionDuration: 0.7,
   };
 
   return slide;
 }
 
-function debugElements(elements, recursive = false, maxDepth = 0, level = 0) {
-  _.forEach(elements, (element, index) => {
-    debug(
-      "  ".repeat(level),
-      index,
-      element.class(),
-      element.name(),
-      // element.description(),
-      // element.role(),
-      // element.roleDescription(),
-      element.title(),
-      // element.help(),
-      element.size(),
-      element.position()
-      // element.value()
-    );
+// function debugElements(elements, recursive = false, maxDepth = 0, level = 0) {
+//   _.forEach(elements, (element, index) => {
+//     debug(
+//       '  '.repeat(level),
+//       index,
+//       // element.class(),
+//       element.name(),
+//       // element.description(),
+//       // element.role(),
+//       // element.roleDescription(),
+//       // element.title(),
+//       // element.help(),
+//       // element.size(),
+//       // element.position()
+//       // element.value()
+//     );
 
-    if (
-      recursive &&
-      (maxDepth === 0 || level < maxDepth - 1) &&
-      element.uiElements
-    ) {
-      debugElements(element.uiElements, recursive, maxDepth, level + 1);
-    }
-  });
-}
+//     if (
+//       recursive &&
+//       (maxDepth === 0 || level < maxDepth - 1) &&
+//       element.uiElements
+//     ) {
+//       debugElements(element.uiElements, recursive, maxDepth, level + 1);
+//     }
+//   });
+// }
 
 function openInspector(tab = 0) {
   const group = mainWindow.toolbars[0].radioGroups[0];
@@ -146,19 +147,17 @@ function selectInspectorTab(tab) {
 
 function openBuildOrderWindow() {
   openInspector(1);
-  mainWindow.buttons.byName("Ordre de composition").click();
+  mainWindow.buttons.byName('Ordre de composition').click();
 }
 
 function getBuildOrderWindow() {
   openBuildOrderWindow();
 
-  return systemEvent.processes["Keynote"].windows.byName(
-    "Ordre de composition"
-  );
+  return systemEvent.processes.Keynote.windows.byName('Ordre de composition');
 }
 
 function selectEffect(effect) {
-  const addEffectButton = mainWindow.buttons.byName("Ajouter un effet");
+  const addEffectButton = mainWindow.buttons.byName('Ajouter un effet');
   addEffectButton.click();
   delay(0.2);
   addEffectButton.popOvers[0].scrollAreas[0].buttons.byName(effect).click();
@@ -169,7 +168,7 @@ function addText(text, format) {
   const textProperties = typography[format];
   const slide = doc.currentSlide;
   const textItem = keynote.TextItem({
-    objectText: text
+    objectText: text,
   });
   slide.textItems.push(textItem);
   textItem.objectText.size = textProperties.size;
@@ -185,16 +184,16 @@ function addText(text, format) {
 
 function addSongTitleEntryEffect() {
   openInspector(1);
-  selectInspectorTab("Entrée");
-  selectEffect("Fondu et déplacement");
+  selectInspectorTab('Entrée');
+  selectEffect('Fondu et déplacement');
 
   const scrollArea = mainWindow.scrollAreas[0];
-  scrollArea.textFields[0].value = "0,7 s";
+  scrollArea.textFields[0].value = '0,7 s';
   scrollArea.sliders[1].value = 0.1;
 
   const popUpButton = scrollArea.popUpButtons[0];
   popUpButton.click();
-  popUpButton.menus[0].menuItems.byName("De haut en bas").click();
+  popUpButton.menus[0].menuItems.byName('De haut en bas').click();
 
   const buildOrderWindow = getBuildOrderWindow();
   buildOrderWindow.popUpButtons[0].click();
@@ -203,53 +202,53 @@ function addSongTitleEntryEffect() {
 
 function addSongAuthorsEntryEffect() {
   openInspector(1);
-  selectInspectorTab("Entrée");
-  selectEffect("Fondu et déplacement");
+  selectInspectorTab('Entrée');
+  selectEffect('Fondu et déplacement');
 
   const scrollArea = mainWindow.scrollAreas[0];
-  scrollArea.textFields[0].value = "0,7 s";
+  scrollArea.textFields[0].value = '0,7 s';
   scrollArea.sliders[1].value = 0.1;
 
   const popUpButton = scrollArea.popUpButtons[0];
   popUpButton.click();
-  popUpButton.menus[0].menuItems.byName("De bas en haut").click();
+  popUpButton.menus[0].menuItems.byName('De bas en haut').click();
 
   const buildOrderWindow = getBuildOrderWindow();
   buildOrderWindow.popUpButtons[0].click();
   buildOrderWindow.popUpButtons[0].menus[0].menuItems[1].click();
-  buildOrderWindow.textFields[0].value = "0,2 s";
+  buildOrderWindow.textFields[0].value = '0,2 s';
 }
 
 function addSongExtrasEntryEffect() {
   openInspector(1);
-  selectInspectorTab("Entrée");
-  selectEffect("Dissolution");
+  selectInspectorTab('Entrée');
+  selectEffect('Dissolution');
 
   const scrollArea = mainWindow.scrollAreas[0];
-  scrollArea.textFields[0].value = "0,7 s";
+  scrollArea.textFields[0].value = '0,7 s';
   scrollArea.popUpButtons[0].click();
-  scrollArea.popUpButtons[0].menus[0].menuItems.byName("Par caractère").click();
+  scrollArea.popUpButtons[0].menus[0].menuItems.byName('Par caractère').click();
   scrollArea.popUpButtons[1].click();
   scrollArea.popUpButtons[1].menus[0].menuItems
-    .byName("Plan supérieur")
+    .byName('Plan supérieur')
     .click();
 
   const buildOrderWindow = getBuildOrderWindow();
   buildOrderWindow.popUpButtons[0].click();
   buildOrderWindow.popUpButtons[0].menus[0].menuItems[2].click();
-  buildOrderWindow.textFields[0].value = "0,3 s";
+  buildOrderWindow.textFields[0].value = '0,3 s';
 }
 
 function addSongTitle({
   title,
-  copyright = "",
-  authors = "",
-  collection = ""
+  copyright = '',
+  authors = '',
+  collection = '',
 }) {
-  const titleTextItem = addText(title, "songTitle");
+  const titleTextItem = addText(title, 'songTitle');
 
   if (authors) {
-    const authorsTextItem = addText(authors, "songAuthors");
+    const authorsTextItem = addText(authors, 'songAuthors');
 
     const margin = 16;
     const height = titleTextItem.height() + authorsTextItem.height() + margin;
@@ -260,7 +259,7 @@ function addSongTitle({
 
     authorsTextItem.position = {
       x: authorsTextItem.position().x,
-      y: y + titleTextItem.height() + margin
+      y: y + titleTextItem.height() + margin,
     };
     addSongAuthorsEntryEffect();
   } else {
@@ -268,16 +267,16 @@ function addSongTitle({
     addSongTitleEntryEffect();
   }
 
-  let extras = [];
+  const extras = [];
   if (copyright) extras.push(`© ${copyright}`);
   if (collection) extras.push(collection);
 
   if (extras.length) {
-    const extrasTextItem = addText(extras.join(" – "), "songExtras");
+    const extrasTextItem = addText(extras.join(' – '), 'songExtras');
 
     extrasTextItem.position = {
       x: extrasTextItem.position().x,
-      y: 900
+      y: 900,
     };
 
     addSongExtrasEntryEffect();
@@ -286,14 +285,14 @@ function addSongTitle({
 
 function addNextSongLyricsEntryEffect() {
   openInspector(1);
-  selectEffect("Fondu et déplacement");
+  selectEffect('Fondu et déplacement');
 
   const scrollArea = mainWindow.scrollAreas[0];
   scrollArea.sliders[1].value = 0.1;
 
   const popUpButton = scrollArea.popUpButtons[0];
   popUpButton.click();
-  popUpButton.menus[0].menuItems.byName("De bas en haut").click();
+  popUpButton.menus[0].menuItems.byName('De bas en haut').click();
 
   const buildOrderWindow = getBuildOrderWindow();
   buildOrderWindow.popUpButtons[0].click();
@@ -308,7 +307,7 @@ function addNextSongLyrics(text, format, index, isLast) {
 
   if (index) {
     // Put text in background
-    press("b", { shift: true, command: true });
+    press('b', { shift: true, command: true });
   }
 
   if (index && !isLast) {
@@ -323,14 +322,15 @@ function addCurrentSongLyrics(text, format) {
 }
 
 function addBubbles(index = 0) {
-  press("v", { command: true });
+  press('v', { command: true });
 
   const { currentSlide: slide } = doc;
 
   _.forEach(slide.images, (shape, position) => {
+    // eslint-disable-next-line no-param-reassign
     shape.position = {
       x: 0,
-      y: -(position + 1) * 50 * index
+      y: -(position + 1) * 50 * index,
     };
   });
 }
@@ -343,8 +343,8 @@ function addSongSlide(song) {
   addSongTitle(song);
 
   _.forEach(song.lyrics, (part, index) => {
-    const format = part.type === "chorus" ? "songChorus" : "songVerse";
-    const text = part.lines.join(`${" ".repeat(index)}\n`);
+    const format = part.type === 'chorus' ? 'songChorus' : 'songVerse';
+    const text = part.lines.join(`${' '.repeat(index)}\n`);
     const isLast = index === song.lyrics.length;
 
     addNextSongLyrics(text, format, index, isLast);
@@ -358,5 +358,15 @@ function addSongSlide(song) {
 
 keynote.activate();
 delay(0.5);
+
 copyBubbles();
-addSongSlide(songs["a-l-ageau-de-dieu"]);
+
+addSongSlide(songs['comme-un-phare']);
+// addSongSlide(songs["dieu-tres-saint"]);
+// addSongSlide(songs["psaume-95"]);
+// addSongSlide(songs["redempteur-admirable"]);
+// addSongSlide(songs["te-ressembler-jesus"]);
+// addSongSlide(songs["celebrez-jesus"]);
+// addSongSlide(songs["il-est-un-jour"]);
+// addSongSlide(songs["tu-me-veux-a-ton-service"]);
+// addSongSlide(songs["gloire-gloire-gloire"]);

@@ -1,42 +1,38 @@
 function isBlankLine(text) {
-  return text.trim() === "";
+  return text.trim() === '';
 }
 
 function isTypeLine(text) {
   const trimedText = text.trim();
 
-  return trimedText === "[verse]" || trimedText === "[chorus]";
+  return trimedText === '[verse]' || trimedText === '[chorus]';
 }
 
 function resolveType(text) {
   return text.substr(1, text.length - 2);
 }
 
-function stringifyLyrics(lyrics) {
-  return lyrics
-    .map(part => `[${part.type}]\n${part.lines.join("\n")}`)
-    .join("\n\n");
-}
-
 function parseLyrics(text) {
-  let currentType = "verse";
+  let currentType = 'verse';
 
-  const addParagraph = (lyrics, type = currentType) => {
+  const addParagraph = lyrics => {
     if (lyrics.length === 0 || lyrics[lyrics.length - 1].lines.length > 0) {
-      return [...lyrics, { type, lines: [] }];
+      return [...lyrics, { type: currentType, lines: [] }];
     }
 
-    lyrics[lyrics.length - 1].type = type;
+    const newLyrics = lyrics;
+    newLyrics[lyrics.length - 1].type = currentType;
 
-    return lyrics;
+    return newLyrics;
   };
 
   return text
     .trim()
-    .split("\n")
+    .split('\n')
     .reduce((acc, curr) => {
       if (isTypeLine(curr)) {
-        return addParagraph(acc, resolveType(curr));
+        currentType = resolveType(curr);
+        return addParagraph(acc);
       }
 
       if (acc.length === 0 || isBlankLine(curr)) {
@@ -52,26 +48,26 @@ function parseLyrics(text) {
 function transformHeader(content) {
   return content
     .trim()
-    .split("\n")
+    .split('\n')
     .reduce((acc, line) => {
-      let [key, value] = line.split(":");
+      let [key, value] = line.split(':');
 
       key = key.trim();
       value = value.trim();
 
       return {
         ...acc,
-        [key]: value
+        [key]: value,
       };
     }, {});
 }
 
 function transform(content) {
-  const [header, lyrics] = content.split("---");
+  const [header, lyrics] = content.split('---');
 
   return {
     ...transformHeader(header),
-    lyrics: parseLyrics(lyrics)
+    lyrics: parseLyrics(lyrics),
   };
 }
 
