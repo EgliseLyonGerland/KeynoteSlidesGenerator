@@ -1,7 +1,7 @@
 const _ = require('lodash');
-const debug = require('./debug');
+const { debug } = require('./debug');
 
-export default function debugElements(
+export function debugElements(
   elements,
   recursive = false,
   maxDepth = 0,
@@ -11,16 +11,16 @@ export default function debugElements(
     debug(
       '  '.repeat(level),
       index,
-      // element.class(),
+      element.class(),
       element.name(),
-      // element.description(),
-      // element.role(),
-      // element.roleDescription(),
-      // element.title(),
-      // element.help(),
-      // element.size(),
-      // element.position()
-      // element.value()
+      element.description(),
+      element.role(),
+      element.roleDescription(),
+      element.title(),
+      element.help(),
+      element.size(),
+      element.position(),
+      element.value(),
     );
 
     if (
@@ -32,3 +32,5 @@ export default function debugElements(
     }
   });
 }
+
+export default null;

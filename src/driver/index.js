@@ -76,6 +76,25 @@ export function createDriver() {
     delay(0.2);
   }
 
+  function alignText(align) {
+    openInspector(0);
+    selectInspectorTab('Texte');
+
+    const scrollArea = mainWindow.scrollAreas[0];
+    const group = _.find(
+      scrollArea.groups,
+      item => item.description() === 'alignement de paragraphe',
+    );
+
+    if (align === 'left') {
+      group.checkboxes[0].click();
+    } else if (align === 'right') {
+      group.checkboxes[2].click();
+    } else {
+      group.checkboxes[1].click();
+    }
+  }
+
   function addText(text, format) {
     const textProperties = typography[format];
     const slide = doc.currentSlide;
@@ -111,6 +130,38 @@ export function createDriver() {
     });
   }
 
+  function addLine({ direction = 'horizontal' } = {}) {
+    const { currentSlide: slide } = doc;
+    const size = direction === 'horizontal' ? 800 : 600;
+
+    const line = keynote.Line(
+      direction === 'horizontal'
+        ? {
+            startPoint: {
+              x: (documentWidth - size) / 2,
+              y: documentHeight / 2,
+            },
+            endPoint: {
+              x: (documentWidth - size) / 2 + size,
+              y: documentHeight / 2,
+            },
+          }
+        : {
+            startPoint: {
+              x: documentWidth / 2,
+              y: (documentHeight - size) / 2,
+            },
+            endPoint: {
+              x: documentWidth / 2,
+              y: (documentHeight - size) / 2 + size,
+            },
+          },
+    );
+    slide.lines.push(line);
+
+    return line;
+  }
+
   function addSlide(backgroundName) {
     const slide = keynote.Slide({
       baseSlide: doc.masterSlides.byName(backgroundName),
@@ -125,6 +176,21 @@ export function createDriver() {
     };
 
     return slide;
+  }
+
+  function setElementX(element, x) {
+    // eslint-disable-next-line no-param-reassign
+    element.position = { x, y: element.position().y };
+  }
+
+  function setElementY(element, y) {
+    // eslint-disable-next-line no-param-reassign
+    element.position = { x: element.position().x, y };
+  }
+
+  function setElementXY(element, x, y) {
+    // eslint-disable-next-line no-param-reassign
+    element.position = { x, y };
   }
 
   initDocument();
@@ -145,8 +211,13 @@ export function createDriver() {
     getBuildOrderWindow,
     selectEffect,
     addText,
+    alignText,
     addBubbles,
+    addLine,
     addSlide,
+    setElementX,
+    setElementY,
+    setElementXY,
   };
 }
 
