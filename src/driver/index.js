@@ -94,17 +94,20 @@ export function createDriver() {
     return textItem;
   }
 
-  function addBubbles(index = 0) {
+  function addBubbles(index = 0, align = 'top') {
     press('v', { command: true });
 
     const { currentSlide: slide } = doc;
 
     _.forEach(slide.images, (shape, position) => {
+      let y = -(position + 1) * 50 * index;
+
+      if (align === 'center') {
+        y -= (5000 - documentHeight) / 2;
+      }
+
       // eslint-disable-next-line no-param-reassign
-      shape.position = {
-        x: 0,
-        y: -(position + 1) * 50 * index,
-      };
+      shape.position = { x: 0, y };
     });
   }
 
