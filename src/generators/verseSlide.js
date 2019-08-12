@@ -5,18 +5,21 @@ const {
   regularBackgroundsNumber,
 } = require('../config');
 
+const { log } = console;
+
 let driver;
-let currentBackground = 3;
 const margin = 80;
 const maxContentWidth = documentWidth - 400;
-// const maxContentHeight = documentHeight - 400;
+
+let backgrounds = [];
+let currentBackground;
 
 function changeBackground() {
-  currentBackground += 1;
-
-  if (currentBackground > regularBackgroundsNumber) {
-    currentBackground = 1;
+  if (backgrounds.length === 0) {
+    backgrounds = _.shuffle(_.range(1, regularBackgroundsNumber));
   }
+
+  currentBackground = backgrounds.pop();
 }
 
 const templates = {
@@ -182,13 +185,12 @@ function createSlide({
   excerpt,
   direction = 'topBottom',
   align = 'center',
+  bubblesPosition = 0,
 }) {
   const templateName = _.camelCase(`${direction} align ${align}`);
 
   if (!templates[templateName]) {
-    console.log(
-      `No template \`${direction}\` with \`${align}\` alignment found`,
-    );
+    log(`No template \`${direction}\` with \`${align}\` alignment found`);
 
     return;
   }
@@ -196,7 +198,7 @@ function createSlide({
   const background = `backgroundR${currentBackground}`;
 
   driver.addSlide(background);
-  driver.addBubbles(0, 'center');
+  driver.addBubbles(bubblesPosition, 'center');
 
   const bookTextItem = driver.addText(book, 'verseTitle');
 
@@ -221,6 +223,8 @@ function createSlide({
 
 export function createVerseSlideGenerator(driver_) {
   driver = driver_;
+  changeBackground();
+
   return createSlide;
 }
 
