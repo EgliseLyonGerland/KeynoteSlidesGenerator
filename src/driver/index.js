@@ -76,7 +76,10 @@ export function createDriver() {
     delay(0.2);
   }
 
-  function alignText(align) {
+  function alignText(text, align) {
+    // eslint-disable-next-line no-param-reassign
+    text.locked = false;
+
     openInspector(0);
     selectInspectorTab('Texte');
 
@@ -130,23 +133,13 @@ export function createDriver() {
     });
   }
 
-  function addLine({ direction = 'horizontal' } = {}) {
+  function addLine(vertical = false) {
     const { currentSlide: slide } = doc;
-    const size = direction === 'horizontal' ? 800 : 600;
+    const size = vertical ? 600 : 800;
 
     const line = keynote.Line(
-      direction === 'horizontal'
+      vertical
         ? {
-            startPoint: {
-              x: (documentWidth - size) / 2,
-              y: documentHeight / 2,
-            },
-            endPoint: {
-              x: (documentWidth - size) / 2 + size,
-              y: documentHeight / 2,
-            },
-          }
-        : {
             startPoint: {
               x: documentWidth / 2,
               y: (documentHeight - size) / 2,
@@ -154,6 +147,16 @@ export function createDriver() {
             endPoint: {
               x: documentWidth / 2,
               y: (documentHeight - size) / 2 + size,
+            },
+          }
+        : {
+            startPoint: {
+              x: (documentWidth - size) / 2,
+              y: documentHeight / 2,
+            },
+            endPoint: {
+              x: (documentWidth - size) / 2 + size,
+              y: documentHeight / 2,
             },
           },
     );
