@@ -9,7 +9,7 @@ const { log } = console;
 
 let driver;
 const margin = 80;
-const maxContentWidth = documentWidth - 400;
+const maxContentWidth = documentWidth - 300;
 
 let backgrounds = [];
 let currentBackground;
@@ -38,11 +38,11 @@ const templates = {
     driver.setElementY(excerpt, line.position().y + margin);
 
     if (verse) {
-      const width = book.width() + verse.width() + 16;
+      const width = book.width() + verse.width();
       const x = (documentWidth - width) / 2;
 
       driver.setElementX(book, x);
-      driver.setElementXY(verse, x + book.width() + 16, y);
+      driver.setElementXY(verse, x + book.width(), y);
     }
   },
 
@@ -71,7 +71,7 @@ const templates = {
 
     if (verse) {
       driver.setElementX(book, x);
-      driver.setElementXY(verse, x + book.width() + 16, y);
+      driver.setElementXY(verse, x + book.width(), y);
     }
   },
 
@@ -90,11 +90,11 @@ const templates = {
     driver.setElementY(book, line.position().y + margin);
 
     if (verse) {
-      const width = book.width() + verse.width() + 16;
+      const width = book.width() + verse.width();
       const x = (documentWidth - width) / 2;
 
       driver.setElementX(book, x);
-      driver.setElementXY(verse, x + book.width() + 16, book.position().y);
+      driver.setElementXY(verse, x + book.width(), book.position().y);
     }
   },
 
@@ -123,7 +123,7 @@ const templates = {
 
     if (verse) {
       driver.setElementX(book, x);
-      driver.setElementXY(verse, x + book.width() + 16, book.position().y);
+      driver.setElementXY(verse, x + book.width(), book.position().y);
     }
   },
 
@@ -207,7 +207,7 @@ function createSlide({
     verseTextItem = driver.addText(`• ${verse}`, 'verseSubtitle');
   } else if (verseRange) {
     verseTextItem = driver.addText(
-      `• ${verseRange[0]}–${verseRange[1]}`,
+      ` • ${verseRange[0]}–${verseRange[1]}`,
       'verseSubtitle',
     );
   }
@@ -217,6 +217,28 @@ function createSlide({
   excerptTextItem.width = Math.min(excerptTextItem.width(), maxContentWidth);
 
   templates[templateName](bookTextItem, verseTextItem, excerptTextItem);
+
+  driver.selectElement(bookTextItem);
+  driver.setFadeMoveEffect({
+    duration: 0.7,
+    direction: 'bottomToTop',
+    distance: 10,
+  });
+  driver.setEffectStartup('afterPrevious');
+
+  if (verseTextItem) {
+    driver.selectElement(verseTextItem);
+    driver.setFadeMoveEffect({
+      duration: 0.7,
+      direction: 'bottomToTop',
+      distance: 10,
+    });
+    driver.setEffectStartup('whilePrevious');
+  }
+
+  driver.selectElement(excerptTextItem);
+  driver.setDissolveEffect({ duration: 2, appears: 'byChar' });
+  driver.setEffectStartup('whilePrevious', 0.3);
 
   changeBackground();
 }

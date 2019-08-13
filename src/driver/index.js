@@ -34,6 +34,10 @@ export function createDriver() {
     delay(0.2);
   }
 
+  function selectElement(element) {
+    element.locked = false;
+  }
+
   function copyBubbles() {
     const currentSlideIndex = _.indexOf(doc.slides, doc.currentSlide);
     // eslint-disable-next-line prefer-destructuring
@@ -42,6 +46,57 @@ export function createDriver() {
     press('c', { command: true });
     doc.currentSlide = doc.slides[currentSlideIndex];
   }
+
+  function alignText(text, align) {
+    // eslint-disable-next-line no-param-reassign
+    text.locked = false;
+
+    openInspector(0);
+    selectInspectorTab('Texte');
+
+    const scrollArea = mainWindow.scrollAreas[0];
+    const group = _.find(
+      scrollArea.groups,
+      item => item.description() === 'alignement de paragraphe',
+    );
+
+    if (align === 'left') {
+      group.checkboxes[0].click();
+    } else if (align === 'right') {
+      group.checkboxes[2].click();
+    } else {
+      group.checkboxes[1].click();
+    }
+  }
+
+  function stringifyDuration(duration) {
+    let str = `${duration}`;
+    str = str.replace('.', ',');
+
+    return `${str} s`;
+  }
+
+  function addText(text, format) {
+    const textProperties = typography[format];
+    const slide = doc.currentSlide;
+    const textItem = keynote.TextItem({
+      objectText: text,
+    });
+    slide.textItems.push(textItem);
+    textItem.objectText.size = textProperties.size;
+    textItem.objectText.font = textProperties.font;
+    textItem.objectText.color = [65535, 65535, 65535];
+
+    if (textProperties.opacity) {
+      textItem.opacity = textProperties.opacity;
+    }
+
+    return textItem;
+  }
+
+  /**
+   * Navigation helpers
+   */
 
   function openInspector(tab = 0) {
     const group = mainWindow.toolbars[0].radioGroups[0];
@@ -68,6 +123,24 @@ export function createDriver() {
     return systemEvent.processes.Keynote.windows.byName('Ordre de composition');
   }
 
+  /**
+   * Form helpers
+   */
+
+  function setSelectBoxValue(selectBox, name) {
+    selectBox.click();
+    selectBox.menus[0].menuItems.byName(name).click();
+  }
+
+  function setSelectBoxIndex(selectBox, index) {
+    selectBox.click();
+    selectBox.menus[0].menuItems[index].click();
+  }
+
+  /**
+   * Effect helpers
+   */
+
   function selectEffect(effect) {
     const addEffectButton = mainWindow.buttons.byName('Ajouter un effet');
     addEffectButton.click();
@@ -76,44 +149,102 @@ export function createDriver() {
     delay(0.2);
   }
 
-  function alignText(text, align) {
-    // eslint-disable-next-line no-param-reassign
-    text.locked = false;
+  /**
+   * Set current effect startup options
+   * @param {string} begin 'onClick' or 'afterPrevious' or 'whilePrevious'
+   * @param {int} delay Delay
+   */
+  function setEffectStartup(begin, delay = 0) {
+    const win = getBuildOrderWindow();
 
-    openInspector(0);
-    selectInspectorTab('Texte');
+    let beginIndex = 0;
+    if (begin === 'whilePrevious') beginIndex = 1;
+    else if (begin === 'afterPrevious') beginIndex = 2;
+
+    setSelectBoxIndex(win.popUpButtons[0], beginIndex);
+    win.textFields[0].value = stringifyDuration(delay);
+  }
+
+  function setEffectDuration(duration) {
+    const scrollArea = mainWindow.scrollAreas[0];
+    scrollArea.sliders[0].value = Math.log(duration + 1);
+  }
+
+  function setLineDrawEffect({
+    duration = 0.7,
+    direction = 'Du milieu aux extrémités',
+  } = {}) {
+    openInspector(1);
+    selectInspectorTab('Entrée');
+    selectEffect('Tracé de ligne');
+    setEffectDuration(duration);
 
     const scrollArea = mainWindow.scrollAreas[0];
-    const group = _.find(
-      scrollArea.groups,
-      item => item.description() === 'alignement de paragraphe',
-    );
+    setSelectBoxValue(scrollArea.popUpButtons[0], direction);
+  }
 
-    if (align === 'left') {
-      group.checkboxes[0].click();
-    } else if (align === 'right') {
-      group.checkboxes[2].click();
+  function setDissolveEffect({
+    duration = 2,
+    appears = 'byObject', // or 'byWord' or 'byChar'
+    startsFrom = 'top', // or 'bottom' or 'center' or 'edges' or 'random'
+  }) {
+    openInspector(1);
+    selectInspectorTab('Entrée');
+    selectEffect('Dissolution');
+    setEffectDuration(duration);
+
+    const scrollArea = mainWindow.scrollAreas[0];
+    const appearsSelect = scrollArea.popUpButtons[0];
+    const startsFromSelect = scrollArea.popUpButtons[1];
+
+    if (appears === 'byWord') {
+      setSelectBoxValue(appearsSelect, 'Par mot');
+    } else if (appears === 'byChar') {
+      setSelectBoxValue(appearsSelect, 'Par caractère');
     } else {
-      group.checkboxes[1].click();
+      setSelectBoxValue(appearsSelect, 'Par object');
+    }
+
+    if (startsFrom === 'bottom') {
+      setSelectBoxValue(startsFromSelect, 'Plan inférieur');
+    } else if (startsFrom === 'center') {
+      setSelectBoxValue(startsFromSelect, 'À partir du center');
+    } else if (startsFrom === 'edges') {
+      setSelectBoxValue(startsFromSelect, 'À partir des bords');
+    } else if (startsFrom === 'random') {
+      setSelectBoxValue(startsFromSelect, 'Aléatoire');
+    } else {
+      setSelectBoxValue(startsFromSelect, 'Plan supérieur');
     }
   }
 
-  function addText(text, format) {
-    const textProperties = typography[format];
-    const slide = doc.currentSlide;
-    const textItem = keynote.TextItem({
-      objectText: text,
-    });
-    slide.textItems.push(textItem);
-    textItem.objectText.size = textProperties.size;
-    textItem.objectText.font = textProperties.font;
-    textItem.objectText.color = [65535, 65535, 65535];
+  function setFadeMoveEffect({
+    duration = 2,
+    direction = 'bottomToTop', // topToBottom, leftToRight, rightToLeft, topLeftToBottomRight, topRightToBottomLeft, bottomLeftToTopRight, bottomRightToTopLeft
+    distance = 100, // from 0% to 100%
+    appears = 'byObject', // byWord, byChar
+    startsFrom = 'top', // bottom, center, edges, random
+  }) {
+    openInspector(1);
+    selectInspectorTab('Entrée');
+    selectEffect('Fondu et déplacement');
+    setEffectDuration(duration);
 
-    if (textProperties.opacity) {
-      textItem.opacity = textProperties.opacity;
-    }
+    let directionIndex = 3;
+    if (direction === 'leftToRight') directionIndex = 0;
+    else if (direction === 'rightToLeft') directionIndex = 1;
+    else if (direction === 'topToBottom') directionIndex = 2;
+    else if (direction === 'topLeftToBottomRight') directionIndex = 4;
+    else if (direction === 'topRightToBottomLeft') directionIndex = 5;
+    else if (direction === 'bottomLeftToTopRight') directionIndex = 6;
+    else if (direction === 'bottomRightToTopLeft') directionIndex = 7;
 
-    return textItem;
+    const scrollArea = mainWindow.scrollAreas[0];
+    const directionSelect = scrollArea.popUpButtons[0];
+    const distanceSlider = scrollArea.sliders[1];
+
+    setSelectBoxIndex(directionSelect, directionIndex);
+    distanceSlider.value = distance / 100;
   }
 
   function addBubbles(index = 0, align = 'top') {
@@ -162,6 +293,9 @@ export function createDriver() {
     );
     slide.lines.push(line);
 
+    line.locked = false;
+    setLineDrawEffect();
+
     return line;
   }
 
@@ -206,15 +340,21 @@ export function createDriver() {
     mainWindow,
     doc,
     initDocument,
-    copyBubbles,
     press,
     openInspector,
+    selectElement,
     selectInspectorTab,
     openBuildOrderWindow,
     getBuildOrderWindow,
     selectEffect,
+    setEffectStartup,
+    setEffectDuration,
+    setLineDrawEffect,
+    setDissolveEffect,
+    setFadeMoveEffect,
     addText,
     alignText,
+    copyBubbles,
     addBubbles,
     addLine,
     addSlide,
