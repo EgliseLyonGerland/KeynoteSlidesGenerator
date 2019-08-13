@@ -1,11 +1,26 @@
 const _ = require('lodash');
-const { documentWidth, documentHeight, typography } = require('../config');
+const {
+  documentWidth,
+  documentHeight,
+  typography,
+  regularBackgroundsNumber,
+} = require('../config');
 
 export function createDriver() {
   const systemEvent = Application('System Events');
   const keynote = Application('Keynote');
   const mainWindow = systemEvent.processes.Keynote.windows.byName('Slides');
   let doc;
+
+  let backgrounds = [];
+
+  function getNextRegularBackground() {
+    if (backgrounds.length === 0) {
+      backgrounds = _.shuffle(_.range(1, regularBackgroundsNumber));
+    }
+
+    return `backgroundR${backgrounds.pop()}`;
+  }
 
   function initDocument() {
     if (keynote.documents.length) {
@@ -34,7 +49,12 @@ export function createDriver() {
     delay(0.2);
   }
 
+  function pressEnter() {
+    systemEvent.keyCode(36);
+  }
+
   function selectElement(element) {
+    // eslint-disable-next-line no-param-reassign
     element.locked = false;
   }
 
@@ -47,51 +67,11 @@ export function createDriver() {
     doc.currentSlide = doc.slides[currentSlideIndex];
   }
 
-  function alignText(text, align) {
-    // eslint-disable-next-line no-param-reassign
-    text.locked = false;
-
-    openInspector(0);
-    selectInspectorTab('Texte');
-
-    const scrollArea = mainWindow.scrollAreas[0];
-    const group = _.find(
-      scrollArea.groups,
-      item => item.description() === 'alignement de paragraphe',
-    );
-
-    if (align === 'left') {
-      group.checkboxes[0].click();
-    } else if (align === 'right') {
-      group.checkboxes[2].click();
-    } else {
-      group.checkboxes[1].click();
-    }
-  }
-
   function stringifyDuration(duration) {
     let str = `${duration}`;
     str = str.replace('.', ',');
 
     return `${str} s`;
-  }
-
-  function addText(text, format) {
-    const textProperties = typography[format];
-    const slide = doc.currentSlide;
-    const textItem = keynote.TextItem({
-      objectText: text,
-    });
-    slide.textItems.push(textItem);
-    textItem.objectText.size = textProperties.size;
-    textItem.objectText.font = textProperties.font;
-    textItem.objectText.color = [65535, 65535, 65535];
-
-    if (textProperties.opacity) {
-      textItem.opacity = textProperties.opacity;
-    }
-
-    return textItem;
   }
 
   /**
@@ -134,7 +114,8 @@ export function createDriver() {
 
   function setSelectBoxIndex(selectBox, index) {
     selectBox.click();
-    selectBox.menus[0].menuItems[index].click();
+    const size = _.size(selectBox.menus[0].menuItems);
+    selectBox.menus[0].menuItems[Math.min(index, size - 1)].click();
   }
 
   /**
@@ -152,9 +133,9 @@ export function createDriver() {
   /**
    * Set current effect startup options
    * @param {string} begin 'onClick' or 'afterPrevious' or 'whilePrevious'
-   * @param {int} delay Delay
+   * @param {int} delay$ Delay
    */
-  function setEffectStartup(begin, delay = 0) {
+  function setEffectStartup(begin, delay$ = 0) {
     const win = getBuildOrderWindow();
 
     let beginIndex = 0;
@@ -162,7 +143,13 @@ export function createDriver() {
     else if (begin === 'afterPrevious') beginIndex = 2;
 
     setSelectBoxIndex(win.popUpButtons[0], beginIndex);
-    win.textFields[0].value = stringifyDuration(delay);
+
+    if (delay$ <= 1) {
+      for (let i = 0; i < delay$; ) {
+        win.incrementors[0].buttons[0].click();
+        i += i > 1 ? 0.25 : 0.1;
+      }
+    }
   }
 
   function setEffectDuration(duration) {
@@ -222,8 +209,8 @@ export function createDriver() {
     duration = 2,
     direction = 'bottomToTop', // topToBottom, leftToRight, rightToLeft, topLeftToBottomRight, topRightToBottomLeft, bottomLeftToTopRight, bottomRightToTopLeft
     distance = 100, // from 0% to 100%
-    appears = 'byObject', // byWord, byChar
-    startsFrom = 'top', // bottom, center, edges, random
+    // appears = 'byObject', // byWord, byChar
+    // startsFrom = 'top', // bottom, center, edges, random
   }) {
     openInspector(1);
     selectInspectorTab('Entrée');
@@ -264,7 +251,47 @@ export function createDriver() {
     });
   }
 
-  function addLine(vertical = false) {
+  function addText(text, format) {
+    const textProperties = typography[format];
+    const slide = doc.currentSlide;
+    const textItem = keynote.TextItem({
+      objectText: text,
+    });
+    slide.textItems.push(textItem);
+    textItem.objectText.size = textProperties.size;
+    textItem.objectText.font = textProperties.font;
+    textItem.objectText.color = [65535, 65535, 65535];
+
+    if (textProperties.opacity) {
+      textItem.opacity = textProperties.opacity;
+    }
+
+    return textItem;
+  }
+
+  function setTextAlignment(text, align) {
+    // eslint-disable-next-line no-param-reassign
+    text.locked = false;
+
+    openInspector(0);
+    selectInspectorTab('Texte');
+
+    const scrollArea = mainWindow.scrollAreas[0];
+    const group = _.find(
+      scrollArea.groups,
+      item => item.description() === 'alignement de paragraphe',
+    );
+
+    if (align === 'left') {
+      group.checkboxes[0].click();
+    } else if (align === 'right') {
+      group.checkboxes[2].click();
+    } else {
+      group.checkboxes[1].click();
+    }
+  }
+
+  function addLine(vertical = false, withAnimation = true) {
     const { currentSlide: slide } = doc;
     const size = vertical ? 600 : 800;
 
@@ -293,8 +320,10 @@ export function createDriver() {
     );
     slide.lines.push(line);
 
-    line.locked = false;
-    setLineDrawEffect();
+    if (withAnimation) {
+      line.locked = false;
+      setLineDrawEffect();
+    }
 
     return line;
   }
@@ -332,7 +361,7 @@ export function createDriver() {
 
   initDocument();
   keynote.activate();
-  delay(1);
+  while (!keynote.frontmost()) {}
   copyBubbles();
 
   return {
@@ -341,11 +370,13 @@ export function createDriver() {
     doc,
     initDocument,
     press,
+    pressEnter,
     openInspector,
     selectElement,
     selectInspectorTab,
     openBuildOrderWindow,
     getBuildOrderWindow,
+    getNextRegularBackground,
     selectEffect,
     setEffectStartup,
     setEffectDuration,
@@ -353,7 +384,7 @@ export function createDriver() {
     setDissolveEffect,
     setFadeMoveEffect,
     addText,
-    alignText,
+    setTextAlignment,
     copyBubbles,
     addBubbles,
     addLine,

@@ -7,6 +7,19 @@
  *  - AdobeHebrew-BoldItalic
  */
 export const typography = {
+  title: {
+    font: 'SourceSansPro-Black',
+    size: 90,
+  },
+  announcementItemTitle: {
+    font: 'SourceSansPro-Bold',
+    size: 50,
+  },
+  announcementItemDetail: {
+    font: 'SourceSansPro-Semibold',
+    size: 40,
+    opacity: 70,
+  },
   verseTitle: {
     font: 'SourceSansPro-Black',
     size: 90,

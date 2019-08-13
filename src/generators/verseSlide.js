@@ -1,26 +1,12 @@
 const _ = require('lodash');
-const {
-  documentWidth,
-  documentHeight,
-  regularBackgroundsNumber,
-} = require('../config');
+const { documentWidth, documentHeight } = require('../config');
 
 const { log } = console;
 
 let driver;
+
 const margin = 80;
 const maxContentWidth = documentWidth - 300;
-
-let backgrounds = [];
-let currentBackground;
-
-function changeBackground() {
-  if (backgrounds.length === 0) {
-    backgrounds = _.shuffle(_.range(1, regularBackgroundsNumber));
-  }
-
-  currentBackground = backgrounds.pop();
-}
 
 const templates = {
   topBottomAlignCenter(book, verse, excerpt) {
@@ -47,7 +33,7 @@ const templates = {
   },
 
   topBottomAlignLeft(book, verse, excerpt) {
-    driver.alignText(excerpt, 'left');
+    driver.setTextAlignment(excerpt, 'left');
 
     const line = driver.addLine();
     const totalHeight = book.height() + excerpt.height() + margin * 2;
@@ -99,7 +85,7 @@ const templates = {
   },
 
   bottomTopAlignLeft(book, verse, excerpt) {
-    driver.alignText(excerpt, 'left');
+    driver.setTextAlignment(excerpt, 'left');
 
     const line = driver.addLine();
     const totalHeight = book.height() + excerpt.height() + margin * 2;
@@ -128,7 +114,7 @@ const templates = {
   },
 
   leftRightAlignCenter(book, verse, excerpt) {
-    driver.alignText(excerpt, 'left');
+    driver.setTextAlignment(excerpt, 'left');
 
     const line = driver.addLine(true);
     const excerptMaxWidth = maxContentWidth - book.width() - margin * 2;
@@ -153,7 +139,7 @@ const templates = {
   },
 
   rightLeftAlignCenter(book, verse, excerpt) {
-    driver.alignText(excerpt, 'left');
+    driver.setTextAlignment(excerpt, 'left');
 
     const line = driver.addLine(true);
     const excerptMaxWidth = maxContentWidth - book.width() - margin * 2;
@@ -195,7 +181,7 @@ function createSlide({
     return;
   }
 
-  const background = `backgroundR${currentBackground}`;
+  const background = driver.getNextRegularBackground();
 
   driver.addSlide(background);
   driver.addBubbles(bubblesPosition, 'center');
@@ -239,13 +225,10 @@ function createSlide({
   driver.selectElement(excerptTextItem);
   driver.setDissolveEffect({ duration: 2, appears: 'byChar' });
   driver.setEffectStartup('whilePrevious', 0.3);
-
-  changeBackground();
 }
 
 export function createVerseSlideGenerator(driver_) {
   driver = driver_;
-  changeBackground();
 
   return createSlide;
 }
