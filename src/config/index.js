@@ -55,6 +55,26 @@ export const typography = {
     font: 'AdobeHebrew-BoldItalic',
     size: 72,
   },
+  goodbyeLine1: {
+    font: 'SourceSansPro-Regular',
+    size: 140,
+    opacity: 70,
+  },
+  goodbyeLine2: {
+    font: 'SourceSansPro-Black',
+    size: 140,
+    opacity: 70,
+  },
+  goodbyeLine3: {
+    font: 'SourceSansPro-Bold',
+    size: 140,
+    opacity: 70,
+  },
+  goodbyeAddress: {
+    font: 'AdobeHebrew-BoldItalic',
+    size: 50,
+    opacity: 70,
+  },
 };
 
 export const regularBackgroundsNumber = 12;

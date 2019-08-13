@@ -11,7 +11,7 @@ export function createDriver() {
   const keynote = Application('Keynote');
   const mainWindow = systemEvent.processes.Keynote.windows.byName('Slides');
   let doc;
-
+  let currentClipboard;
   let backgrounds = [];
 
   function getNextRegularBackground() {
@@ -58,21 +58,22 @@ export function createDriver() {
     element.locked = false;
   }
 
-  function copyBubbles() {
+  function copySlideObjects(slideIndex) {
     const currentSlideIndex = _.indexOf(doc.slides, doc.currentSlide);
     // eslint-disable-next-line prefer-destructuring
-    doc.currentSlide = doc.slides[1];
+    doc.currentSlide = doc.slides[slideIndex];
     press('a', { command: true });
     press('c', { command: true });
+    delay(0.5);
     doc.currentSlide = doc.slides[currentSlideIndex];
   }
 
-  function stringifyDuration(duration) {
-    let str = `${duration}`;
-    str = str.replace('.', ',');
+  // function stringifyDuration(duration) {
+  //   let str = `${duration}`;
+  //   str = str.replace('.', ',');
 
-    return `${str} s`;
-  }
+  //   return `${str} s`;
+  // }
 
   /**
    * Navigation helpers
@@ -132,14 +133,14 @@ export function createDriver() {
 
   /**
    * Set current effect startup options
-   * @param {string} begin 'onClick' or 'afterPrevious' or 'whilePrevious'
+   * @param {string} begin 'onClick' or 'afterPrevious' or 'withPrevious'
    * @param {int} delay$ Delay
    */
   function setEffectStartup(begin, delay$ = 0) {
     const win = getBuildOrderWindow();
 
     let beginIndex = 0;
-    if (begin === 'whilePrevious') beginIndex = 1;
+    if (begin === 'withPrevious') beginIndex = 1;
     else if (begin === 'afterPrevious') beginIndex = 2;
 
     setSelectBoxIndex(win.popUpButtons[0], beginIndex);
@@ -235,6 +236,11 @@ export function createDriver() {
   }
 
   function addBubbles(index = 0, align = 'top') {
+    if (currentClipboard !== 'bubbles') {
+      copySlideObjects(1);
+      currentClipboard = 'bubbles';
+    }
+
     press('v', { command: true });
 
     const { currentSlide: slide } = doc;
@@ -249,6 +255,16 @@ export function createDriver() {
       // eslint-disable-next-line no-param-reassign
       shape.position = { x: 0, y };
     });
+  }
+
+  function addOverlays() {
+    if (currentClipboard !== 'overlays') {
+      copySlideObjects(2);
+      currentClipboard = 'overlays';
+    }
+
+    press('v', { command: true });
+    delay(0.2);
   }
 
   function addText(text, format) {
@@ -361,8 +377,10 @@ export function createDriver() {
 
   initDocument();
   keynote.activate();
-  while (!keynote.frontmost()) {}
-  copyBubbles();
+
+  while (!keynote.frontmost()) {
+    delay(0);
+  }
 
   return {
     keynote,
@@ -385,8 +403,8 @@ export function createDriver() {
     setFadeMoveEffect,
     addText,
     setTextAlignment,
-    copyBubbles,
     addBubbles,
+    addOverlays,
     addLine,
     addSlide,
     setElementX,

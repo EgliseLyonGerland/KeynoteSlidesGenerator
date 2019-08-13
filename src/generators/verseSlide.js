@@ -219,12 +219,12 @@ function createSlide({
       direction: 'bottomToTop',
       distance: 10,
     });
-    driver.setEffectStartup('whilePrevious');
+    driver.setEffectStartup('withPrevious');
   }
 
   driver.selectElement(excerptTextItem);
   driver.setDissolveEffect({ duration: 2, appears: 'byChar' });
-  driver.setEffectStartup('whilePrevious', 0.3);
+  driver.setEffectStartup('withPrevious', 0.3);
 }
 
 export function createVerseSlideGenerator(driver_) {

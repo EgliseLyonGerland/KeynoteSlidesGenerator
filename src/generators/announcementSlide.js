@@ -53,7 +53,7 @@ function createSlide({ items = [] } = {}) {
       if (!itemIndex) {
         driver.setEffectStartup('afterPrevious');
       } else {
-        driver.setEffectStartup('whilePrevious', 0.1);
+        driver.setEffectStartup('withPrevious', 0.1);
       }
 
       if (item.detail) {
@@ -66,7 +66,7 @@ function createSlide({ items = [] } = {}) {
         driver.setTextAlignment(detailTitle, 'left');
         driver.setElementXY(detailTitle, x, y + itemTitle.height());
         driver.setDissolveEffect({ duration: 0.7, appears: 'byChar' });
-        driver.setEffectStartup('whilePrevious', 0.1);
+        driver.setEffectStartup('withPrevious', 0.1);
       }
     });
   });
