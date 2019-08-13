@@ -143,7 +143,7 @@ function stringifyArray(data, level = 0, indentSize = 0) {
   return `[ ${content} ]`;
 }
 
-function debug(...args) {
+export function debug(...args) {
   const formattedArgs = map(args, arg => {
     if (isObjectLike(arg)) {
       return stringify(arg);
@@ -155,4 +155,4 @@ function debug(...args) {
   log.apply(this, formattedArgs);
 }
 
-export default debug;
+export default null;

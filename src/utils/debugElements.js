@@ -5,22 +5,25 @@ export function debugElements(
   elements,
   recursive = false,
   maxDepth = 0,
+  properties = [
+    'class',
+    'name',
+    'description',
+    'role',
+    'roleDescription',
+    'title',
+    'help',
+    'size',
+    'position',
+    'value',
+  ],
   level = 0,
 ) {
   _.forEach(elements, (element, index) => {
     debug(
       '  '.repeat(level),
       index,
-      element.class(),
-      element.name(),
-      element.description(),
-      element.role(),
-      element.roleDescription(),
-      element.title(),
-      element.help(),
-      element.size(),
-      element.position(),
-      element.value(),
+      ...properties.map(property => element[property]()),
     );
 
     if (
@@ -28,7 +31,13 @@ export function debugElements(
       (maxDepth === 0 || level < maxDepth - 1) &&
       element.uiElements
     ) {
-      debugElements(element.uiElements, recursive, maxDepth, level + 1);
+      debugElements(
+        element.uiElements,
+        recursive,
+        maxDepth,
+        properties,
+        level + 1,
+      );
     }
   });
 }
