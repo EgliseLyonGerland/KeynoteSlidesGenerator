@@ -173,7 +173,7 @@ function createSlide(songId) {
   changeBackground();
 }
 
-export function createSlideGenerator(driver_) {
+export function createSongSlideGenerator(driver_) {
   driver = driver_;
   return createSlide;
 }
