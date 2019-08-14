@@ -237,7 +237,7 @@ export function createDriver() {
 
   function addBubbles(index = 0, align = 'top') {
     if (currentClipboard !== 'bubbles') {
-      copySlideObjects(1);
+      copySlideObjects(0);
       currentClipboard = 'bubbles';
     }
 
@@ -259,7 +259,7 @@ export function createDriver() {
 
   function addOverlays() {
     if (currentClipboard !== 'overlays') {
-      copySlideObjects(2);
+      copySlideObjects(1);
       currentClipboard = 'overlays';
     }
 

@@ -75,6 +75,10 @@ export const typography = {
     size: 50,
     opacity: 70,
   },
+  chapterTitle: {
+    font: 'SourceSansPro-Black',
+    size: 90,
+  },
 };
 
 export const regularBackgroundsNumber = 12;
