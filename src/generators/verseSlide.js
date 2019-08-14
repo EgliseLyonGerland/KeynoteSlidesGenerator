@@ -116,7 +116,7 @@ const templates = {
   leftRightAlignCenter(book, verse, excerpt) {
     driver.setTextAlignment(excerpt, 'left');
 
-    const line = driver.addLine(true);
+    const line = driver.addLine({ vertical: true });
     const excerptMaxWidth = maxContentWidth - book.width() - margin * 2;
     // eslint-disable-next-line no-param-reassign
     excerpt.width = Math.min(excerpt.width(), excerptMaxWidth);
@@ -141,7 +141,7 @@ const templates = {
   rightLeftAlignCenter(book, verse, excerpt) {
     driver.setTextAlignment(excerpt, 'left');
 
-    const line = driver.addLine(true);
+    const line = driver.addLine({ vertical: true });
     const excerptMaxWidth = maxContentWidth - book.width() - margin * 2;
     // eslint-disable-next-line no-param-reassign
     excerpt.width = Math.min(excerpt.width(), excerptMaxWidth);

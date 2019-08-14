@@ -79,6 +79,30 @@ export const typography = {
     font: 'SourceSansPro-Black',
     size: 90,
   },
+  sermonTitle: {
+    font: 'AdobeHebrew-BoldItalic',
+    size: 80,
+  },
+  sermonBibleRef: {
+    font: 'SourceSansPro-Bold',
+    size: 60,
+    opacity: 70,
+  },
+  sermonAuthor: {
+    font: 'SourceSansPro-Semibold',
+    size: 40,
+    opacity: 50,
+  },
+  sermonPlanNumber: {
+    font: 'SourceSansPro-BlackIt',
+    size: 220,
+    opacity: 20,
+  },
+  sermonPlanTitle: {
+    font: 'AdobeHebrew-BoldItalic',
+    size: 50,
+    opacity: 80,
+  },
 };
 
 export const regularBackgroundsNumber = 12;

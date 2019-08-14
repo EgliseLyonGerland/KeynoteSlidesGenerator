@@ -1,4 +1,3 @@
-// const _ = require('lodash');
 const { documentHeight } = require('../config');
 
 let driver;
@@ -11,7 +10,6 @@ function createSlide({ title }) {
   const line = driver.addLine();
 
   const text = driver.addText(title, 'chapterTitle');
-  driver.selectElement(text);
   driver.setFadeMoveEffect({ duration: 0.5, distance: 10 });
   driver.setEffectStartup('afterPrevious');
 

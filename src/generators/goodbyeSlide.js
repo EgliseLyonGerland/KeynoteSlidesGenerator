@@ -57,7 +57,7 @@ function createSlide() {
 
   driver.addSlide(background);
   driver.addBubbles(1);
-  driver.addOverlays();
+  driver.addHorizontalOverlays();
 
   addGoodbyeText(-200, false);
   addAddress();

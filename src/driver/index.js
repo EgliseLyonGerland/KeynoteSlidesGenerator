@@ -257,18 +257,28 @@ export function createDriver() {
     });
   }
 
-  function addOverlays() {
-    if (currentClipboard !== 'overlays') {
+  function addHorizontalOverlays() {
+    if (currentClipboard !== 'horizontalOverlays') {
       copySlideObjects(1);
-      currentClipboard = 'overlays';
+      currentClipboard = 'horizontalOverlays';
     }
 
     press('v', { command: true });
     delay(0.2);
   }
 
-  function addText(text, format) {
-    const textProperties = typography[format];
+  function addVerticalOverlays() {
+    if (currentClipboard !== 'verticalOverlays') {
+      copySlideObjects(2);
+      currentClipboard = 'verticalOverlays';
+    }
+
+    press('v', { command: true });
+    delay(0.2);
+  }
+
+  function addText(text, format, overrides = {}) {
+    const textProperties = { ...typography[format], ...overrides };
     const slide = doc.currentSlide;
     const textItem = keynote.TextItem({
       objectText: text,
@@ -281,6 +291,8 @@ export function createDriver() {
     if (textProperties.opacity) {
       textItem.opacity = textProperties.opacity;
     }
+
+    selectElement(textItem);
 
     return textItem;
   }
@@ -307,9 +319,12 @@ export function createDriver() {
     }
   }
 
-  function addLine(vertical = false, withAnimation = true) {
+  function addLine({ vertical = false, withAnimation = true, width } = {}) {
     const { currentSlide: slide } = doc;
-    const size = vertical ? 600 : 800;
+
+    let size;
+    if (width) size = width;
+    else size = vertical ? 600 : 800;
 
     const line = keynote.Line(
       vertical
@@ -404,7 +419,8 @@ export function createDriver() {
     addText,
     setTextAlignment,
     addBubbles,
-    addOverlays,
+    addHorizontalOverlays,
+    addVerticalOverlays,
     addLine,
     addSlide,
     setElementX,

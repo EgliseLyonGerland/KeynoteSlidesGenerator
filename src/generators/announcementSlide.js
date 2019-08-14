@@ -17,7 +17,7 @@ function createSlide({ items = [] } = {}) {
     driver.addSlide(background);
     driver.addBubbles(chunkIndex);
 
-    const line = driver.addLine(true, withAnimation);
+    const line = driver.addLine({ vertical: true, withAnimation });
     driver.setElementY(
       line,
       (contentHeight - line.width()) / 2 + contentPositionY,
