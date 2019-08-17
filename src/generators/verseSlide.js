@@ -190,7 +190,7 @@ function createSlide({
 
   let verseTextItem;
   if (verse) {
-    verseTextItem = driver.addText(`• ${verse}`, 'verseSubtitle');
+    verseTextItem = driver.addText(` • ${verse}`, 'verseSubtitle');
   } else if (verseRange) {
     verseTextItem = driver.addText(
       ` • ${verseRange[0]}–${verseRange[1]}`,
