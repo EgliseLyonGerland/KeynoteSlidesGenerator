@@ -21,7 +21,7 @@ function formatBibleRef(bibleRef) {
 }
 
 function formatTitle(title) {
-  const lines = splitText(title, 20);
+  const lines = splitText(title, 24);
 
   return lines.join('\n');
 }
