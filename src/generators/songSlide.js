@@ -7,67 +7,17 @@ const {
 const songs = require('../songs').default;
 
 let driver;
-let currentBackground = 1;
-
-function addTitleEntryEffect() {
-  driver.openInspector(1);
-  driver.selectInspectorTab('Entrée');
-  driver.selectEffect('Fondu et déplacement');
-
-  const scrollArea = driver.mainWindow.scrollAreas[0];
-  scrollArea.textFields[0].value = '0,7 s';
-  scrollArea.sliders[1].value = 0.1;
-
-  const popUpButton = scrollArea.popUpButtons[0];
-  popUpButton.click();
-  popUpButton.menus[0].menuItems.byName('De haut en bas').click();
-
-  const buildOrderWindow = driver.getBuildOrderWindow();
-  buildOrderWindow.popUpButtons[0].click();
-  buildOrderWindow.popUpButtons[0].menus[0].menuItems[1].click();
-}
-
-function addAuthorsEntryEffect() {
-  driver.openInspector(1);
-  driver.selectInspectorTab('Entrée');
-  driver.selectEffect('Fondu et déplacement');
-
-  const scrollArea = driver.mainWindow.scrollAreas[0];
-  scrollArea.textFields[0].value = '0,7 s';
-  scrollArea.sliders[1].value = 0.1;
-
-  const popUpButton = scrollArea.popUpButtons[0];
-  popUpButton.click();
-  popUpButton.menus[0].menuItems.byName('De bas en haut').click();
-
-  const buildOrderWindow = driver.getBuildOrderWindow();
-  buildOrderWindow.popUpButtons[0].click();
-  buildOrderWindow.popUpButtons[0].menus[0].menuItems[1].click();
-  buildOrderWindow.textFields[0].value = '0,2 s';
-}
-
-function addExtrasEntryEffect() {
-  driver.openInspector(1);
-  driver.selectInspectorTab('Entrée');
-  driver.selectEffect('Dissolution');
-
-  const scrollArea = driver.mainWindow.scrollAreas[0];
-  scrollArea.textFields[0].value = '0,7 s';
-  scrollArea.popUpButtons[0].click();
-  scrollArea.popUpButtons[0].menus[0].menuItems.byName('Par caractère').click();
-  scrollArea.popUpButtons[1].click();
-  scrollArea.popUpButtons[1].menus[0].menuItems
-    .byName('Plan supérieur')
-    .click();
-
-  const buildOrderWindow = driver.getBuildOrderWindow();
-  buildOrderWindow.popUpButtons[0].click();
-  buildOrderWindow.popUpButtons[0].menus[0].menuItems[2].click();
-  buildOrderWindow.textFields[0].value = '0,3 s';
-}
+let currentBackground = 2;
 
 function addTitle({ title, copyright = '', authors = '', collection = '' }) {
   const titleTextItem = driver.addText(title, 'songTitle');
+
+  driver.setFadeMoveEffect({
+    duration: 0.7,
+    direction: 'topToBottom',
+    distance: 10,
+  });
+  driver.setEffectStartup('afterPrevious');
 
   if (authors) {
     const authorsTextItem = driver.addText(authors, 'songAuthors');
@@ -76,17 +26,15 @@ function addTitle({ title, copyright = '', authors = '', collection = '' }) {
     const height = titleTextItem.height() + authorsTextItem.height() + margin;
     const y = (documentHeight - height) / 2;
 
-    titleTextItem.position = { x: titleTextItem.position().x, y };
-    addTitleEntryEffect();
+    driver.setElementY(titleTextItem, y);
+    driver.setElementY(authorsTextItem, y + titleTextItem.height() + margin);
 
-    authorsTextItem.position = {
-      x: authorsTextItem.position().x,
-      y: y + titleTextItem.height() + margin,
-    };
-    addAuthorsEntryEffect();
-  } else {
-    titleTextItem.locked = false;
-    addTitleEntryEffect();
+    driver.setFadeMoveEffect({
+      duration: 0.7,
+      direction: 'bottomToTop',
+      distance: 10,
+    });
+    driver.setEffectStartup('withPrevious', 0.2);
   }
 
   const extras = [];
@@ -96,29 +44,10 @@ function addTitle({ title, copyright = '', authors = '', collection = '' }) {
   if (extras.length) {
     const extrasTextItem = driver.addText(extras.join(' – '), 'songExtras');
 
-    extrasTextItem.position = {
-      x: extrasTextItem.position().x,
-      y: 900,
-    };
-
-    addExtrasEntryEffect();
+    driver.setElementY(extrasTextItem, 900);
+    driver.setDissolveEffect({ duration: 0.7, appears: 'byChar' });
+    driver.setEffectStartup('afterPrevious', 0.3);
   }
-}
-
-function addNextLyricsEntryEffect() {
-  driver.openInspector(1);
-  driver.selectEffect('Fondu et déplacement');
-
-  const scrollArea = driver.mainWindow.scrollAreas[0];
-  scrollArea.sliders[1].value = 0.1;
-
-  const popUpButton = scrollArea.popUpButtons[0];
-  popUpButton.click();
-  popUpButton.menus[0].menuItems.byName('De bas en haut').click();
-
-  const buildOrderWindow = driver.getBuildOrderWindow();
-  buildOrderWindow.popUpButtons[0].click();
-  buildOrderWindow.popUpButtons[0].menus[0].menuItems[1].click();
 }
 
 function addNextLyrics(text, format, index, isLast) {
@@ -133,7 +62,12 @@ function addNextLyrics(text, format, index, isLast) {
   }
 
   if (index && !isLast) {
-    addNextLyricsEntryEffect();
+    driver.setFadeMoveEffect({
+      duration: 1,
+      direction: 'bottomToTop',
+      distance: 10,
+    });
+    driver.setEffectStartup('afterPrevious', 0.2);
   }
 }
 
