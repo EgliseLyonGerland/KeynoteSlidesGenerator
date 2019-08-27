@@ -1,4 +1,5 @@
 const _ = require('lodash');
+const { parse } = require('../utils/bibleRef');
 const { documentWidth, documentHeight } = require('../config');
 
 const { log } = console;
@@ -165,15 +166,14 @@ const templates = {
 };
 
 function createSlide({
-  book,
-  verse,
-  verseRange,
+  bibleRef,
   excerpt,
   direction = 'topBottom',
   align = 'center',
   bubblesPosition = 0,
 }) {
   const templateName = _.camelCase(`${direction} align ${align}`);
+  const parsedBibleRef = parse(bibleRef);
 
   if (!templates[templateName]) {
     log(`No template \`${direction}\` with \`${align}\` alignment found`);
@@ -186,14 +186,20 @@ function createSlide({
   driver.addSlide(background);
   driver.addBubbles(bubblesPosition, 'center');
 
-  const bookTextItem = driver.addText(book, 'verseTitle');
+  const bookTextItem = driver.addText(
+    `${parsedBibleRef.book} ${parsedBibleRef.chapterStart}`,
+    'verseTitle',
+  );
 
   let verseTextItem;
-  if (verse) {
-    verseTextItem = driver.addText(` • ${verse}`, 'verseSubtitle');
-  } else if (verseRange) {
+  if (parsedBibleRef.verseStart && !parsedBibleRef.verseEnd) {
     verseTextItem = driver.addText(
-      ` • ${verseRange[0]}–${verseRange[1]}`,
+      ` • ${parsedBibleRef.verseStart}`,
+      'verseSubtitle',
+    );
+  } else if (parsedBibleRef.verseStart && parsedBibleRef.verseEnd) {
+    verseTextItem = driver.addText(
+      ` • ${parsedBibleRef.verseStart}–${parsedBibleRef.verseEnd}`,
       'verseSubtitle',
     );
   }
