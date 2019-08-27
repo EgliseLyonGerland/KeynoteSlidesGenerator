@@ -1,13 +1,17 @@
 const _ = require('lodash');
 const splitText = require('split-text');
+const { parse } = require('../utils/bibleRef');
 const { documentWidth, documentHeight } = require('../config');
 
 let driver;
 
-function formatBibleRef(bibleRef) {
-  const [book, chapter = null, verseStart = null, verseEnd = null] = bibleRef;
-
-  let text = `${book} ${chapter}`;
+function formatBibleRef({
+  book,
+  chapterStart,
+  verseStart = null,
+  verseEnd = null,
+}) {
+  let text = `${book} ${chapterStart}`;
 
   if (verseStart) {
     text = `${text} • ${verseStart}`;
@@ -64,7 +68,7 @@ function createSecondAndThirdSlideElements(
 
   let finalTitle;
   if (title) finalTitle = formatTitle(title);
-  else finalTitle = `${bibleRef[0]} ${bibleRef[1]}`;
+  else finalTitle = `${bibleRef.book} ${bibleRef.chapterStart}`;
 
   const titleTextItem = driver.addText(`« ${finalTitle} »`, 'sermonTitle');
   driver.setElementX(titleTextItem, (contentWidth - titleTextItem.width()) / 2);
@@ -150,12 +154,13 @@ function createThirdSlide(background, title, author, bibleRef, plan) {
 
 function createSlide({ title, author, bibleRef, plan }) {
   const background = driver.getNextRegularBackground();
+  const parsedBibleRef = parse(bibleRef);
 
   createFirstSlide(background);
-  createSecondSlide(background, title, author, bibleRef);
+  createSecondSlide(background, title, author, parsedBibleRef);
 
   if (plan) {
-    createThirdSlide(background, title, author, bibleRef, plan);
+    createThirdSlide(background, title, author, parsedBibleRef, plan);
   }
 }
 
