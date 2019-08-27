@@ -85,7 +85,7 @@ function changeBackground() {
   }
 }
 
-function createSlide(songId) {
+function createSlide(songId, { repeat = false }) {
   const song = songs[songId];
   const background = `backgroundS${currentBackground}`;
 
@@ -93,10 +93,15 @@ function createSlide(songId) {
   driver.addBubbles();
   addTitle(song);
 
-  _.forEach(song.lyrics, (part, index) => {
+  let { lyrics } = song;
+  if (repeat) {
+    lyrics = [...lyrics, ...lyrics];
+  }
+
+  _.forEach(lyrics, (part, index) => {
     const format = part.type === 'chorus' ? 'songChorus' : 'songVerse';
     const text = part.lines.join(`${' '.repeat(index)}\n`);
-    const isLast = index === song.lyrics.length;
+    const isLast = index === lyrics.length;
 
     addNextLyrics(text, format, index, isLast);
     driver.addSlide(background);
