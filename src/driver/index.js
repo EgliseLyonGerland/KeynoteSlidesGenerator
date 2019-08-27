@@ -194,7 +194,7 @@ export function createDriver() {
     }
 
     if (startsFrom === 'bottom') {
-      setSelectBoxValue(startsFromSelect, 'Plan inférieur');
+      setSelectBoxValue(startsFromSelect, "Vers l'arrière");
     } else if (startsFrom === 'center') {
       setSelectBoxValue(startsFromSelect, 'À partir du center');
     } else if (startsFrom === 'edges') {
@@ -202,7 +202,7 @@ export function createDriver() {
     } else if (startsFrom === 'random') {
       setSelectBoxValue(startsFromSelect, 'Aléatoire');
     } else {
-      setSelectBoxValue(startsFromSelect, 'Plan supérieur');
+      setSelectBoxValue(startsFromSelect, "Vers l'avant");
     }
   }
 
