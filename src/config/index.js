@@ -31,7 +31,7 @@ export const typography = {
   },
   verseExcerpt: {
     font: 'AdobeHebrew-BoldItalic',
-    size: 80,
+    size: 90,
   },
   songTitle: {
     font: 'AdobeHebrew-BoldItalic',
