@@ -1,42 +1,5 @@
 const _ = require('lodash');
 
-/**
- * Examples:
- *
- *  - 1 Pierre
- *  - 1 Pierre 15
- *  - 1 Pierre 15-16
- *  - 1 Pierre 15.3
- *  - 1 Pierre 15.3-8
- *  - 1 Pierre 15.3-16.8
- */
-const exprs = [
-  {
-    regExp: /^(.+?)$/,
-    fields: ['book'],
-  },
-  {
-    regExp: /^(.+?) *(\d+)$/,
-    fields: ['book', 'chapterStart'],
-  },
-  {
-    regExp: /^(.+?) *(\d+)-(\d+)$/,
-    fields: ['book', 'chapterStart', 'chapterEnd'],
-  },
-  {
-    regExp: /^(.+?) *(\d+).(\d+[a-z]?)$/,
-    fields: ['book', 'chapterStart', 'verseStart'],
-  },
-  {
-    regExp: /^(.+?) *(\d+).(\d+[a-z]?)-(\d+[a-z]?)$/,
-    fields: ['book', 'chapterStart', 'verseStart', 'verseEnd'],
-  },
-  {
-    regExp: /^(.+?) *(\d+).(\d+[a-z]?)-(\d+).(\d+[a-z]?)$/,
-    fields: ['book', 'chapterStart', 'verseStart', 'chapterEnd', 'verseEnd'],
-  },
-];
-
 function merge(fields, values) {
   return fields.reduce(
     (acc, key, index) => ({
@@ -48,6 +11,43 @@ function merge(fields, values) {
 }
 
 export function parse(ref) {
+  /**
+   * Examples:
+   *
+   *  - 1 Pierre
+   *  - 1 Pierre 15
+   *  - 1 Pierre 15-16
+   *  - 1 Pierre 15.3
+   *  - 1 Pierre 15.3-8
+   *  - 1 Pierre 15.3-16.8
+   */
+  const exprs = [
+    {
+      regExp: /^(.+?)$/,
+      fields: ['book'],
+    },
+    {
+      regExp: /^(.+?) *(\d+)$/,
+      fields: ['book', 'chapterStart'],
+    },
+    {
+      regExp: /^(.+?) *(\d+)-(\d+)$/,
+      fields: ['book', 'chapterStart', 'chapterEnd'],
+    },
+    {
+      regExp: /^(.+?) *(\d+).(\d+[a-z]?)$/,
+      fields: ['book', 'chapterStart', 'verseStart'],
+    },
+    {
+      regExp: /^(.+?) *(\d+).(\d+[a-z]?)-(\d+[a-z]?)$/,
+      fields: ['book', 'chapterStart', 'verseStart', 'verseEnd'],
+    },
+    {
+      regExp: /^(.+?) *(\d+).(\d+[a-z]?)-(\d+).(\d+[a-z]?)$/,
+      fields: ['book', 'chapterStart', 'verseStart', 'chapterEnd', 'verseEnd'],
+    },
+  ];
+
   const ref$ = _.trim(ref);
 
   return exprs.reverse().reduce((acc, { regExp, fields }) => {
