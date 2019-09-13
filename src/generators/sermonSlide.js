@@ -13,7 +13,7 @@ function formatTitle(title) {
 
 function createFirstSlide(background) {
   driver.addSlide(background);
-  driver.addBubbles();
+  driver.addBubbles(0, 'center');
 
   const line = driver.addLine();
 
@@ -88,13 +88,13 @@ function createSecondAndThirdSlideElements(
 
 function createSecondSlide(background, title, author, bibleRef) {
   driver.addSlide(background);
-  driver.addBubbles(1);
+  driver.addBubbles(1, 'center');
   createSecondAndThirdSlideElements(title, author, bibleRef);
 }
 
 function createThirdSlide(background, title, author, bibleRef, plan) {
   driver.addSlide(background);
-  driver.addBubbles(1);
+  driver.addBubbles(1, 'center');
   driver.addVerticalOverlays();
 
   createSecondAndThirdSlideElements(title, author, bibleRef, 900, false);
