@@ -1,4 +1,3 @@
-const _ = require('lodash');
 const { parse } = require('../utils/bibleRef');
 const { documentWidth, documentHeight } = require('../config');
 
@@ -10,7 +9,7 @@ const margin = 80;
 const maxContentWidth = documentWidth - 300;
 
 const templates = {
-  topBottomAlignCenter(book, verse, excerpt) {
+  topBottomCenter(book, verse, excerpt) {
     const line = driver.addLine();
     const totalHeight = book.height() + excerpt.height() + margin * 2;
     const y = (documentHeight - totalHeight) / 2;
@@ -33,7 +32,7 @@ const templates = {
     }
   },
 
-  topBottomAlignLeft(book, verse, excerpt) {
+  topBottomLeft(book, verse, excerpt) {
     driver.setTextAlignment(excerpt, 'left');
 
     const line = driver.addLine();
@@ -62,7 +61,7 @@ const templates = {
     }
   },
 
-  bottomTopAlignCenter(book, verse, excerpt) {
+  bottomTopCenter(book, verse, excerpt) {
     const line = driver.addLine();
     const totalHeight = book.height() + excerpt.height() + margin * 2;
     const y = (documentHeight - totalHeight) / 2;
@@ -85,7 +84,7 @@ const templates = {
     }
   },
 
-  bottomTopAlignLeft(book, verse, excerpt) {
+  bottomTopLeft(book, verse, excerpt) {
     driver.setTextAlignment(excerpt, 'left');
 
     const line = driver.addLine();
@@ -114,7 +113,7 @@ const templates = {
     }
   },
 
-  leftRightAlignCenter(book, verse, excerpt) {
+  leftRightCenter(book, verse, excerpt) {
     driver.setTextAlignment(excerpt, 'left');
 
     const line = driver.addLine({ vertical: true });
@@ -139,7 +138,7 @@ const templates = {
     }
   },
 
-  rightLeftAlignCenter(book, verse, excerpt) {
+  rightLeftCenter(book, verse, excerpt) {
     driver.setTextAlignment(excerpt, 'left');
 
     const line = driver.addLine({ vertical: true });
@@ -168,15 +167,13 @@ const templates = {
 function createSlide({
   bibleRef,
   excerpt,
-  direction = 'topBottom',
-  align = 'center',
+  template = 'topBottomCenter',
   bubblesPosition = 0,
 }) {
-  const templateName = _.camelCase(`${direction} align ${align}`);
   const parsedBibleRef = parse(bibleRef);
 
-  if (!templates[templateName]) {
-    log(`No template \`${direction}\` with \`${align}\` alignment found`);
+  if (!templates[template]) {
+    log(`No template \`${template}\` found`);
 
     return;
   }
@@ -208,7 +205,7 @@ function createSlide({
   const excerptTextItem = driver.addText(`“ ${excerpt} ”`, 'verseExcerpt');
   excerptTextItem.width = Math.min(excerptTextItem.width(), maxContentWidth);
 
-  templates[templateName](bookTextItem, verseTextItem, excerptTextItem);
+  templates[template](bookTextItem, verseTextItem, excerptTextItem);
 
   driver.selectElement(bookTextItem);
   driver.setFadeMoveEffect({
