@@ -35,15 +35,15 @@ export function parse(ref) {
       fields: ['book', 'chapterStart', 'chapterEnd'],
     },
     {
-      regExp: /^(.+?) *(\d+).(\d+[a-z]?)$/,
+      regExp: /^(.+?) *(\d+)\.(\d+[a-z]?)$/,
       fields: ['book', 'chapterStart', 'verseStart'],
     },
     {
-      regExp: /^(.+?) *(\d+).(\d+[a-z]?)-(\d+[a-z]?)$/,
+      regExp: /^(.+?) *(\d+)\.(\d+[a-z]?)-(\d+[a-z]?)$/,
       fields: ['book', 'chapterStart', 'verseStart', 'verseEnd'],
     },
     {
-      regExp: /^(.+?) *(\d+).(\d+[a-z]?)-(\d+).(\d+[a-z]?)$/,
+      regExp: /^(.+?) *(\d+)\.(\d+[a-z]?)-(\d+)\.(\d+[a-z]?)$/,
       fields: ['book', 'chapterStart', 'verseStart', 'chapterEnd', 'verseEnd'],
     },
   ];
@@ -63,6 +63,39 @@ export function parse(ref) {
 
     return null;
   }, null);
+}
+
+export function format(ref) {
+  let $ref = ref;
+  if (_.isString(ref)) {
+    $ref = parse(ref);
+  }
+
+  const {
+    book,
+    chapterStart,
+    verseStart = null,
+    chapterEnd = null,
+    verseEnd = null,
+  } = $ref;
+
+  if (chapterEnd && verseEnd) {
+    return `${book} ${chapterStart}.${verseStart} – ${chapterEnd}.${verseEnd}`;
+  }
+
+  if (verseStart) {
+    return `${book} ${chapterStart} • ${verseStart}`;
+  }
+
+  if (chapterEnd) {
+    return `${book} ${chapterStart}–${chapterEnd}`;
+  }
+
+  if (chapterStart) {
+    return `${book} ${chapterStart}`;
+  }
+
+  return book;
 }
 
 export default null;
