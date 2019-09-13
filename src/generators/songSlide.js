@@ -85,7 +85,7 @@ function changeBackground() {
   }
 }
 
-function createSlide(songId, { repeat = false }) {
+function createSlide(songId, { repeat = false } = {}) {
   const song = songs[songId];
   const background = `backgroundS${currentBackground}`;
 
