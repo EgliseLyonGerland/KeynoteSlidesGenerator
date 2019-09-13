@@ -52,9 +52,8 @@ function addTitle({ title, copyright = '', authors = '', collection = '' }) {
 
 function addNextLyrics(text, format, index, isLast) {
   const textItem = driver.addText(text, format);
-  textItem.width = documentWidth;
   textItem.opacity = index ? 50 : 0;
-  textItem.position = { x: 0, y: 810 };
+  driver.setElementY(textItem, 810);
 
   if (index) {
     // Put text in background
@@ -72,9 +71,8 @@ function addNextLyrics(text, format, index, isLast) {
 }
 
 function addCurrentLyrics(text, format) {
-  const nextTextItem = driver.addText(text, format);
-  nextTextItem.width = documentWidth;
-  nextTextItem.position = { x: 0, y: 200 };
+  const textItem = driver.addText(text, format);
+  driver.setElementY(textItem, 200);
 }
 
 function changeBackground() {
