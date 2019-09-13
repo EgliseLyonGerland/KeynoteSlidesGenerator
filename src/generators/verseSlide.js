@@ -6,7 +6,7 @@ const { log } = console;
 let driver;
 
 const margin = 80;
-const maxContentWidth = documentWidth - 300;
+const maxContentWidth = documentWidth - 400;
 
 const templates = {
   topBottomCenter(book, verse, excerpt) {
