@@ -61,6 +61,34 @@ const templates = {
     }
   },
 
+  topBottomRight(book, verse, excerpt) {
+    driver.setTextAlignment(excerpt, 'right');
+
+    const line = driver.addLine();
+    const totalHeight = book.height() + excerpt.height() + margin * 2;
+    const y = (documentHeight - totalHeight) / 2;
+
+    driver.setElementY(book, y);
+    driver.setElementY(line, y + book.height() + margin);
+    driver.setElementY(excerpt, line.position().y + margin);
+
+    let totalTitleWidth = book.width();
+    if (verse) {
+      totalTitleWidth += 16 + verse.width();
+    }
+
+    const totalWidth = Math.max(totalTitleWidth, excerpt.width(), line.width());
+    const x = (documentWidth - totalWidth) / 2 + totalWidth;
+
+    driver.setElementX(book, x - totalTitleWidth);
+    driver.setElementX(line, x - line.width());
+    driver.setElementX(excerpt, x - excerpt.width());
+
+    if (verse) {
+      driver.setElementXY(verse, x - verse.width(), y);
+    }
+  },
+
   bottomTopCenter(book, verse, excerpt) {
     const line = driver.addLine();
     const totalHeight = book.height() + excerpt.height() + margin * 2;
@@ -110,6 +138,34 @@ const templates = {
     if (verse) {
       driver.setElementX(book, x);
       driver.setElementXY(verse, x + book.width(), book.position().y);
+    }
+  },
+
+  bottomTopRight(book, verse, excerpt) {
+    driver.setTextAlignment(excerpt, 'right');
+
+    const line = driver.addLine();
+    const totalHeight = book.height() + excerpt.height() + margin * 2;
+    const y = (documentHeight - totalHeight) / 2;
+
+    driver.setElementY(excerpt, y);
+    driver.setElementY(line, y + excerpt.height() + margin);
+    driver.setElementY(book, line.position().y + margin);
+
+    let totalTitleWidth = book.width();
+    if (verse) {
+      totalTitleWidth += 16 + verse.width();
+    }
+
+    const totalWidth = Math.max(totalTitleWidth, excerpt.width(), line.width());
+    const x = (documentWidth - totalWidth) / 2 + totalWidth;
+
+    driver.setElementX(book, x - totalTitleWidth);
+    driver.setElementX(line, x - line.width());
+    driver.setElementX(excerpt, x - excerpt.width());
+
+    if (verse) {
+      driver.setElementXY(verse, x - verse.width(), book.position().y);
     }
   },
 
