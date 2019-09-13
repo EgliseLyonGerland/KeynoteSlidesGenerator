@@ -2,10 +2,10 @@ const { documentHeight } = require('../config');
 
 let driver;
 
-function createSlide({ title }) {
+function createSlide({ title, bubblesPosition = 0 }) {
   const background = driver.getNextRegularBackground();
   driver.addSlide(background);
-  driver.addBubbles();
+  driver.addBubbles(bubblesPosition, 'center');
 
   const line = driver.addLine();
 
