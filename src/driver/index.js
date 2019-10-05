@@ -9,7 +9,7 @@ const {
 export function createDriver() {
   const systemEvent = Application('System Events');
   const keynote = Application('Keynote');
-  const mainWindow = systemEvent.processes.Keynote.windows.byName('Slides');
+  const mainWindow = systemEvent.processes.Keynote.windows.byName('Slides.key');
   let doc;
   let currentClipboard;
   let backgrounds = [];
@@ -67,13 +67,6 @@ export function createDriver() {
     delay(0.5);
     doc.currentSlide = doc.slides[currentSlideIndex];
   }
-
-  // function stringifyDuration(duration) {
-  //   let str = `${duration}`;
-  //   str = str.replace('.', ',');
-
-  //   return `${str} s`;
-  // }
 
   /**
    * Navigation helpers

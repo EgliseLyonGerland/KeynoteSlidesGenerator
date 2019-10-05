@@ -1,5 +1,4 @@
 const _ = require('lodash');
-const { debug } = require('./debug');
 
 export function debugElements(
   elements,
@@ -8,19 +7,19 @@ export function debugElements(
   properties = [
     'class',
     'name',
-    'description',
-    'role',
-    'roleDescription',
     'title',
-    'help',
-    'size',
-    'position',
-    'value',
+    'description',
+    // 'role',
+    // 'roleDescription',
+    // 'help',
+    // 'size',
+    // 'position',
+    // 'value',
   ],
   level = 0,
 ) {
   _.forEach(elements, (element, index) => {
-    debug(
+    console.log(
       '  '.repeat(level),
       index,
       ...properties.map(property => element[property]()),

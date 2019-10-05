@@ -1,9 +1,5 @@
 const _ = require('lodash');
-const {
-  documentWidth,
-  documentHeight,
-  songBackgroundsNumber,
-} = require('../config');
+const { documentHeight, songBackgroundsNumber } = require('../config');
 const songs = require('../songs').default;
 
 let driver;

@@ -1,7 +1,7 @@
 /**
  * Fonts:
  *
- *  - SourceSansPro-Semibold
+ *  - SourceSansPro-SemiBold
  *  - SourceSansPro-Bold
  *  - SourceSansPro-Black
  *  - AdobeHebrew-BoldItalic
@@ -16,7 +16,7 @@ export const typography = {
     size: 50,
   },
   announcementItemDetail: {
-    font: 'SourceSansPro-Semibold',
+    font: 'SourceSansPro-SemiBold',
     size: 40,
     opacity: 70,
   },
@@ -38,7 +38,7 @@ export const typography = {
     size: 80,
   },
   songAuthors: {
-    font: 'SourceSansPro-Semibold',
+    font: 'SourceSansPro-SemiBold',
     size: 50,
     opacity: 70,
   },
@@ -48,7 +48,7 @@ export const typography = {
     opacity: 40,
   },
   songVerse: {
-    font: 'SourceSansPro-Semibold',
+    font: 'SourceSansPro-SemiBold',
     size: 72,
   },
   songChorus: {
@@ -89,12 +89,12 @@ export const typography = {
     opacity: 70,
   },
   sermonAuthor: {
-    font: 'SourceSansPro-Semibold',
+    font: 'SourceSansPro-SemiBold',
     size: 40,
     opacity: 50,
   },
   sermonPlanNumber: {
-    font: 'SourceSansPro-BlackIt',
+    font: 'SourceSansPro-BlackItalic',
     size: 220,
     opacity: 20,
   },
