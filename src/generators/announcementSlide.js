@@ -35,13 +35,14 @@ function createSlide({ items = [] } = {}) {
       driver.setEffectStartup('afterPrevious');
     }
 
+    const itemWidth = (contentWidth - margin * 2) / 2;
+    const leftPartX = (documentWidth - contentWidth) / 2;
+    const rightPartX = leftPartX + itemWidth + margin * 2;
+    let currentY = contentPositionY;
+
     _.forEach(chunk, (item, itemIndex) => {
-      const itemHeight = contentHeight / 3;
-      const itemWidth = (contentWidth - margin * 2) / 2;
-      const leftPartX = (documentWidth - contentWidth) / 2;
-      const rightPartX = leftPartX + itemWidth + margin * 2;
-      const x = itemIndex % 2 === 0 ? leftPartX : rightPartX;
-      const y = itemHeight * Math.floor(itemIndex / 2) + contentPositionY;
+      const x = itemIndex / 3 < 1 ? leftPartX : rightPartX;
+      const y = currentY;
 
       const itemTitle = driver.addText(item.title, 'announcementItemTitle');
       itemTitle.width = itemWidth;
@@ -57,16 +58,24 @@ function createSlide({ items = [] } = {}) {
       }
 
       if (item.detail) {
-        const detailTitle = driver.addText(
+        const itemDetail = driver.addText(
           item.detail,
           'announcementItemDetail',
         );
-        detailTitle.width = itemWidth;
+        itemDetail.width = itemWidth;
 
-        driver.setTextAlignment(detailTitle, 'left');
-        driver.setElementXY(detailTitle, x, y + itemTitle.height());
+        driver.setTextAlignment(itemDetail, 'left');
+        driver.setElementXY(itemDetail, x, y + itemTitle.height());
         driver.setDissolveEffect({ duration: 0.7, appears: 'byChar' });
         driver.setEffectStartup('withPrevious', 0.1);
+
+        currentY += itemDetail.height();
+      }
+
+      if (itemIndex === 2) {
+        currentY = contentPositionY;
+      } else {
+        currentY += itemTitle.height() + 60;
       }
     });
   });
