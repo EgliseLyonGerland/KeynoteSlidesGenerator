@@ -83,6 +83,10 @@ export function format(ref) {
     return `${book} ${chapterStart}.${verseStart} – ${chapterEnd}.${verseEnd}`;
   }
 
+  if (verseEnd) {
+    return `${book} ${chapterStart} • ${verseStart}–${verseEnd}`;
+  }
+
   if (verseStart) {
     return `${book} ${chapterStart} • ${verseStart}`;
   }
