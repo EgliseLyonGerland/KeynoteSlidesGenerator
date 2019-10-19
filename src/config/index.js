@@ -106,6 +106,5 @@ export const typography = {
 };
 
 export const regularBackgroundsNumber = 12;
-export const songBackgroundsNumber = 3;
 export const documentWidth = 1920;
 export const documentHeight = 1080;

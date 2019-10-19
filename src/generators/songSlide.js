@@ -1,9 +1,9 @@
 const _ = require('lodash');
-const { documentHeight, songBackgroundsNumber } = require('../config');
+const { documentHeight } = require('../config');
 const songs = require('../songs').default;
 
 let driver;
-let currentBackground = 2;
+let currentBackground = 'blue';
 
 function addTitle({ title, copyright = '', authors = '', collection = '' }) {
   const titleTextItem = driver.addText(title, 'songTitle');
@@ -66,24 +66,37 @@ function addNextLyrics(text, format, index, isLast) {
   }
 }
 
-function addCurrentLyrics(text, format) {
+function addCurrentLyrics(text, format, lines) {
   const textItem = driver.addText(text, format);
-  driver.setElementY(textItem, 200);
+
+  let y = 200;
+  if (lines >= 5) {
+    y = 150;
+  } else if (lines >= 6) {
+    y = 100;
+  }
+
+  driver.setElementY(textItem, y);
 }
 
 function changeBackground() {
-  currentBackground += 1;
-
-  if (currentBackground > songBackgroundsNumber) {
-    currentBackground = 1;
+  if (currentBackground === 'blue') {
+    currentBackground = 'red';
+  } else if (currentBackground === 'red') {
+    currentBackground = 'green';
+  } else {
+    currentBackground = 'blue';
   }
 }
 
-function createSlide(songId, { repeat = false } = {}) {
+function createSlide(
+  songId,
+  { repeat = false, background = currentBackground } = {},
+) {
   const song = songs[songId];
-  const background = `backgroundS${currentBackground}`;
+  const backgroundName = _.camelCase(`backgroundS ${background}`);
 
-  driver.addSlide(background);
+  driver.addSlide(backgroundName);
   driver.addBubbles();
   addTitle(song);
 
@@ -98,9 +111,9 @@ function createSlide(songId, { repeat = false } = {}) {
     const isLast = index === lyrics.length;
 
     addNextLyrics(text, format, index, isLast);
-    driver.addSlide(background);
+    driver.addSlide(backgroundName);
     driver.addBubbles(index + 1);
-    addCurrentLyrics(text, format);
+    addCurrentLyrics(text, format, part.lines.length);
   });
 
   changeBackground();
