@@ -94,6 +94,11 @@ function createSlide(
   { repeat = false, background = currentBackground } = {},
 ) {
   const song = songs[songId];
+
+  if (!song) {
+    throw new Error(`Song ${songId} doesn't exist`);
+  }
+
   const backgroundName = _.camelCase(`backgroundS ${background}`);
 
   driver.addSlide(backgroundName);
