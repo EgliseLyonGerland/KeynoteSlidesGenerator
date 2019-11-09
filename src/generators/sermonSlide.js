@@ -1,15 +1,8 @@
 const _ = require('lodash');
-const splitText = require('split-text');
 const { parse, format } = require('../utils/bibleRef');
 const { documentWidth, documentHeight } = require('../config');
 
 let driver;
-
-function formatTitle(title) {
-  const lines = splitText(title, 24);
-
-  return lines.join('\n');
-}
 
 function createFirstSlide(background) {
   driver.addSlide(background);
@@ -47,11 +40,13 @@ function createSecondAndThirdSlideElements(
   driver.setElementX(line, (contentWidth - 500) / 2);
   driver.setElementY(line, 150 + chapterTextItem.height() + 32);
 
-  let finalTitle;
-  if (title) finalTitle = formatTitle(title);
-  else finalTitle = `${bibleRef.book} ${bibleRef.chapterStart}`;
+  let finalTitle = title;
+  if (!title) {
+    finalTitle = `${bibleRef.book} ${bibleRef.chapterStart}`;
+  }
 
   const titleTextItem = driver.addText(`« ${finalTitle} »`, 'sermonTitle');
+  titleTextItem.width = 700;
   driver.setElementX(titleTextItem, (contentWidth - titleTextItem.width()) / 2);
 
   if (withAnimation) {
