@@ -1,6 +1,5 @@
 const _ = require('lodash');
 const { documentHeight } = require('../config');
-const songs = require('../songs').default;
 
 let driver;
 let currentBackground = 'blue';
@@ -89,16 +88,11 @@ function changeBackground() {
   }
 }
 
-function createSlide(
-  songId,
-  { repeat = false, background = currentBackground } = {},
-) {
-  const song = songs[songId];
-
-  if (!song) {
-    throw new Error(`Song ${songId} doesn't exist`);
-  }
-
+function createSlide({
+  repeat = false,
+  background = currentBackground,
+  ...song
+} = {}) {
   const backgroundName = _.camelCase(`backgroundS ${background}`);
 
   driver.addSlide(backgroundName);
@@ -111,14 +105,15 @@ function createSlide(
   }
 
   _.forEach(lyrics, (part, index) => {
+    const lines = part.text.split('\n');
     const format = part.type === 'chorus' ? 'songChorus' : 'songVerse';
-    const text = part.lines.join(`${' '.repeat(index)}\n`);
+    const text = lines.join(`${' '.repeat(index)}\n`);
     const isLast = index === lyrics.length;
 
     addNextLyrics(text, format, index, isLast);
     driver.addSlide(backgroundName);
     driver.addBubbles(index + 1);
-    addCurrentLyrics(text, format, part.lines.length);
+    addCurrentLyrics(text, format, lines.length);
   });
 
   changeBackground();
