@@ -11,14 +11,6 @@ module.exports = {
     path: path.join(rootPath, '/dist'),
     filename: 'index.jxa',
   },
-  module: {
-    rules: [
-      {
-        test: /\.song$/,
-        use: `${__dirname}/song-loader`,
-      },
-    ],
-  },
   plugins: [
     new webpack.ProvidePlugin({
       debug: [`${__dirname}/../../src/utils/debug`, 'debug'],
