@@ -8,7 +8,7 @@ const {
   createAnnouncementSlideGenerator,
 } = require('./generators/announcementSlide');
 
-const driver = createDriver();
+const driver = createDriver('Slides');
 
 const createSongSlide = createSongSlideGenerator(driver);
 const createVerseSlide = createVerseSlideGenerator(driver);

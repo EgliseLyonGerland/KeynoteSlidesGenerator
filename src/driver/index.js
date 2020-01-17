@@ -6,10 +6,10 @@ const {
   regularBackgroundsNumber,
 } = require('../config');
 
-export function createDriver() {
+export function createDriver(filename) {
   const systemEvent = Application('System Events');
   const keynote = Application('Keynote');
-  const mainWindow = systemEvent.processes.Keynote.windows.byName('Slides.key');
+  const mainWindow = systemEvent.processes.Keynote.windows.byName(filename);
   let doc;
   let currentClipboard;
   let backgrounds = [];
