@@ -184,7 +184,7 @@ export function createDriver(filename) {
     } else if (appears === 'byChar') {
       setSelectBoxValue(appearsSelect, 'Par caractère');
     } else {
-      setSelectBoxValue(appearsSelect, 'Par object');
+      setSelectBoxValue(appearsSelect, 'Par objet');
     }
 
     if (startsFrom === 'bottom') {
