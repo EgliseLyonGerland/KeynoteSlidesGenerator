@@ -228,6 +228,42 @@ export function createDriver(filename) {
     distanceSlider.value = distance / 100;
   }
 
+  function setFadeScaleEffect({
+    duration = 2,
+    scale = 100, // from 0% to 200%
+  } = {}) {
+    openInspector(1);
+    selectInspectorTab('Entrée');
+    selectEffect('Fondu et échelle');
+    setEffectDuration(duration);
+
+    const scrollArea = mainWindow.scrollAreas[0];
+    const scaleSlider = scrollArea.sliders[1];
+
+    scaleSlider.value = scale;
+  }
+
+  function setFadeScaleOutEffect({
+    duration = 2,
+    scale = 100, // from 0% to 200%
+  } = {}) {
+    openInspector(1);
+    selectInspectorTab('Sortie');
+    selectEffect('Fondu et échelle');
+    setEffectDuration(duration);
+
+    const scrollArea = mainWindow.scrollAreas[0];
+    const scaleSlider = scrollArea.sliders[1];
+
+    scaleSlider.value = scale;
+  }
+
+  function setDisappearEffect() {
+    openInspector(1);
+    selectInspectorTab('Sortie');
+    selectEffect('Disparition');
+  }
+
   function addBubbles(index = 0, align = 'top') {
     if (currentClipboard !== 'bubbles') {
       copySlideObjects(0);
@@ -409,6 +445,9 @@ export function createDriver(filename) {
     setLineDrawEffect,
     setDissolveEffect,
     setFadeMoveEffect,
+    setFadeScaleEffect,
+    setFadeScaleOutEffect,
+    setDisappearEffect,
     addText,
     setTextAlignment,
     addBubbles,

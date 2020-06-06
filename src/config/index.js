@@ -103,6 +103,10 @@ export const typography = {
     size: 50,
     opacity: 80,
   },
+  countdown: {
+    font: 'Muli',
+    size: 86,
+  },
 };
 
 export const regularBackgroundsNumber = 12;
