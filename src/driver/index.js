@@ -142,6 +142,7 @@ export function createDriver(filename) {
       for (let i = 0; i < delay$; ) {
         win.incrementors[0].buttons[0].click();
         i += i > 1 ? 0.25 : 0.1;
+        i = Math.round(i * 100) / 100;
       }
     }
   }
