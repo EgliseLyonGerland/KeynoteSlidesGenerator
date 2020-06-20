@@ -49,11 +49,11 @@ export const typography = {
   },
   songVerse: {
     font: 'SourceSansPro-SemiBold',
-    size: 72,
+    size: 66,
   },
   songChorus: {
     font: 'AdobeHebrew-BoldItalic',
-    size: 72,
+    size: 66,
   },
   goodbyeLine1: {
     font: 'SourceSansPro-Regular',
