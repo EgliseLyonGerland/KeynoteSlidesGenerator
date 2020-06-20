@@ -129,7 +129,7 @@ export function createDriver(filename) {
    * @param {string} begin 'onClick' or 'afterPrevious' or 'withPrevious'
    * @param {int} delay$ Delay
    */
-  function setEffectStartup(begin, delay$ = 0) {
+  function setEffectStartup(begin, delay = 0) {
     const win = getBuildOrderWindow();
 
     let beginIndex = 0;
@@ -138,13 +138,10 @@ export function createDriver(filename) {
 
     setSelectBoxIndex(win.popUpButtons[0], beginIndex);
 
-    if (delay$ <= 1) {
-      for (let i = 0; i < delay$; ) {
-        win.incrementors[0].buttons[0].click();
-        i += i > 1 ? 0.25 : 0.1;
-        i = Math.round(i * 100) / 100;
-      }
-    }
+    const delayTextField = win.textFields[0];
+    delayTextField.focused = true;
+    delayTextField.value = `${delay}`.replace('.', ',');
+    delayTextField.confirm();
   }
 
   function setEffectDuration(duration) {
@@ -265,26 +262,31 @@ export function createDriver(filename) {
     selectEffect('Disparition');
   }
 
+  function setOpacityEffect({ duration = 1, opacity = 50 }) {
+    openInspector(1);
+    selectInspectorTab('Action');
+    selectEffect('Opacité');
+    setEffectDuration(duration);
+
+    const scrollArea = mainWindow.scrollAreas[0];
+    scrollArea.sliders[1].value = opacity;
+  }
+
   function addBubbles(index = 0, align = 'top') {
-    if (currentClipboard !== 'bubbles') {
-      copySlideObjects(0);
-      currentClipboard = 'bubbles';
-    }
-
-    press('v', { command: true });
-
-    const { currentSlide: slide } = doc;
-
-    _.forEach(slide.images, (shape, position) => {
-      let y = -(position + 1) * 50 * index;
-
-      if (align === 'center') {
-        y -= (5000 - documentHeight) / 2;
-      }
-
-      // eslint-disable-next-line no-param-reassign
-      shape.position = { x: 0, y };
-    });
+    // if (currentClipboard !== 'bubbles') {
+    //   copySlideObjects(0);
+    //   currentClipboard = 'bubbles';
+    // }
+    // press('v', { command: true });
+    // const { currentSlide: slide } = doc;
+    // _.forEach(slide.images, (shape, position) => {
+    //   let y = -(position + 1) * 50 * index;
+    //   if (align === 'center') {
+    //     y -= (5000 - documentHeight) / 2;
+    //   }
+    //   // eslint-disable-next-line no-param-reassign
+    //   shape.position = { x: 0, y };
+    // });
   }
 
   function addHorizontalOverlays() {
@@ -307,8 +309,19 @@ export function createDriver(filename) {
     delay(0.2);
   }
 
-  function addText(text, format, overrides = {}) {
-    const textProperties = { ...typography[format], ...overrides };
+  function addText(text, ...args) {
+    let [format, textProperties = {}] = args;
+
+    if (args.length === 1 && typeof format === 'object') {
+      // eslint-disable-next-line no-unused-expressions
+      textProperties = format;
+      format = null;
+    }
+
+    if (format) {
+      textProperties = { ...typography[format], ...textProperties };
+    }
+
     const slide = doc.currentSlide;
     const textItem = keynote.TextItem({
       objectText: text,
@@ -327,9 +340,22 @@ export function createDriver(filename) {
     return textItem;
   }
 
-  function setTextAlignment(text, align) {
-    // eslint-disable-next-line no-param-reassign
-    text.locked = false;
+  function setTextLineHeight(textItem, value) {
+    selectElement(textItem);
+
+    openInspector(0);
+    selectInspectorTab('Texte');
+
+    const scrollArea = mainWindow.scrollAreas[0];
+    const textField = scrollArea.textFields[3];
+    textField.focused = true;
+    textField.value = `${value}`.replace('.', ',');
+    textField.focused = false;
+    textField.confirm();
+  }
+
+  function setTextAlignment(textItem, align) {
+    selectElement(textItem);
 
     openInspector(0);
     selectInspectorTab('Texte');
@@ -449,7 +475,9 @@ export function createDriver(filename) {
     setFadeScaleEffect,
     setFadeScaleOutEffect,
     setDisappearEffect,
+    setOpacityEffect,
     addText,
+    setTextLineHeight,
     setTextAlignment,
     addBubbles,
     addHorizontalOverlays,

@@ -1,145 +1,139 @@
-const _ = require('lodash');
-const { parse, format } = require('../utils/bibleRef');
-const { documentWidth, documentHeight } = require('../config');
+const { format } = require('../utils/bibleRef');
+const { documentHeight } = require('../config');
+
+const BACKGROUND = 'backgroundSermon';
+const TITLE_SIZE = 130;
+const TITLE_WIDTH = 920;
+const BIBLE_REF_SIZE = 66;
+const AUTHOR_SIZE = 50;
+const SCALE = 0.8;
 
 let driver;
 
-function createFirstSlide(background) {
-  driver.addSlide(background);
+function equalize(textItem) {
+  const textHeight = textItem.height();
+  while (textItem.height() === textHeight) {
+    // eslint-disable-next-line no-param-reassign
+    textItem.width = textItem.width() - 1;
+  }
+
+  // eslint-disable-next-line no-param-reassign
+  textItem.width = textItem.width() + 1;
+}
+
+function createFirstSlide(title, author, bibleRef) {
+  driver.addSlide(BACKGROUND);
   driver.addBubbles(0, 'center');
 
-  const line = driver.addLine();
+  const titleText = driver.addText(title.toUpperCase(), {
+    font: 'SourceSansPro-Black',
+    size: TITLE_SIZE,
+  });
+  driver.setTextLineHeight(titleText, 0.7);
+  driver.setTextAlignment(titleText, 'left');
+  titleText.width = TITLE_WIDTH;
+  equalize(titleText);
 
-  const text = driver.addText('Prédication', 'chapterTitle');
-  driver.setFadeMoveEffect({ duration: 0.5, distance: 10 });
-  driver.setEffectStartup('afterPrevious');
+  driver.setDissolveEffect({ duration: 1.5, appears: 'byChar' });
 
-  const contentHeight = text.height() + 64;
-  const y = (documentHeight - contentHeight) / 2;
-  driver.setElementY(text, y);
-  driver.setElementY(line, y + text.height() + 64);
-}
-
-function createSecondAndThirdSlideElements(
-  title,
-  author,
-  bibleRef,
-  contentWidth = documentWidth,
-  withAnimation = true,
-) {
-  const line = driver.addLine({ width: 500, withAnimation: false });
-  const chapterTextItem = driver.addText('Prédication', 'chapterTitle', {
-    size: 60,
+  const bibleRefText = driver.addText(format(bibleRef), {
+    font: 'AdobeHebrew-BoldItalic',
+    size: BIBLE_REF_SIZE,
+    opacity: 80,
   });
 
-  driver.setElementX(
-    chapterTextItem,
-    (contentWidth - chapterTextItem.width()) / 2,
-  );
-  driver.setElementY(chapterTextItem, 150);
-  driver.setElementX(line, (contentWidth - 500) / 2);
-  driver.setElementY(line, 150 + chapterTextItem.height() + 32);
+  driver.setDissolveEffect({ duration: 0.9, appears: 'byChar' });
+  driver.setEffectStartup('withPrevious', 1.25);
 
-  let finalTitle = title;
-  if (!title) {
-    finalTitle = `${bibleRef.book} ${bibleRef.chapterStart}`;
-  }
+  const authorText = driver.addText(`  •  ${author}`, {
+    font: 'SourceSansPro-Black',
+    size: AUTHOR_SIZE,
+    opacity: 80,
+  });
 
-  const titleTextItem = driver.addText(`« ${finalTitle} »`, 'sermonTitle');
-  titleTextItem.width = 700;
-  driver.setElementX(titleTextItem, (contentWidth - titleTextItem.width()) / 2);
+  driver.setDissolveEffect({ duration: 0.9, appears: 'byChar' });
+  driver.setEffectStartup('withPrevious', 0.6);
 
-  if (withAnimation) {
-    driver.setDissolveEffect({ duration: 0.7, appears: 'byChar' });
-    driver.setEffectStartup('afterPrevious');
-  }
+  const totalHeight =
+    titleText.height() + bibleRefText.height() + authorText.height();
+  const x = 260;
+  const y = (documentHeight - totalHeight) / 2;
 
-  const bibleRefTextItem = driver.addText(format(bibleRef), 'sermonBibleRef');
+  driver.setElementXY(titleText, x, y);
+  driver.setElementXY(bibleRefText, x, y + titleText.height());
 
-  if (withAnimation) {
-    driver.setDissolveEffect({ duration: 0.7, appears: 'byChar' });
-    driver.setEffectStartup('withPrevious', 0.2);
-  }
-
-  const authorTextItem = driver.addText(author, 'sermonAuthor');
-
-  if (withAnimation) {
-    driver.setDissolveEffect({ duration: 0.7, appears: 'byChar' });
-    driver.setEffectStartup('withPrevious', 0.2);
-  }
-
-  driver.setElementX(
-    bibleRefTextItem,
-    (contentWidth - bibleRefTextItem.width()) / 2,
-  );
-  driver.setElementY(bibleRefTextItem, 800);
-
-  driver.setElementX(
-    authorTextItem,
-    (contentWidth - authorTextItem.width()) / 2,
-  );
-  driver.setElementY(authorTextItem, 800 + bibleRefTextItem.height());
+  driver.setElementX(authorText, x + bibleRefText.width());
+  driver.setElementY(authorText, y + titleText.height());
 }
 
-function createSecondSlide(background, title, author, bibleRef) {
-  driver.addSlide(background);
-  driver.addBubbles(1, 'center');
-  createSecondAndThirdSlideElements(title, author, bibleRef);
-}
+function createSecondSlide(title, author, bibleRef, plan) {
+  driver.addSlide(BACKGROUND);
+  driver.addBubbles(0, 'center');
 
-function createThirdSlide(background, title, author, bibleRef, plan) {
-  driver.addSlide(background);
-  driver.addBubbles(1, 'center');
-  driver.addVerticalOverlays();
+  const titleText = driver.addText(title.toUpperCase(), {
+    font: 'SourceSansPro-Black',
+    size: TITLE_SIZE * SCALE,
+  });
+  driver.setTextLineHeight(titleText, 0.7);
+  driver.setTextAlignment(titleText, 'left');
+  titleText.width = TITLE_WIDTH * SCALE;
+  equalize(titleText);
 
-  createSecondAndThirdSlideElements(title, author, bibleRef, 900, false);
+  const bibleRefText = driver.addText(format(bibleRef), {
+    font: 'AdobeHebrew-BoldItalic',
+    size: BIBLE_REF_SIZE * SCALE,
+    opacity: 80,
+  });
 
-  const itemHeight = 220;
-  const totalHeight = plan.length * itemHeight;
-  const y = (documentHeight - totalHeight) / 2 - 32;
+  const authorText = driver.addText(`  •  ${author}`, {
+    font: 'SourceSansPro-Black',
+    size: AUTHOR_SIZE * SCALE,
+    opacity: 80,
+  });
 
-  _.forEach(plan, (item, index) => {
-    const number = driver.addText(index + 1, 'sermonPlanNumber');
-    driver.setElementX(number, 1130 - index * 20);
-    driver.setElementY(number, y + index * itemHeight);
-    driver.setFadeMoveEffect({
-      duration: 0.5,
-      direction: 'leftToRight',
-      distance: 5,
+  const x = 260;
+  const y = 100;
+
+  driver.setElementXY(titleText, x, y);
+  driver.setElementXY(bibleRefText, x, y + titleText.height());
+
+  driver.setElementX(authorText, x + bibleRefText.width());
+  driver.setElementY(authorText, y + titleText.height());
+
+  const steps = plan.map((step, index) => {
+    const stepText = driver.addText(`${index + 1}. ${step}`, {
+      font: 'AdobeHebrew-BoldItalic',
+      size: 60,
+      opacity: 30,
     });
 
-    const text = driver.addText(item, 'sermonPlanTitle');
-    text.width = 500;
-    driver.setTextAlignment(text, 'left');
-    driver.setElementX(text, number.position().x + number.width() + 48);
-    driver.setElementY(
-      text,
-      number.position().y + (number.height() - text.height()) / 2 + 16,
-    );
-    driver.setFadeMoveEffect({
-      duration: 0.5,
-      direction: 'bottomToTop',
-      distance: 5,
-    });
-    driver.setEffectStartup('withPrevious', 0.1);
+    const stepY =
+      bibleRefText.position().y + bibleRefText.height() + 92 * index + 64;
+
+    driver.setElementX(stepText, x);
+    driver.setElementY(stepText, stepY);
+
+    driver.setDissolveEffect({ duration: 0.9, appears: 'byChar' });
+
+    if (index) {
+      driver.setEffectStartup('withPrevious', 0.3);
+    } else {
+      driver.setEffectStartup('afterPrevious');
+    }
+
+    return stepText;
+  });
+
+  steps.forEach(step => {
+    driver.selectElement(step);
+    driver.setOpacityEffect({ duration: 0.6, opacity: 100 });
   });
 }
 
-function createSlide({ title, author, bibleRef, plan } = {}) {
-  const background = driver.getNextRegularBackground();
-  const parsedBibleRef = parse(bibleRef);
-
-  createFirstSlide(background);
-
-  if (!bibleRef) {
-    return;
-  }
-
-  createSecondSlide(background, title, author, parsedBibleRef);
-
-  if (plan) {
-    createThirdSlide(background, title, author, parsedBibleRef, plan);
-  }
+function createSlide({ title, author, bibleRef, plan = [] } = {}) {
+  createFirstSlide(title, author, bibleRef);
+  createSecondSlide(title, author, bibleRef, plan);
+  driver.addSlide(BACKGROUND);
 }
 
 export function createSermonSlideGenerator(driver_) {
