@@ -3,7 +3,7 @@ const { documentHeight } = require('../config');
 
 const BACKGROUND = 'backgroundSermon';
 const TITLE_SIZE = 130;
-const TITLE_WIDTH = 920;
+const TITLE_WIDTH = 640;
 const BIBLE_REF_SIZE = 66;
 const AUTHOR_SIZE = 50;
 const SCALE = 0.8;
@@ -29,7 +29,7 @@ function createFirstSlide(title, author, bibleRef) {
     font: 'SourceSansPro-Black',
     size: TITLE_SIZE,
   });
-  driver.setTextLineHeight(titleText, 0.7);
+  driver.setTextLineHeight(titleText, 0.8);
   driver.setTextAlignment(titleText, 'left');
   titleText.width = TITLE_WIDTH;
   equalize(titleText);
@@ -74,7 +74,7 @@ function createSecondSlide(title, author, bibleRef, plan) {
     font: 'SourceSansPro-Black',
     size: TITLE_SIZE * SCALE,
   });
-  driver.setTextLineHeight(titleText, 0.7);
+  driver.setTextLineHeight(titleText, 0.8);
   driver.setTextAlignment(titleText, 'left');
   titleText.width = TITLE_WIDTH * SCALE;
   equalize(titleText);
@@ -100,16 +100,18 @@ function createSecondSlide(title, author, bibleRef, plan) {
   driver.setElementX(authorText, x + bibleRefText.width());
   driver.setElementY(authorText, y + titleText.height());
 
+  let stepY = bibleRefText.position().y + bibleRefText.height() + 92;
+
   const steps = plan.map((step, index) => {
-    const stepText = driver.addText(`${index + 1}. ${step}`, {
+    const stepText = driver.addText(step, {
       font: 'AdobeHebrew-BoldItalic',
       size: 60,
       opacity: 30,
     });
+    stepText.width = TITLE_WIDTH;
 
-    const stepY =
-      bibleRefText.position().y + bibleRefText.height() + 92 * index + 64;
-
+    driver.setTextNumbered(stepText, index + 1, 64);
+    driver.setTextAlignment(stepText, 'left');
     driver.setElementX(stepText, x);
     driver.setElementY(stepText, stepY);
 
@@ -120,6 +122,8 @@ function createSecondSlide(title, author, bibleRef, plan) {
     } else {
       driver.setEffectStartup('afterPrevious');
     }
+
+    stepY += stepText.height() + 32;
 
     return stepText;
   });
@@ -132,7 +136,11 @@ function createSecondSlide(title, author, bibleRef, plan) {
 
 function createSlide({ title, author, bibleRef, plan = [] } = {}) {
   createFirstSlide(title, author, bibleRef);
-  createSecondSlide(title, author, bibleRef, plan);
+
+  if (plan.length) {
+    createSecondSlide(title, author, bibleRef, plan);
+  }
+
   driver.addSlide(BACKGROUND);
 }
 

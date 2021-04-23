@@ -1,3 +1,4 @@
+/* eslint-disable no-param-reassign */
 const _ = require('lodash');
 const {
   documentWidth,
@@ -49,8 +50,16 @@ export function createDriver(filename) {
     delay(0.2);
   }
 
+  // See https://eastmanreference.com/complete-list-of-applescript-key-codes
   function pressEnter() {
     systemEvent.keyCode(36);
+  }
+
+  function setTextFieldValue(textField, value) {
+    textField.focused = true;
+    textField.value = `${value}`;
+    textField.focused = false;
+    textField.confirm();
   }
 
   function selectElement(element) {
@@ -348,10 +357,7 @@ export function createDriver(filename) {
 
     const scrollArea = mainWindow.scrollAreas[0];
     const textField = scrollArea.textFields[3];
-    textField.focused = true;
-    textField.value = `${value}`.replace('.', ',');
-    textField.focused = false;
-    textField.confirm();
+    setTextFieldValue(textField, `${value}`.replace('.', ','));
   }
 
   function setTextAlignment(textItem, align) {
@@ -372,6 +378,27 @@ export function createDriver(filename) {
       group.checkboxes[2].click();
     } else {
       group.checkboxes[1].click();
+    }
+  }
+
+  function setTextNumbered(textItem, number, indent = null) {
+    selectElement(textItem);
+
+    openInspector(0);
+    selectInspectorTab('Texte');
+
+    const scrollArea = mainWindow.scrollAreas[0];
+    const group = scrollArea.groups[4];
+
+    setSelectBoxValue(scrollArea.popUpButtons[4], 'Numéros');
+    group.radioGroups[0].radioButtons[1].click();
+
+    _.range(1, number).forEach(() => {
+      group.incrementors[3].buttons[0].click();
+    });
+
+    if (indent !== null) {
+      setTextFieldValue(group.textFields[1], indent);
     }
   }
 
@@ -432,17 +459,14 @@ export function createDriver(filename) {
   }
 
   function setElementX(element, x) {
-    // eslint-disable-next-line no-param-reassign
     element.position = { x, y: element.position().y };
   }
 
   function setElementY(element, y) {
-    // eslint-disable-next-line no-param-reassign
     element.position = { x: element.position().x, y };
   }
 
   function setElementXY(element, x, y) {
-    // eslint-disable-next-line no-param-reassign
     element.position = { x, y };
   }
 
@@ -454,39 +478,40 @@ export function createDriver(filename) {
   }
 
   return {
-    keynote,
-    mainWindow,
+    addBubbles,
+    addHorizontalOverlays,
+    addLine,
+    addSlide,
+    addText,
+    addVerticalOverlays,
     doc,
-    initDocument,
-    press,
-    pressEnter,
-    openInspector,
-    selectElement,
-    selectInspectorTab,
-    openBuildOrderWindow,
     getBuildOrderWindow,
     getNextRegularBackground,
+    initDocument,
+    keynote,
+    mainWindow,
+    openBuildOrderWindow,
+    openInspector,
+    press,
+    pressEnter,
     selectEffect,
-    setEffectStartup,
-    setEffectDuration,
-    setLineDrawEffect,
+    selectElement,
+    selectInspectorTab,
+    setDisappearEffect,
     setDissolveEffect,
+    setEffectDuration,
+    setEffectStartup,
+    setElementX,
+    setElementXY,
+    setElementY,
     setFadeMoveEffect,
     setFadeScaleEffect,
     setFadeScaleOutEffect,
-    setDisappearEffect,
+    setLineDrawEffect,
     setOpacityEffect,
-    addText,
-    setTextLineHeight,
     setTextAlignment,
-    addBubbles,
-    addHorizontalOverlays,
-    addVerticalOverlays,
-    addLine,
-    addSlide,
-    setElementX,
-    setElementY,
-    setElementXY,
+    setTextLineHeight,
+    setTextNumbered,
   };
 }
 
