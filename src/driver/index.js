@@ -1,4 +1,5 @@
 /* eslint-disable no-param-reassign */
+
 const _ = require('lodash');
 const {
   documentWidth,
@@ -6,6 +7,48 @@ const {
   typography,
   regularBackgroundsNumber,
 } = require('../config');
+
+const dictionary = {
+  // Format
+  Texte: 'Text',
+  Numéros: 'Numbers',
+  Opacité: 'Opacity',
+
+  // Animate
+  Entrée: 'Build In',
+  Action: 'Action',
+  Sortie: 'Build Out',
+
+  'Ordre de composition': 'Build Order',
+  'Ajouter un effet': 'Add an Effect',
+  'Tracé de ligne': 'Line Draw',
+  Disparition: 'Disappear',
+  Dissolution: 'Dissolve',
+  'Fondu et déplacement': 'Fade and Move',
+  'Fondu et échelle': 'Fade and Scale',
+
+  'Du milieu aux extrémités': 'Middle to Ends',
+
+  "Vers l'avant": 'Forward',
+  "Vers l'arrière": 'Backward',
+  'À partir du center': 'From Center',
+  'À partir des bords': 'From Edges',
+  Aléatoire: 'Random',
+
+  'alignement de paragraphe': 'paragraph alignment',
+
+  'Par caractère': 'By Character',
+  'Par mot': 'By Word',
+  'Par objet': 'By Object',
+};
+
+function t(term) {
+  if (!dictionary[term]) {
+    throw new Error(`No translation for "${term}"`);
+  }
+
+  return dictionary[term];
+}
 
 export function createDriver(filename) {
   const systemEvent = Application('System Events');
@@ -55,6 +98,14 @@ export function createDriver(filename) {
     systemEvent.keyCode(36);
   }
 
+  // function pressEscape() {
+  //   systemEvent.press(53);
+  // }
+
+  // function pressTab() {
+  //   systemEvent.press(48);
+  // }
+
   function setTextFieldValue(textField, value) {
     textField.focused = true;
     textField.value = `${value}`;
@@ -63,18 +114,23 @@ export function createDriver(filename) {
   }
 
   function selectElement(element) {
-    // eslint-disable-next-line no-param-reassign
     element.locked = false;
   }
 
-  function copySlideObjects(slideIndex) {
-    const currentSlideIndex = _.indexOf(doc.slides, doc.currentSlide);
-    // eslint-disable-next-line prefer-destructuring
-    doc.currentSlide = doc.slides[slideIndex];
-    press('a', { command: true });
-    press('c', { command: true });
-    delay(0.5);
-    doc.currentSlide = doc.slides[currentSlideIndex];
+  function copyPasteObjectsFromSlide(slideIndex) {
+    if (currentClipboard !== slideIndex) {
+      const currentSlideIndex = _.indexOf(doc.slides, doc.currentSlide);
+      // eslint-disable-next-line prefer-destructuring
+      doc.currentSlide = doc.slides[slideIndex];
+      press('a', { command: true });
+      press('c', { command: true });
+      delay(0.5);
+      doc.currentSlide = doc.slides[currentSlideIndex];
+      currentClipboard = slideIndex;
+    }
+
+    press('v', { command: true });
+    delay(0.2);
   }
 
   /**
@@ -97,13 +153,15 @@ export function createDriver(filename) {
 
   function openBuildOrderWindow() {
     openInspector(1);
-    mainWindow.buttons.byName('Ordre de composition').click();
+    mainWindow.buttons.byName(t('Ordre de composition')).click();
   }
 
   function getBuildOrderWindow() {
     openBuildOrderWindow();
 
-    return systemEvent.processes.Keynote.windows.byName('Ordre de composition');
+    return systemEvent.processes.Keynote.windows.byName(
+      t('Ordre de composition'),
+    );
   }
 
   /**
@@ -126,7 +184,7 @@ export function createDriver(filename) {
    */
 
   function selectEffect(effect) {
-    const addEffectButton = mainWindow.buttons.byName('Ajouter un effet');
+    const addEffectButton = mainWindow.buttons.byName(t('Ajouter un effet'));
     addEffectButton.click();
     delay(0.2);
     addEffectButton.popOvers[0].scrollAreas[0].buttons.byName(effect).click();
@@ -148,9 +206,7 @@ export function createDriver(filename) {
     setSelectBoxIndex(win.popUpButtons[0], beginIndex);
 
     const delayTextField = win.textFields[0];
-    delayTextField.focused = true;
-    delayTextField.value = `${delay}`.replace('.', ',');
-    delayTextField.confirm();
+    setTextFieldValue(delayTextField, `${delay}`.replace('.', ','));
   }
 
   function setEffectDuration(duration) {
@@ -160,11 +216,11 @@ export function createDriver(filename) {
 
   function setLineDrawEffect({
     duration = 0.7,
-    direction = 'Du milieu aux extrémités',
+    direction = t('Du milieu aux extrémités'),
   } = {}) {
     openInspector(1);
-    selectInspectorTab('Entrée');
-    selectEffect('Tracé de ligne');
+    selectInspectorTab(t('Entrée'));
+    selectEffect(t('Tracé de ligne'));
     setEffectDuration(duration);
 
     const scrollArea = mainWindow.scrollAreas[0];
@@ -177,8 +233,8 @@ export function createDriver(filename) {
     startsFrom = 'top', // or 'bottom' or 'center' or 'edges' or 'random'
   }) {
     openInspector(1);
-    selectInspectorTab('Entrée');
-    selectEffect('Dissolution');
+    selectInspectorTab(t('Entrée'));
+    selectEffect(t('Dissolution'));
     setEffectDuration(duration);
 
     const scrollArea = mainWindow.scrollAreas[0];
@@ -186,23 +242,23 @@ export function createDriver(filename) {
     const startsFromSelect = scrollArea.popUpButtons[1];
 
     if (appears === 'byWord') {
-      setSelectBoxValue(appearsSelect, 'Par mot');
+      setSelectBoxValue(appearsSelect, t('Par mot'));
     } else if (appears === 'byChar') {
-      setSelectBoxValue(appearsSelect, 'Par caractère');
+      setSelectBoxValue(appearsSelect, t('Par caractère'));
     } else {
-      setSelectBoxValue(appearsSelect, 'Par objet');
+      setSelectBoxValue(appearsSelect, t('Par objet'));
     }
 
     if (startsFrom === 'bottom') {
-      setSelectBoxValue(startsFromSelect, "Vers l'arrière");
+      setSelectBoxValue(startsFromSelect, t("Vers l'arrière"));
     } else if (startsFrom === 'center') {
-      setSelectBoxValue(startsFromSelect, 'À partir du center');
+      setSelectBoxValue(startsFromSelect, t('À partir du center'));
     } else if (startsFrom === 'edges') {
-      setSelectBoxValue(startsFromSelect, 'À partir des bords');
+      setSelectBoxValue(startsFromSelect, t('À partir des bords'));
     } else if (startsFrom === 'random') {
-      setSelectBoxValue(startsFromSelect, 'Aléatoire');
+      setSelectBoxValue(startsFromSelect, t('Aléatoire'));
     } else {
-      setSelectBoxValue(startsFromSelect, "Vers l'avant");
+      setSelectBoxValue(startsFromSelect, t("Vers l'avant"));
     }
   }
 
@@ -214,8 +270,8 @@ export function createDriver(filename) {
     // startsFrom = 'top', // bottom, center, edges, random
   }) {
     openInspector(1);
-    selectInspectorTab('Entrée');
-    selectEffect('Fondu et déplacement');
+    selectInspectorTab(t('Entrée'));
+    selectEffect(t('Fondu et déplacement'));
     setEffectDuration(duration);
 
     let directionIndex = 3;
@@ -240,8 +296,8 @@ export function createDriver(filename) {
     scale = 100, // from 0% to 200%
   } = {}) {
     openInspector(1);
-    selectInspectorTab('Entrée');
-    selectEffect('Fondu et échelle');
+    selectInspectorTab(t('Entrée'));
+    selectEffect(t('Fondu et échelle'));
     setEffectDuration(duration);
 
     const scrollArea = mainWindow.scrollAreas[0];
@@ -255,8 +311,8 @@ export function createDriver(filename) {
     scale = 100, // from 0% to 200%
   } = {}) {
     openInspector(1);
-    selectInspectorTab('Sortie');
-    selectEffect('Fondu et échelle');
+    selectInspectorTab(t('Sortie'));
+    selectEffect(t('Fondu et échelle'));
     setEffectDuration(duration);
 
     const scrollArea = mainWindow.scrollAreas[0];
@@ -267,14 +323,14 @@ export function createDriver(filename) {
 
   function setDisappearEffect() {
     openInspector(1);
-    selectInspectorTab('Sortie');
-    selectEffect('Disparition');
+    selectInspectorTab(t('Sortie'));
+    selectEffect(t('Disparition'));
   }
 
   function setOpacityEffect({ duration = 1, opacity = 50 }) {
     openInspector(1);
-    selectInspectorTab('Action');
-    selectEffect('Opacité');
+    selectInspectorTab(t('Action'));
+    selectEffect(t('Opacité'));
     setEffectDuration(duration);
 
     const scrollArea = mainWindow.scrollAreas[0];
@@ -353,7 +409,7 @@ export function createDriver(filename) {
     selectElement(textItem);
 
     openInspector(0);
-    selectInspectorTab('Texte');
+    selectInspectorTab(t('Texte'));
 
     const scrollArea = mainWindow.scrollAreas[0];
     const textField = scrollArea.textFields[3];
@@ -364,12 +420,12 @@ export function createDriver(filename) {
     selectElement(textItem);
 
     openInspector(0);
-    selectInspectorTab('Texte');
+    selectInspectorTab(t('Texte'));
 
     const scrollArea = mainWindow.scrollAreas[0];
     const group = _.find(
       scrollArea.groups,
-      item => item.description() === 'alignement de paragraphe',
+      item => item.description() === t('alignement de paragraphe'),
     );
 
     if (align === 'left') {
@@ -385,12 +441,12 @@ export function createDriver(filename) {
     selectElement(textItem);
 
     openInspector(0);
-    selectInspectorTab('Texte');
+    selectInspectorTab(t('Texte'));
 
     const scrollArea = mainWindow.scrollAreas[0];
     const group = scrollArea.groups[4];
 
-    setSelectBoxValue(scrollArea.popUpButtons[4], 'Numéros');
+    setSelectBoxValue(scrollArea.popUpButtons[4], t('Numéros'));
     group.radioGroups[0].radioButtons[1].click();
 
     _.range(1, number).forEach(() => {
