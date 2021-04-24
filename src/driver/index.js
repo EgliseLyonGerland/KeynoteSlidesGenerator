@@ -138,7 +138,7 @@ export function createDriver(filename) {
    */
 
   function openInspector(tab = 0) {
-    const group = mainWindow.toolbars[0].radioGroups[0];
+    const group = mainWindow.toolbars[0].groups[9].groups[0];
     const button = group.radioButtons[tab];
 
     if (button.value() === 0) {
