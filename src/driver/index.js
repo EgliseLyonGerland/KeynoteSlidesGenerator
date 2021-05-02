@@ -117,20 +117,14 @@ export function createDriver(filename) {
     element.locked = false;
   }
 
-  function copyPasteObjectsFromSlide(slideIndex) {
-    if (currentClipboard !== slideIndex) {
-      const currentSlideIndex = _.indexOf(doc.slides, doc.currentSlide);
-      // eslint-disable-next-line prefer-destructuring
-      doc.currentSlide = doc.slides[slideIndex];
-      press('a', { command: true });
-      press('c', { command: true });
-      delay(0.5);
-      doc.currentSlide = doc.slides[currentSlideIndex];
-      currentClipboard = slideIndex;
-    }
-
-    press('v', { command: true });
-    delay(0.2);
+  function copySlideObjects(slideIndex) {
+    const currentSlideIndex = _.indexOf(doc.slides, doc.currentSlide);
+    // eslint-disable-next-line prefer-destructuring
+    doc.currentSlide = doc.slides[slideIndex];
+    press('a', { command: true });
+    press('c', { command: true });
+    delay(0.5);
+    doc.currentSlide = doc.slides[currentSlideIndex];
   }
 
   /**
