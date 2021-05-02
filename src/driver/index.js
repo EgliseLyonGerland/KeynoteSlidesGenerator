@@ -117,14 +117,20 @@ export function createDriver(filename) {
     element.locked = false;
   }
 
-  function copySlideObjects(slideIndex) {
-    const currentSlideIndex = _.indexOf(doc.slides, doc.currentSlide);
-    // eslint-disable-next-line prefer-destructuring
-    doc.currentSlide = doc.slides[slideIndex];
-    press('a', { command: true });
-    press('c', { command: true });
-    delay(0.5);
-    doc.currentSlide = doc.slides[currentSlideIndex];
+  function copyPasteObjectsFromSlide(slideIndex) {
+    if (currentClipboard !== slideIndex) {
+      const currentSlideIndex = _.indexOf(doc.slides, doc.currentSlide);
+      // eslint-disable-next-line prefer-destructuring
+      doc.currentSlide = doc.slides[slideIndex];
+      press('a', { command: true });
+      press('c', { command: true });
+      delay(0.5);
+      doc.currentSlide = doc.slides[currentSlideIndex];
+      currentClipboard = slideIndex;
+    }
+
+    press('v', { command: true });
+    delay(0.2);
   }
 
   /**
@@ -332,11 +338,7 @@ export function createDriver(filename) {
   }
 
   function addBubbles(index = 0, align = 'top') {
-    // if (currentClipboard !== 'bubbles') {
-    //   copySlideObjects(0);
-    //   currentClipboard = 'bubbles';
-    // }
-    // press('v', { command: true });
+    // copyPasteObjectsFromSlide(0);
     // const { currentSlide: slide } = doc;
     // _.forEach(slide.images, (shape, position) => {
     //   let y = -(position + 1) * 50 * index;
@@ -349,23 +351,11 @@ export function createDriver(filename) {
   }
 
   function addHorizontalOverlays() {
-    if (currentClipboard !== 'horizontalOverlays') {
-      copySlideObjects(1);
-      currentClipboard = 'horizontalOverlays';
-    }
-
-    press('v', { command: true });
-    delay(0.2);
+    copyPasteObjectsFromSlide(1);
   }
 
   function addVerticalOverlays() {
-    if (currentClipboard !== 'verticalOverlays') {
-      copySlideObjects(2);
-      currentClipboard = 'verticalOverlays';
-    }
-
-    press('v', { command: true });
-    delay(0.2);
+    copyPasteObjectsFromSlide(2);
   }
 
   function addText(text, ...args) {
