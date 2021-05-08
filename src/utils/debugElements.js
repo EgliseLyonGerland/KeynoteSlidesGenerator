@@ -1,5 +1,7 @@
 const _ = require('lodash');
 
+const { log } = console;
+
 export function debugElements(
   elements,
   recursive = false,
@@ -19,10 +21,10 @@ export function debugElements(
   level = 0,
 ) {
   _.forEach(elements, (element, index) => {
-    console.log(
+    log(
       '  '.repeat(level),
       index,
-      ...properties.map(property => element[property]()),
+      ...properties.map((property) => element[property]()),
     );
 
     if (

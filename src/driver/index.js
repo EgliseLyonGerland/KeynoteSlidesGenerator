@@ -409,7 +409,7 @@ export function createDriver(filename) {
     const scrollArea = mainWindow.scrollAreas[0];
     const group = _.find(
       scrollArea.groups,
-      item => item.description() === t('alignement de paragraphe'),
+      (item) => item.description() === t('alignement de paragraphe'),
     );
 
     if (align === 'left') {

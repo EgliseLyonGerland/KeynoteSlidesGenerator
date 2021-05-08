@@ -46,7 +46,7 @@ function createSlide() {
   driver.setDissolveEffect({ duration: 0.7 });
   driver.setEffectStartup('withPrevious', 0.1);
 
-  Array.from({ length: duration }, (_, i) => {
+  for (let i = 0; i < duration; i += 1) {
     const digits = getDigits(duration - i - 1);
 
     driver.selectElement(second2);
@@ -90,7 +90,7 @@ function createSlide() {
         }
       }
     }
-  });
+  }
 }
 
 export function createCountdownSlideGenerator(driver_) {

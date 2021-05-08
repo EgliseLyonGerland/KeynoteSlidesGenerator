@@ -128,7 +128,7 @@ function createSecondSlide(title, author, bibleRef, plan) {
     return stepText;
   });
 
-  steps.forEach(step => {
+  steps.forEach((step) => {
     driver.selectElement(step);
     driver.setOpacityEffect({ duration: 0.6, opacity: 100 });
   });

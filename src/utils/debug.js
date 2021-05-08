@@ -117,7 +117,7 @@ function stringifyArray(data, level = 0, indentSize = 0) {
   let multiline = false;
   let length = 0;
 
-  const parts = map(data, value => {
+  const parts = map(data, (value) => {
     const content = stringify(value, level + 1, indentSize + 2);
 
     if (isMultiline(content)) {
@@ -144,7 +144,7 @@ function stringifyArray(data, level = 0, indentSize = 0) {
 }
 
 export function debug(...args) {
-  const formattedArgs = map(args, arg => {
+  const formattedArgs = map(args, (arg) => {
     if (isObjectLike(arg)) {
       return stringify(arg);
     }
