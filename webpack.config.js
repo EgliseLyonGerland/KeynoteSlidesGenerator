@@ -1,15 +1,25 @@
 const path = require('path');
 const webpack = require('webpack');
 
-const rootPath = path.join(__dirname, '../..');
-
 module.exports = {
   mode: 'development',
   devtool: false,
-  entry: path.join(rootPath, '/src/index.js'),
+  entry: path.join(__dirname, '/src/index.js'),
   output: {
-    path: path.join(rootPath, '/dist'),
+    path: path.join(__dirname, '/dist'),
     filename: 'index.jxa',
+  },
+  module: {
+    rules: [
+      {
+        test: /\.tsx?$/,
+        use: 'ts-loader',
+        exclude: /node_modules/,
+      },
+    ],
+  },
+  resolve: {
+    extensions: ['.tsx', '.ts', '.js'],
   },
   plugins: [
     new webpack.ProvidePlugin({

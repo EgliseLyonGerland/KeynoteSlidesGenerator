@@ -6,7 +6,17 @@
  *  - SourceSansPro-Black
  *  - AdobeHebrew-BoldItalic
  */
-export const typography = {
+
+type Typography = Record<
+  string,
+  {
+    font: string;
+    size: number;
+    opacity?: number;
+  }
+>;
+
+export const typography: Typography = {
   title: {
     font: 'SourceSansPro-Black',
     size: 90,
@@ -106,6 +116,22 @@ export const typography = {
   countdown: {
     font: 'Muli',
     size: 86,
+  },
+  openDoorsTitle: {
+    font: 'BarlowCondensed-Bold',
+    size: 65,
+  },
+  openDoorsDetail: {
+    font: 'SourceSansPro-Regular',
+    size: 46,
+  },
+  openDoorsPrayerTopicsHeadline: {
+    font: 'BarlowCondensed-Bold',
+    size: 55,
+  },
+  openDoorsPrayerTopic: {
+    font: 'AdobeHebrew-Regular',
+    size: 35,
   },
 };
 

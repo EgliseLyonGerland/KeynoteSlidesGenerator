@@ -1,14 +1,13 @@
-const { createDriver } = require('./driver');
-const { createSongSlideGenerator } = require('./generators/songSlide');
-const { createVerseSlideGenerator } = require('./generators/verseSlide');
-const { createGoodbyeSlideGenerator } = require('./generators/goodbyeSlide');
-const { createChapterSlideGenerator } = require('./generators/chapterSlide');
-const { createSermonSlideGenerator } = require('./generators/sermonSlide');
-const {
-  createAnnouncementSlideGenerator,
-} = require('./generators/announcementSlide');
+import { createDriver } from './driver';
+import { createSongSlideGenerator } from './generators/songSlide';
+import { createVerseSlideGenerator } from './generators/verseSlide';
+import { createGoodbyeSlideGenerator } from './generators/goodbyeSlide';
+import { createChapterSlideGenerator } from './generators/chapterSlide';
+import { createSermonSlideGenerator } from './generators/sermonSlide';
+import { createOpenDoorsSlideGenerator } from './generators/openDoorsSlide';
+import { createAnnouncementSlideGenerator } from './generators/announcementSlide';
 
-const driver = createDriver('Slides');
+const driver = createDriver('Slides.key');
 
 const createSongSlide = createSongSlideGenerator(driver);
 const createVerseSlide = createVerseSlideGenerator(driver);
