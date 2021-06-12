@@ -484,7 +484,7 @@ export function createDriver(filename) {
 
   function addSlide(backgroundName) {
     const slide = keynote.Slide({
-      baseSlide: doc.masterSlides.byName(backgroundName),
+      baseLayout: doc.slideLayouts.byName(backgroundName),
     });
 
     doc.slides.push(slide);
