@@ -42,8 +42,16 @@ function addTitle({ title, copyright = '', authors = '', collection = '' }) {
   }
 }
 
-function addNextLyrics(text, format, index, isLast) {
-  const textItem = driver.addText(text, format);
+function addLyrics(lyrics, index) {
+  const lines = lyrics.text.split('\n');
+  const format = lyrics.type === 'chorus' ? 'songChorus' : 'songVerse';
+  const text = lines.join(`${' '.repeat(index)}\n`);
+
+  return driver.addText(text, format);
+}
+
+function addNextLyrics(lyrics, index) {
+  const textItem = addLyrics(lyrics, index);
   textItem.opacity = index ? 50 : 0;
   driver.setElementY(textItem, 648);
 
@@ -51,20 +59,20 @@ function addNextLyrics(text, format, index, isLast) {
     // Put text in background
     driver.press('b', { shift: true, command: true });
   }
-
-  if (index && !isLast) {
-    driver.setFadeMoveEffect({
-      duration: 0.7,
-      direction: 'bottomToTop',
-      distance: 10,
-    });
-    driver.setEffectStartup('afterPrevious');
-  }
 }
 
-function addCurrentLyrics(text, format) {
-  const textItem = driver.addText(text, format);
-  // const y = (documentHeight - textItem.height()) / 2;
+function addOverNextLyrics(lyrics, index) {
+  const textItem = addLyrics(lyrics, index);
+
+  textItem.opacity = index ? 50 : 0;
+  driver.setElementY(textItem, 648 * 2);
+
+  // Put text in background
+  driver.press('b', { shift: true, command: true });
+}
+
+function addCurrentLyrics(lyrics, index) {
+  const textItem = addLyrics(lyrics, index);
   const y = (600 - textItem.height()) / 2;
 
   driver.setElementY(textItem, y);
@@ -81,15 +89,15 @@ function createSlide({ repeat = false, ...song } = {}) {
   }
 
   _.forEach(lyrics, (part, index) => {
-    const lines = part.text.split('\n');
-    const format = part.type === 'chorus' ? 'songChorus' : 'songVerse';
-    const text = lines.join(`${' '.repeat(index)}\n`);
-    const isLast = index === lyrics.length;
+    addNextLyrics(part, index);
 
-    addNextLyrics(text, format, index, isLast);
+    if (lyrics[index + 1]) {
+      addOverNextLyrics(lyrics[index + 1], index + 1);
+    }
+
     driver.addSlide('backgroundSong');
     driver.addBubbles(index + 1);
-    addCurrentLyrics(text, format, lines.length);
+    addCurrentLyrics(part, index);
   });
 }
 
