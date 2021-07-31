@@ -54,11 +54,11 @@ function addNextLyrics(text, format, index, isLast) {
 
   if (index && !isLast) {
     driver.setFadeMoveEffect({
-      duration: 1,
+      duration: 0.7,
       direction: 'bottomToTop',
       distance: 10,
     });
-    driver.setEffectStartup('afterPrevious', 0.2);
+    driver.setEffectStartup('afterPrevious');
   }
 }
 
