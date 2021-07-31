@@ -117,15 +117,19 @@ export function createDriver(filename) {
     element.locked = false;
   }
 
+  function selectSlide(index) {
+    // eslint-disable-next-line prefer-destructuring
+    doc.currentSlide = doc.slides[index];
+  }
+
   function copyPasteObjectsFromSlide(slideIndex) {
     if (currentClipboard !== slideIndex) {
       const currentSlideIndex = _.indexOf(doc.slides, doc.currentSlide);
-      // eslint-disable-next-line prefer-destructuring
-      doc.currentSlide = doc.slides[slideIndex];
+      selectSlide(slideIndex);
       press('a', { command: true });
       press('c', { command: true });
       delay(0.5);
-      doc.currentSlide = doc.slides[currentSlideIndex];
+      selectSlide(currentSlideIndex);
       currentClipboard = slideIndex;
     }
 
@@ -536,6 +540,7 @@ export function createDriver(filename) {
     pressEnter,
     selectEffect,
     selectElement,
+    selectSlide,
     selectInspectorTab,
     setDisappearEffect,
     setDissolveEffect,

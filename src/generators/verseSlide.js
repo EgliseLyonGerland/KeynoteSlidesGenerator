@@ -1,46 +1,78 @@
+import { debugElements } from '../utils/debugElements';
+
+const _ = require('lodash');
+const { documentHeight } = require('../config');
 const { parse } = require('../utils/bibleRef');
 
 let driver;
 
+const firstTemplateIndex = 3;
+const lastTemplateIndex = 6;
+
+let currentTemplateIndex = firstTemplateIndex;
+
+function getNextTemplateIndex() {
+  const previousIndex = currentTemplateIndex;
+  currentTemplateIndex += 1;
+
+  if (currentTemplateIndex > lastTemplateIndex) {
+    currentTemplateIndex = firstTemplateIndex;
+  }
+
+  return previousIndex;
+}
+
 function createSlide({ bibleRef, excerpt }) {
+  const templateIndex = getNextTemplateIndex();
+
+  driver.doc.slides[templateIndex].duplicate();
+  driver.doc.currentSlide.skipped = false;
+
+  const [titleElt, excerptElt] = _.reduce(
+    driver.doc.currentSlide.textItems,
+    (acc, curr) => {
+      if (curr.objectText().startsWith('Title:')) {
+        acc[0] = curr;
+      } else if (curr.objectText().startsWith('Description:')) {
+        acc[1] = curr;
+      }
+
+      return acc;
+    },
+    [null, null],
+  );
+
+  if (titleElt === null || excerptElt === null) {
+    throw new Error(`Verse template #${templateIndex} is misformatted`);
+  }
+
   const parsedBibleRef = parse(bibleRef);
 
-  const background = driver.getNextRegularBackground();
-  driver.addSlide(background);
-
-  const excerptElt = driver.addText(`“ ${excerpt} ”`, 'title', {
-    font: 'AdobeHebrew-BoldItalic',
-    size: 80,
-  });
-
-  excerptElt.width = 920;
-  driver.setTextAlignment(excerptElt, 'left');
-  driver.setElementX(excerptElt, 150);
-  driver.setElementY(excerptElt, 150);
-  driver.setDissolveEffect({ duration: 2, appears: 'byChar' });
-
-  let bibleRefText = `—${parsedBibleRef.book} ${parsedBibleRef.chapterStart}`;
+  let bibleRefText = `${parsedBibleRef.book} ${parsedBibleRef.chapterStart}`;
   if (parsedBibleRef.verseStart && !parsedBibleRef.verseEnd) {
     bibleRefText += ` • ${parsedBibleRef.verseStart}`;
   } else if (parsedBibleRef.verseStart && parsedBibleRef.verseEnd) {
     bibleRefText += ` • ${parsedBibleRef.verseStart}–${parsedBibleRef.verseEnd}`;
   }
 
-  const bibleRefElt = driver.addText(bibleRefText, 'title', {
-    font: 'SourceSansPro-Bold',
-    size: 60,
-    opacity: 70,
-  });
+  titleElt.objectText = bibleRefText;
+  excerptElt.objectText = `« ${excerpt} »`;
 
-  bibleRefElt.width = 880;
-  driver.setTextAlignment(bibleRefElt, 'right');
-  driver.setElementX(bibleRefElt, 150);
-  driver.setElementY(
-    bibleRefElt,
-    excerptElt.position().y + excerptElt.height() + 30,
-  );
-  driver.setDissolveEffect({ duration: 0.7, appears: 'byChar' });
-  driver.setEffectStartup('afterPrevious', 0.3);
+  const elements = [titleElt];
+  if (driver.doc.currentSlide.shapes.length) {
+    elements.push(driver.doc.currentSlide.shapes[0]);
+  }
+  elements.push(excerptElt);
+
+  const totalHeight =
+    excerptElt.position().y + excerptElt.height() - titleElt.position().y;
+
+  const y = Math.floor((documentHeight - totalHeight) / 2);
+  const delta = y - titleElt.position().y;
+
+  _.forEach(elements, (element) => {
+    driver.setElementY(element, element.position().y + delta);
+  });
 }
 
 export function createVerseSlideGenerator(driver_) {
