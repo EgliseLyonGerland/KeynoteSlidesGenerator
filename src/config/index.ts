@@ -16,6 +16,19 @@ type Typography = Record<
   }
 >;
 
+export type SlideType =
+  | 'announcement'
+  | 'chapter'
+  | 'goodbye'
+  | 'sermon'
+  | 'song'
+  | 'verse';
+
+export const templateRanges: Partial<Record<SlideType, [number, number]>> = {
+  verse: [3, 6],
+  goodbye: [10, 11],
+};
+
 export const typography: Typography = {
   title: {
     font: 'SourceSansPro-Black',

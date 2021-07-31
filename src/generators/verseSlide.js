@@ -1,22 +1,17 @@
-import { debugElements } from '../utils/debugElements';
-
 const _ = require('lodash');
-const { documentHeight } = require('../config');
 const { parse } = require('../utils/bibleRef');
+const { documentHeight, templateRanges } = require('../config');
 
 let driver;
 
-const firstTemplateIndex = 3;
-const lastTemplateIndex = 6;
-
-let currentTemplateIndex = firstTemplateIndex;
+let currentTemplateIndex = templateRanges.verse[0];
 
 function getNextTemplateIndex() {
   const previousIndex = currentTemplateIndex;
   currentTemplateIndex += 1;
 
-  if (currentTemplateIndex > lastTemplateIndex) {
-    currentTemplateIndex = firstTemplateIndex;
+  if (currentTemplateIndex > templateRanges.verse[1]) {
+    [currentTemplateIndex] = templateRanges.verse;
   }
 
   return previousIndex;

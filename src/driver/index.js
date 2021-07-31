@@ -122,6 +122,11 @@ export function createDriver(filename) {
     doc.currentSlide = doc.slides[index];
   }
 
+  function duplicateSlide(index) {
+    doc.slides[index].duplicate();
+    doc.currentSlide.skipped = false;
+  }
+
   function copyPasteObjectsFromSlide(slideIndex) {
     if (currentClipboard !== slideIndex) {
       const currentSlideIndex = _.indexOf(doc.slides, doc.currentSlide);
@@ -541,6 +546,7 @@ export function createDriver(filename) {
     selectEffect,
     selectElement,
     selectSlide,
+    duplicateSlide,
     selectInspectorTab,
     setDisappearEffect,
     setDissolveEffect,
