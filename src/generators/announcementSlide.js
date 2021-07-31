@@ -22,6 +22,7 @@ function createSlide({ items = [] } = {}) {
       line,
       (contentHeight - line.width()) / 2 + contentPositionY,
     );
+    driver.setEffectStartup('onClick');
 
     const title = driver.addText('Annonces', 'title');
     driver.setElementY(title, 90);
