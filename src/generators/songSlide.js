@@ -80,7 +80,6 @@ function addCurrentLyrics(lyrics, index) {
 
 function createSlide({ repeat = false, ...song } = {}) {
   driver.addSlide('backgroundSong');
-  driver.addBubbles();
   addTitle(song);
 
   let { lyrics } = song;
@@ -96,7 +95,6 @@ function createSlide({ repeat = false, ...song } = {}) {
     }
 
     driver.addSlide('backgroundSong');
-    driver.addBubbles(index + 1);
     addCurrentLyrics(part, index);
   });
 }

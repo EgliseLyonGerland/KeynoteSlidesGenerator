@@ -23,7 +23,6 @@ function equalize(textItem) {
 
 function createFirstSlide(title, author, bibleRef) {
   driver.addSlide(BACKGROUND);
-  driver.addBubbles(0, 'center');
 
   const titleText = driver.addText(title.toUpperCase(), {
     font: 'SourceSansPro-Black',
@@ -68,7 +67,6 @@ function createFirstSlide(title, author, bibleRef) {
 
 function createSecondSlide(title, author, bibleRef, plan) {
   driver.addSlide(BACKGROUND);
-  driver.addBubbles(0, 'center');
 
   const titleText = driver.addText(title.toUpperCase(), {
     font: 'SourceSansPro-Black',
