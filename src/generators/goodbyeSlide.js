@@ -1,10 +1,8 @@
-const { templateRanges } = require('../config');
-
 let driver;
 
 function createSlide() {
-  driver.duplicateSlide(templateRanges.goodbye[0]);
-  driver.duplicateSlide(templateRanges.goodbye[1]);
+  driver.addSlideFromTemplate('goodbye', 0);
+  driver.addSlideFromTemplate('goodbye', 1);
 }
 
 export function createGoodbyeSlideGenerator(driver_) {

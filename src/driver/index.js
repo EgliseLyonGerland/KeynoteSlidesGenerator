@@ -6,6 +6,7 @@ const {
   documentHeight,
   typography,
   regularBackgroundsNumber,
+  templateRanges,
 } = require('../config');
 
 const dictionary = {
@@ -494,6 +495,12 @@ export function createDriver(filename) {
     return slide;
   }
 
+  function addSlideFromTemplate(template, index = 0) {
+    const [firstIndex] = templateRanges[template];
+
+    this.duplicateSlide(firstIndex + index);
+  }
+
   function setElementX(element, x) {
     element.position = { x, y: element.position().y };
   }
@@ -517,6 +524,7 @@ export function createDriver(filename) {
     addHorizontalOverlays,
     addLine,
     addSlide,
+    addSlideFromTemplate,
     addText,
     addVerticalOverlays,
     doc,
