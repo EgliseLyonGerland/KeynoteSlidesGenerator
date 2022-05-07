@@ -1,6 +1,5 @@
-const _ = require('lodash');
 const { parse } = require('../utils/bibleRef');
-const { documentHeight, templateRanges } = require('../config');
+const { templateRanges } = require('../config');
 
 let driver;
 
@@ -20,22 +19,10 @@ function getNextTemplateIndex() {
 function createSlide({ bibleRef, excerpt }) {
   const templateIndex = getNextTemplateIndex();
 
-  driver.doc.slides[templateIndex].duplicate();
-  driver.doc.currentSlide.skipped = false;
+  driver.addSlideFromTemplate('verse', templateIndex);
 
-  const [titleElt, excerptElt] = _.reduce(
-    driver.doc.currentSlide.textItems,
-    (acc, curr) => {
-      if (curr.objectText().startsWith('Title:')) {
-        acc[0] = curr;
-      } else if (curr.objectText().startsWith('Description:')) {
-        acc[1] = curr;
-      }
-
-      return acc;
-    },
-    [null, null],
-  );
+  const titleElt = driver.findTextElement(/^Title:/);
+  const excerptElt = driver.findTextElement(/^Description:/);
 
   if (titleElt === null || excerptElt === null) {
     throw new Error(`Verse template #${templateIndex} is misformatted`);
@@ -51,23 +38,8 @@ function createSlide({ bibleRef, excerpt }) {
   }
 
   titleElt.objectText = bibleRefText;
+
   excerptElt.objectText = `« ${excerpt} »`;
-
-  const elements = [titleElt];
-  if (driver.doc.currentSlide.shapes.length) {
-    elements.push(driver.doc.currentSlide.shapes[0]);
-  }
-  elements.push(excerptElt);
-
-  const totalHeight =
-    excerptElt.position().y + excerptElt.height() - titleElt.position().y;
-
-  const y = Math.floor((documentHeight - totalHeight) / 2);
-  const delta = y - titleElt.position().y;
-
-  _.forEach(elements, (element) => {
-    driver.setElementY(element, element.position().y + delta);
-  });
 }
 
 export function createVerseSlideGenerator(driver_) {

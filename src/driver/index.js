@@ -533,10 +533,13 @@ export function createDriver(filename) {
   }
 
   function findTextElement(expr, from = 0) {
-    return findElement(
-      (item) => 'objectText' in item && item.objectText().match(expr),
-      from,
-    );
+    return findElement((item) => {
+      try {
+        return item.objectText().match(expr);
+      } catch (e) {
+        return false;
+      }
+    }, from);
   }
 
   initDocument();
