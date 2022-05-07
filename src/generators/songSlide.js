@@ -2,21 +2,26 @@ const _ = require('lodash');
 
 let driver;
 
-function addTitle({ title, copyright = '', authors = '', collection = '' }) {
+function createTitleSlide({
+  title,
+  copyright = '',
+  authors = '',
+  collection = '',
+}) {
   driver.addSlideFromTemplate('song', 0);
 
   const titleElt = driver.findTextElement(/^Title:/);
   titleElt.objectText = title;
 
   const authorsElt = driver.findTextElement(/^Authors:/);
-  authorsElt.objectText = authors;
+  authorsElt.objectText = authors || ' ';
 
   const extras = [];
   if (copyright) extras.push(`© ${copyright}`);
   if (collection) extras.push(collection);
 
   const creditsElt = driver.findTextElement(/^Credits:/);
-  creditsElt.objectText = extras.join(' – ');
+  creditsElt.objectText = extras.join(' – ') || ' ';
 }
 
 function addLyrics(lyrics, index) {
@@ -56,8 +61,7 @@ function addCurrentLyrics(lyrics, index) {
 }
 
 function createSlide({ repeat = false, ...song } = {}) {
-  driver.addSlide('backgroundSong');
-  addTitle(song);
+  createTitleSlide(song);
 
   let { lyrics } = song;
   if (repeat) {
@@ -74,6 +78,8 @@ function createSlide({ repeat = false, ...song } = {}) {
     driver.addSlide('backgroundSong');
     addCurrentLyrics(part, index);
   });
+
+  driver.addSlide('backgroundSong');
 }
 
 export function createSongSlideGenerator(driver_) {
