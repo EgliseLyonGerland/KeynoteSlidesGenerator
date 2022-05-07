@@ -23,11 +23,8 @@ module.exports = {
   },
   plugins: [
     new webpack.ProvidePlugin({
-      debug: [`${__dirname}/../../src/utils/debug`, 'debug'],
-      debugElements: [
-        `${__dirname}/../../src/utils/debugElements`,
-        'debugElements',
-      ],
+      debug: [`${__dirname}/src/utils/debug`, 'debug'],
+      debugElements: [`${__dirname}/src/utils/debugElements`, 'debugElements'],
     }),
   ],
 };
