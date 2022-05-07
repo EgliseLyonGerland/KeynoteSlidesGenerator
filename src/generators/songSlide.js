@@ -3,43 +3,20 @@ const _ = require('lodash');
 let driver;
 
 function addTitle({ title, copyright = '', authors = '', collection = '' }) {
-  const titleTextItem = driver.addText(title, 'songTitle');
+  driver.addSlideFromTemplate('song', 0);
 
-  driver.setFadeMoveEffect({
-    duration: 0.7,
-    direction: 'topToBottom',
-    distance: 10,
-  });
+  const titleElt = driver.findTextElement(/^Title:/);
+  titleElt.objectText = title;
 
-  if (authors) {
-    const authorsTextItem = driver.addText(authors, 'songAuthors');
-
-    const margin = 16;
-    const height = titleTextItem.height() + authorsTextItem.height() + margin;
-    const y = (600 - height) / 2;
-
-    driver.setElementY(titleTextItem, y);
-    driver.setElementY(authorsTextItem, y + titleTextItem.height() + margin);
-
-    driver.setFadeMoveEffect({
-      duration: 0.7,
-      direction: 'bottomToTop',
-      distance: 10,
-    });
-    driver.setEffectStartup('withPrevious', 0.2);
-  }
+  const authorsElt = driver.findTextElement(/^Authors:/);
+  authorsElt.objectText = authors;
 
   const extras = [];
   if (copyright) extras.push(`© ${copyright}`);
   if (collection) extras.push(collection);
 
-  if (extras.length) {
-    const extrasTextItem = driver.addText(extras.join(' – '), 'songExtras');
-
-    driver.setElementY(extrasTextItem, 450);
-    driver.setDissolveEffect({ duration: 0.7, appears: 'byChar' });
-    driver.setEffectStartup('afterPrevious', 0.3);
-  }
+  const creditsElt = driver.findTextElement(/^Credits:/);
+  creditsElt.objectText = extras.join(' – ');
 }
 
 function addLyrics(lyrics, index) {

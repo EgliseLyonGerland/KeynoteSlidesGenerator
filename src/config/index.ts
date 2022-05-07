@@ -24,11 +24,19 @@ export type SlideType =
   | 'song'
   | 'verse';
 
-export const templateRanges: Partial<Record<SlideType, [number, number]>> = {
-  verse: [3, 6],
-  goodbye: [10, 11],
-  sermon: [12, 14],
-};
+export const templateRanges: Record<string, [number, number]> = Object.entries({
+  verse: 4,
+  goodbye: 2,
+  sermon: 3,
+  song: 1,
+})
+  .reduce<[string, number, number][]>((acc, [key, count]) => {
+    const prevIndex = acc[acc.length - 1]?.[2] ?? -1;
+    acc.push([key, prevIndex + 1, count + prevIndex]);
+
+    return acc;
+  }, [])
+  .reduce((acc, [key, ...rest]) => ({ ...acc, [key]: rest }), {});
 
 export const typography: Typography = {
   title: {
