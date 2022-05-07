@@ -513,6 +513,32 @@ export function createDriver(filename) {
     element.position = { x, y };
   }
 
+  function findElement(matcher, from = 0, type = 'iworkItem') {
+    let matched = 0;
+    for (let i = 0; i < doc.currentSlide[`${type}s`].length; i += 1) {
+      const item = doc.currentSlide.iworkItems[i];
+
+      if (!matcher(item)) {
+        // eslint-disable-next-line no-continue
+        continue;
+      }
+      if (from === matched) {
+        return item;
+      }
+
+      matched += 1;
+    }
+
+    return null;
+  }
+
+  function findTextElement(expr, from = 0) {
+    return findElement(
+      (item) => 'objectText' in item && item.objectText().match(expr),
+      from,
+    );
+  }
+
   initDocument();
   keynote.activate();
 
@@ -540,6 +566,8 @@ export function createDriver(filename) {
     selectEffect,
     selectElement,
     selectSlide,
+    findElement,
+    findTextElement,
     duplicateSlide,
     selectInspectorTab,
     setDisappearEffect,

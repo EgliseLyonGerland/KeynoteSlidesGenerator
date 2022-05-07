@@ -27,6 +27,7 @@ export type SlideType =
 export const templateRanges: Partial<Record<SlideType, [number, number]>> = {
   verse: [3, 6],
   goodbye: [10, 11],
+  sermon: [12, 14],
 };
 
 export const typography: Typography = {
