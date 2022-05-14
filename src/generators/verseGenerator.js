@@ -2,24 +2,24 @@ import Generator from '../services/Generator';
 import { parse } from '../utils/bibleRef';
 import { templateRanges } from '../config';
 
-export default class VerseGenerator extends Generator {
-  currentTemplateIndex = templateRanges.verse[0];
+function getNextTemplateIndex() {
+  const previousIndex = VerseGenerator.currentTemplateIndex;
+  VerseGenerator.currentTemplateIndex += 1;
 
-  getNextTemplateIndex() {
-    const previousIndex = this.currentTemplateIndex;
-    this.currentTemplateIndex += 1;
-
-    if (this.currentTemplateIndex > templateRanges.verse[1]) {
-      [this.currentTemplateIndex] = templateRanges.verse;
-    }
-
-    return previousIndex;
+  if (VerseGenerator.currentTemplateIndex > templateRanges.verse[1]) {
+    [VerseGenerator.currentTemplateIndex] = templateRanges.verse;
   }
+
+  return previousIndex;
+}
+
+export default class VerseGenerator extends Generator {
+  static currentTemplateIndex = templateRanges.verse[0];
 
   generate() {
     const { bibleRef, excerpt } = this.data;
 
-    const templateIndex = this.getNextTemplateIndex();
+    const templateIndex = getNextTemplateIndex();
 
     this.driver.addSlideFromTemplate('verse', templateIndex);
 
