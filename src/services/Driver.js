@@ -1,13 +1,14 @@
+/* eslint-disable class-methods-use-this */
 /* eslint-disable no-param-reassign */
 
-const _ = require('lodash');
-const {
+import _ from 'lodash';
+import {
   documentWidth,
   documentHeight,
   typography,
   regularBackgroundsNumber,
   templateRanges,
-} = require('../config');
+} from '../config';
 
 const dictionary = {
   // Format
@@ -51,36 +52,56 @@ function t(term) {
   return dictionary[term];
 }
 
-export function createDriver(filename) {
-  const systemEvent = Application('System Events');
-  const keynote = Application('Keynote');
-  const mainWindow = systemEvent.processes.Keynote.windows.byName(filename);
-  let doc;
-  let currentClipboard;
-  let backgrounds = [];
+export default class Driver {
+  systemEvent;
 
-  function getNextRegularBackground() {
-    if (backgrounds.length === 0) {
-      backgrounds = _.shuffle(_.range(1, regularBackgroundsNumber));
+  keynote;
+
+  mainWindow;
+
+  doc;
+
+  currentClipboard;
+
+  backgrounds = [];
+
+  constructor(filename) {
+    this.systemEvent = Application('System Events');
+    this.keynote = Application('Keynote');
+    this.mainWindow = this.systemEvent.processes.Keynote.windows.byName(
+      filename,
+    );
+
+    this.initDocument();
+    this.keynote.activate();
+
+    while (!this.keynote.frontmost()) {
+      delay(0);
     }
-
-    return `backgroundR${backgrounds.pop()}`;
   }
 
-  function initDocument() {
-    if (keynote.documents.length) {
+  getNextRegularBackground() {
+    if (this.backgrounds.length === 0) {
+      this.backgrounds = _.shuffle(_.range(1, regularBackgroundsNumber));
+    }
+
+    return `backgroundR${this.backgrounds.pop()}`;
+  }
+
+  initDocument() {
+    if (this.keynote.documents.length) {
       // eslint-disable-next-line prefer-destructuring
-      doc = keynote.documents[0];
+      this.doc = this.keynote.documents[0];
     } else {
-      doc = keynote.Document();
-      keynote.documents.push(doc);
+      this.doc = this.keynote.Document();
+      this.keynote.documents.push(this.doc);
     }
 
-    doc.width = documentWidth;
-    doc.height = documentHeight;
+    this.doc.width = documentWidth;
+    this.doc.height = documentHeight;
   }
 
-  function press(
+  press(
     key,
     { shift = false, command = false, option = false, control = false } = {},
   ) {
@@ -90,56 +111,65 @@ export function createDriver(filename) {
     if (control) using.push('control down');
     if (option) using.push('option down');
 
-    systemEvent.keystroke(key, { using });
+    this.systemEvent.keystroke(key, { using });
     delay(0.2);
   }
 
   // See https://eastmanreference.com/complete-list-of-applescript-key-codes
-  function pressEnter() {
-    systemEvent.keyCode(36);
+  pressEnter() {
+    this.systemEvent.keyCode(36);
   }
 
   // function pressEscape() {
-  //   systemEvent.press(53);
+  //   this.systemEvent.press(53);
   // }
+
+  pressBackspace() {
+    this.systemEvent.keyCode(51);
+  }
 
   // function pressTab() {
-  //   systemEvent.press(48);
+  //   this.systemEvent.press(48);
   // }
 
-  function setTextFieldValue(textField, value) {
+  setTextFieldValue(textField, value) {
     textField.focused = true;
     textField.value = `${value}`;
     textField.focused = false;
     textField.confirm();
   }
 
-  function selectElement(element) {
+  selectElement(element) {
+    element.locked = true;
     element.locked = false;
   }
 
-  function selectSlide(index) {
+  selectSlide(index) {
     // eslint-disable-next-line prefer-destructuring
-    doc.currentSlide = doc.slides[index];
+    this.doc.currentSlide = this.doc.slides[index];
   }
 
-  function duplicateSlide(index) {
-    doc.slides[index].duplicate();
-    doc.currentSlide.skipped = false;
+  duplicateSlide(index) {
+    this.doc.slides[index].duplicate();
+    delay(0.1);
+    this.doc.currentSlide.skipped = false;
   }
 
-  function copyPasteObjectsFromSlide(slideIndex) {
-    if (currentClipboard !== slideIndex) {
-      const currentSlideIndex = _.indexOf(doc.slides, doc.currentSlide);
-      selectSlide(slideIndex);
-      press('a', { command: true });
-      press('c', { command: true });
+  copyPasteObjectsFromSlide(slideIndex) {
+    if (this.currentClipboard !== slideIndex) {
+      const currentSlideIndex = _.indexOf(
+        this.doc.slides,
+        this.doc.currentSlide,
+      );
+      this.selectSlide(slideIndex);
+      this.press('a', { command: true });
+      this.press('c', { command: true });
       delay(0.5);
-      selectSlide(currentSlideIndex);
-      currentClipboard = slideIndex;
+      this.selectSlide(currentSlideIndex);
+      this.currentClipboard = slideIndex;
     }
 
-    press('v', { command: true });
+    this.press('v', { command: true });
     delay(0.2);
   }
 
@@ -147,8 +177,8 @@ export function createDriver(filename) {
    * Navigation helpers
    */
 
-  function openInspector(tab = 0) {
-    const group = mainWindow.toolbars[0].groups[9].groups[0];
+  openInspector(tab = 0) {
+    const group = this.mainWindow.toolbars[0].groups[9].groups[0];
     const button = group.radioButtons[tab];
 
     if (button.value() === 0) {
@@ -157,19 +187,19 @@ export function createDriver(filename) {
     }
   }
 
-  function selectInspectorTab(tab) {
-    mainWindow.radioGroups[0].radioButtons.byName(tab).click();
+  selectInspectorTab(tab) {
+    this.mainWindow.radioGroups[0].radioButtons.byName(tab).click();
   }
 
-  function openBuildOrderWindow() {
-    openInspector(1);
-    mainWindow.buttons.byName(t('Ordre de composition')).click();
+  openBuildOrderWindow() {
+    this.openInspector(1);
+    this.mainWindow.buttons.byName(t('Ordre de composition')).click();
   }
 
-  function getBuildOrderWindow() {
-    openBuildOrderWindow();
+  getBuildOrderWindow() {
+    this.openBuildOrderWindow();
 
-    return systemEvent.processes.Keynote.windows.byName(
+    return this.systemEvent.processes.Keynote.windows.byName(
       t('Ordre de composition'),
     );
   }
@@ -178,12 +208,12 @@ export function createDriver(filename) {
    * Form helpers
    */
 
-  function setSelectBoxValue(selectBox, name) {
+  setSelectBoxValue(selectBox, name) {
     selectBox.click();
     selectBox.menus[0].menuItems.byName(name).click();
   }
 
-  function setSelectBoxIndex(selectBox, index) {
+  setSelectBoxIndex(selectBox, index) {
     selectBox.click();
     const size = _.size(selectBox.menus[0].menuItems);
     selectBox.menus[0].menuItems[Math.min(index, size - 1)].click();
@@ -193,8 +223,10 @@ export function createDriver(filename) {
    * Effect helpers
    */
 
-  function selectEffect(effect) {
-    const addEffectButton = mainWindow.buttons.byName(t('Ajouter un effet'));
+  selectEffect(effect) {
+    const addEffectButton = this.mainWindow.buttons.byName(
+      t('Ajouter un effet'),
+    );
     addEffectButton.click();
     delay(0.2);
     addEffectButton.popOvers[0].scrollAreas[0].buttons.byName(effect).click();
@@ -206,83 +238,83 @@ export function createDriver(filename) {
    * @param {string} begin 'onClick' or 'afterPrevious' or 'withPrevious'
    * @param {int} delay$ Delay
    */
-  function setEffectStartup(begin, delay = 0) {
-    const win = getBuildOrderWindow();
+  setEffectStartup(begin, delay = 0) {
+    const win = this.getBuildOrderWindow();
 
     let beginIndex = 0;
     if (begin === 'withPrevious') beginIndex = 1;
     else if (begin === 'afterPrevious') beginIndex = 2;
 
-    setSelectBoxIndex(win.popUpButtons[0], beginIndex);
+    this.setSelectBoxIndex(win.popUpButtons[0], beginIndex);
 
     const delayTextField = win.textFields[0];
-    setTextFieldValue(delayTextField, `${delay}`.replace('.', ','));
+    this.setTextFieldValue(delayTextField, `${delay}`.replace('.', ','));
   }
 
-  function setEffectDuration(duration) {
-    const scrollArea = mainWindow.scrollAreas[0];
+  setEffectDuration(duration) {
+    const scrollArea = this.mainWindow.scrollAreas[0];
     scrollArea.sliders[0].value = Math.log(duration + 1);
   }
 
-  function setLineDrawEffect({
+  setLineDrawEffect({
     duration = 0.7,
     direction = t('Du milieu aux extrémités'),
   } = {}) {
-    openInspector(1);
-    selectInspectorTab(t('Entrée'));
-    selectEffect(t('Tracé de ligne'));
-    setEffectDuration(duration);
+    this.openInspector(1);
+    this.selectInspectorTab(t('Entrée'));
+    this.selectEffect(t('Tracé de ligne'));
+    this.setEffectDuration(duration);
 
-    const scrollArea = mainWindow.scrollAreas[0];
-    setSelectBoxValue(scrollArea.popUpButtons[0], direction);
+    const scrollArea = this.mainWindow.scrollAreas[0];
+    this.setSelectBoxValue(scrollArea.popUpButtons[0], direction);
   }
 
-  function setDissolveEffect({
+  setDissolveEffect({
     duration = 2,
     appears = 'byObject', // or 'byWord' or 'byChar'
     startsFrom = 'top', // or 'bottom' or 'center' or 'edges' or 'random'
   }) {
-    openInspector(1);
-    selectInspectorTab(t('Entrée'));
-    selectEffect(t('Dissolution'));
-    setEffectDuration(duration);
+    this.openInspector(1);
+    this.selectInspectorTab(t('Entrée'));
+    this.selectEffect(t('Dissolution'));
+    this.setEffectDuration(duration);
 
-    const scrollArea = mainWindow.scrollAreas[0];
+    const scrollArea = this.mainWindow.scrollAreas[0];
     const appearsSelect = scrollArea.popUpButtons[0];
     const startsFromSelect = scrollArea.popUpButtons[1];
 
     if (appears === 'byWord') {
-      setSelectBoxValue(appearsSelect, t('Par mot'));
+      this.setSelectBoxValue(appearsSelect, t('Par mot'));
     } else if (appears === 'byChar') {
-      setSelectBoxValue(appearsSelect, t('Par caractère'));
+      this.setSelectBoxValue(appearsSelect, t('Par caractère'));
     } else {
-      setSelectBoxValue(appearsSelect, t('Par objet'));
+      this.setSelectBoxValue(appearsSelect, t('Par objet'));
     }
 
     if (startsFrom === 'bottom') {
-      setSelectBoxValue(startsFromSelect, t("Vers l'arrière"));
+      this.setSelectBoxValue(startsFromSelect, t("Vers l'arrière"));
     } else if (startsFrom === 'center') {
-      setSelectBoxValue(startsFromSelect, t('À partir du center'));
+      this.setSelectBoxValue(startsFromSelect, t('À partir du center'));
     } else if (startsFrom === 'edges') {
-      setSelectBoxValue(startsFromSelect, t('À partir des bords'));
+      this.setSelectBoxValue(startsFromSelect, t('À partir des bords'));
     } else if (startsFrom === 'random') {
-      setSelectBoxValue(startsFromSelect, t('Aléatoire'));
+      this.setSelectBoxValue(startsFromSelect, t('Aléatoire'));
     } else {
-      setSelectBoxValue(startsFromSelect, t("Vers l'avant"));
+      this.setSelectBoxValue(startsFromSelect, t("Vers l'avant"));
     }
   }
 
-  function setFadeMoveEffect({
+  setFadeMoveEffect({
     duration = 2,
     direction = 'bottomToTop', // topToBottom, leftToRight, rightToLeft, topLeftToBottomRight, topRightToBottomLeft, bottomLeftToTopRight, bottomRightToTopLeft
     distance = 100, // from 0% to 100%
     // appears = 'byObject', // byWord, byChar
     // startsFrom = 'top', // bottom, center, edges, random
   }) {
-    openInspector(1);
-    selectInspectorTab(t('Entrée'));
-    selectEffect(t('Fondu et déplacement'));
-    setEffectDuration(duration);
+    this.openInspector(1);
+    this.selectInspectorTab(t('Entrée'));
+    this.selectEffect(t('Fondu et déplacement'));
+    this.setEffectDuration(duration);
 
     let directionIndex = 3;
     if (direction === 'leftToRight') directionIndex = 0;
@@ -293,69 +325,69 @@ export function createDriver(filename) {
     else if (direction === 'bottomLeftToTopRight') directionIndex = 6;
     else if (direction === 'bottomRightToTopLeft') directionIndex = 7;
 
-    const scrollArea = mainWindow.scrollAreas[0];
+    const scrollArea = this.mainWindow.scrollAreas[0];
     const directionSelect = scrollArea.popUpButtons[0];
     const distanceSlider = scrollArea.sliders[1];
 
-    setSelectBoxIndex(directionSelect, directionIndex);
+    this.setSelectBoxIndex(directionSelect, directionIndex);
     distanceSlider.value = distance / 100;
   }
 
-  function setFadeScaleEffect({
+  setFadeScaleEffect({
     duration = 2,
     scale = 100, // from 0% to 200%
   } = {}) {
-    openInspector(1);
-    selectInspectorTab(t('Entrée'));
-    selectEffect(t('Fondu et échelle'));
-    setEffectDuration(duration);
+    this.openInspector(1);
+    this.selectInspectorTab(t('Entrée'));
+    this.selectEffect(t('Fondu et échelle'));
+    this.setEffectDuration(duration);
 
-    const scrollArea = mainWindow.scrollAreas[0];
+    const scrollArea = this.mainWindow.scrollAreas[0];
     const scaleSlider = scrollArea.sliders[1];
 
     scaleSlider.value = scale;
   }
 
-  function setFadeScaleOutEffect({
+  setFadeScaleOutEffect({
     duration = 2,
     scale = 100, // from 0% to 200%
   } = {}) {
-    openInspector(1);
-    selectInspectorTab(t('Sortie'));
-    selectEffect(t('Fondu et échelle'));
-    setEffectDuration(duration);
+    this.openInspector(1);
+    this.selectInspectorTab(t('Sortie'));
+    this.selectEffect(t('Fondu et échelle'));
+    this.setEffectDuration(duration);
 
-    const scrollArea = mainWindow.scrollAreas[0];
+    const scrollArea = this.mainWindow.scrollAreas[0];
     const scaleSlider = scrollArea.sliders[1];
 
     scaleSlider.value = scale;
   }
 
-  function setDisappearEffect() {
-    openInspector(1);
-    selectInspectorTab(t('Sortie'));
-    selectEffect(t('Disparition'));
+  setDisappearEffect() {
+    this.openInspector(1);
+    this.selectInspectorTab(t('Sortie'));
+    this.selectEffect(t('Disparition'));
   }
 
-  function setOpacityEffect({ duration = 1, opacity = 50 }) {
-    openInspector(1);
-    selectInspectorTab(t('Action'));
-    selectEffect(t('Opacité'));
-    setEffectDuration(duration);
+  setOpacityEffect({ duration = 1, opacity = 50 }) {
+    this.openInspector(1);
+    this.selectInspectorTab(t('Action'));
+    this.selectEffect(t('Opacité'));
+    this.setEffectDuration(duration);
 
-    const scrollArea = mainWindow.scrollAreas[0];
+    const scrollArea = this.mainWindow.scrollAreas[0];
     scrollArea.sliders[1].value = opacity;
   }
 
-  function addHorizontalOverlays() {
-    copyPasteObjectsFromSlide(1);
+  addHorizontalOverlays() {
+    this.copyPasteObjectsFromSlide(1);
   }
 
-  function addVerticalOverlays() {
-    copyPasteObjectsFromSlide(2);
+  addVerticalOverlays() {
+    this.copyPasteObjectsFromSlide(2);
   }
 
-  function addText(text, ...args) {
+  addText(text, ...args) {
     let [format, textProperties = {}] = args;
 
     if (args.length === 1 && typeof format === 'object') {
@@ -368,8 +400,8 @@ export function createDriver(filename) {
       textProperties = { ...typography[format], ...textProperties };
     }
 
-    const slide = doc.currentSlide;
-    const textItem = keynote.TextItem({
+    const slide = this.doc.currentSlide;
+    const textItem = this.keynote.TextItem({
       objectText: text,
     });
     slide.textItems.push(textItem);
@@ -381,29 +413,29 @@ export function createDriver(filename) {
       textItem.opacity = textProperties.opacity;
     }
 
-    selectElement(textItem);
+    this.selectElement(textItem);
 
     return textItem;
   }
 
-  function setTextLineHeight(textItem, value) {
-    selectElement(textItem);
+  setTextLineHeight(textItem, value) {
+    this.selectElement(textItem);
 
-    openInspector(0);
-    selectInspectorTab(t('Texte'));
+    this.openInspector(0);
+    this.selectInspectorTab(t('Texte'));
 
-    const scrollArea = mainWindow.scrollAreas[0];
+    const scrollArea = this.mainWindow.scrollAreas[0];
     const textField = scrollArea.textFields[3];
-    setTextFieldValue(textField, `${value}`.replace('.', ','));
+    this.setTextFieldValue(textField, `${value}`.replace('.', ','));
   }
 
-  function setTextAlignment(textItem, align) {
-    selectElement(textItem);
+  setTextAlignment(textItem, align) {
+    this.selectElement(textItem);
 
-    openInspector(0);
-    selectInspectorTab(t('Texte'));
+    this.openInspector(0);
+    this.selectInspectorTab(t('Texte'));
 
-    const scrollArea = mainWindow.scrollAreas[0];
+    const scrollArea = this.mainWindow.scrollAreas[0];
     const group = _.find(
       scrollArea.groups,
       (item) => item.description() === t('alignement de paragraphe'),
@@ -418,16 +450,16 @@ export function createDriver(filename) {
     }
   }
 
-  function setTextNumbered(textItem, number, indent = null) {
-    selectElement(textItem);
+  setTextNumbered(textItem, number, indent = null) {
+    this.selectElement(textItem);
 
-    openInspector(0);
-    selectInspectorTab(t('Texte'));
+    this.openInspector(0);
+    this.selectInspectorTab(t('Texte'));
 
-    const scrollArea = mainWindow.scrollAreas[0];
+    const scrollArea = this.mainWindow.scrollAreas[0];
     const group = scrollArea.groups[4];
 
-    setSelectBoxValue(scrollArea.popUpButtons[4], t('Numéros'));
+    this.setSelectBoxValue(scrollArea.popUpButtons[4], t('Numéros'));
     group.radioGroups[0].radioButtons[1].click();
 
     _.range(1, number).forEach(() => {
@@ -435,18 +467,18 @@ export function createDriver(filename) {
     });
 
     if (indent !== null) {
-      setTextFieldValue(group.textFields[1], indent);
+      this.setTextFieldValue(group.textFields[1], indent);
     }
   }
 
-  function addLine({ vertical = false, withAnimation = true, width } = {}) {
-    const { currentSlide: slide } = doc;
+  addLine({ vertical = false, withAnimation = true, width } = {}) {
+    const { currentSlide: slide } = this.doc;
 
     let size;
     if (width) size = width;
     else size = vertical ? 600 : 800;
 
-    const line = keynote.Line(
+    const line = this.keynote.Line(
       vertical
         ? {
             startPoint: {
@@ -473,18 +505,18 @@ export function createDriver(filename) {
 
     if (withAnimation) {
       line.locked = false;
-      setLineDrawEffect();
+      this.setLineDrawEffect();
     }
 
     return line;
   }
 
-  function addSlide(backgroundName) {
-    const slide = keynote.Slide({
-      baseLayout: doc.slideLayouts.byName(backgroundName),
+  addSlide(backgroundName) {
+    const slide = this.keynote.Slide({
+      baseLayout: this.doc.slideLayouts.byName(backgroundName),
     });
 
-    doc.slides.push(slide);
+    this.doc.slides.push(slide);
 
     slide.transitionProperties = {
       automaticTransition: false,
@@ -495,28 +527,28 @@ export function createDriver(filename) {
     return slide;
   }
 
-  function addSlideFromTemplate(template, index = 0) {
+  addSlideFromTemplate(template, index = 0) {
     const [firstIndex] = templateRanges[template];
 
     this.duplicateSlide(firstIndex + index);
   }
 
-  function setElementX(element, x) {
+  setElementX(element, x) {
     element.position = { x, y: element.position().y };
   }
 
-  function setElementY(element, y) {
+  setElementY(element, y) {
     element.position = { x: element.position().x, y };
   }
 
-  function setElementXY(element, x, y) {
+  setElementXY(element, x, y) {
     element.position = { x, y };
   }
 
-  function findElement(matcher, from = 0, type = 'iworkItem') {
+  findElement(matcher, from = 0, type = 'iworkItem') {
     let matched = 0;
-    for (let i = 0; i < doc.currentSlide[`${type}s`].length; i += 1) {
-      const item = doc.currentSlide.iworkItems[i];
+    for (let i = 0; i < this.doc.currentSlide[`${type}s`].length; i += 1) {
+      const item = this.doc.currentSlide.iworkItems[i];
 
       if (!matcher(item)) {
         // eslint-disable-next-line no-continue
@@ -532,8 +564,8 @@ export function createDriver(filename) {
     return null;
   }
 
-  function findTextElement(expr, from = 0) {
-    return findElement((item) => {
+  findTextElement(expr, from = 0) {
+    return this.findElement((item) => {
       try {
         return item.objectText().match(expr);
       } catch (e) {
@@ -542,53 +574,10 @@ export function createDriver(filename) {
     }, from);
   }
 
-  initDocument();
-  keynote.activate();
-
-  while (!keynote.frontmost()) {
-    delay(0);
+  deleteElement(element) {
+    this.selectElement(element);
+    delay(0.5);
+    this.pressBackspace();
+    // element.delete();
   }
-
-  return {
-    addHorizontalOverlays,
-    addLine,
-    addSlide,
-    addSlideFromTemplate,
-    addText,
-    addVerticalOverlays,
-    doc,
-    getBuildOrderWindow,
-    getNextRegularBackground,
-    initDocument,
-    keynote,
-    mainWindow,
-    openBuildOrderWindow,
-    openInspector,
-    press,
-    pressEnter,
-    selectEffect,
-    selectElement,
-    selectSlide,
-    findElement,
-    findTextElement,
-    duplicateSlide,
-    selectInspectorTab,
-    setDisappearEffect,
-    setDissolveEffect,
-    setEffectDuration,
-    setEffectStartup,
-    setElementX,
-    setElementXY,
-    setElementY,
-    setFadeMoveEffect,
-    setFadeScaleEffect,
-    setFadeScaleOutEffect,
-    setLineDrawEffect,
-    setOpacityEffect,
-    setTextAlignment,
-    setTextLineHeight,
-    setTextNumbered,
-  };
 }
-
-export default null;
