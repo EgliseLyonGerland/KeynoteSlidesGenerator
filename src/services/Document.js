@@ -1,8 +1,8 @@
 import { upperFirst } from 'lodash';
 import Driver from './Driver';
 
-import AnnouncementGenerator from '../generators/announcementGenerator';
-import ChapterGenerator from '../generators/chapterGenerator';
+import AnnouncementsGenerator from '../generators/announcementsGenerator';
+import SectionGenerator from '../generators/sectionGenerator';
 import GoodbyeGenerator from '../generators/goodbyeGenerator';
 import OpenDoorsGenerator from '../generators/openDoorsGenerator';
 import SermonGenerator from '../generators/sermonGenerator';
@@ -10,8 +10,8 @@ import SongGenerator from '../generators/songGenerator';
 import VerseGenerator from '../generators/verseGenerator';
 
 const generators = {
-  AnnouncementGenerator,
-  ChapterGenerator,
+  AnnouncementsGenerator,
+  SectionGenerator,
   GoodbyeGenerator,
   OpenDoorsGenerator,
   SermonGenerator,

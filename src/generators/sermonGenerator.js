@@ -11,7 +11,7 @@ export default class SermonGenerator extends Generator {
     titleElt.objectText = title;
 
     const refElt = this.driver.findTextElement(/^Ref:/);
-    refElt.objectText = format(bibleRef);
+    refElt.objectText = bibleRef;
   }
 
   generateSecondSlide() {
@@ -27,9 +27,11 @@ export default class SermonGenerator extends Generator {
     titleElt.objectText = title;
 
     const refElt = this.driver.findTextElement(/^Ref:/);
-    refElt.objectText = format(bibleRef);
+    refElt.objectText = bibleRef;
 
-    const planTxt = plan.map((item) => item.replace('(v. ', '(')).join('\n');
+    const planTxt = plan
+      .map((item) => item.text.replace('(v. ', '('))
+      .join('\n');
 
     for (let i = 0; i < 2; i += 1) {
       const planElt = this.driver.findTextElement(/^Plan:/);
@@ -46,10 +48,14 @@ export default class SermonGenerator extends Generator {
     titleElt.objectText = title;
 
     const refElt = this.driver.findTextElement(/^Ref:/);
-    refElt.objectText = format(bibleRef);
+    refElt.objectText = bibleRef;
   }
 
   generate() {
+    const { bibleRefs } = this.data;
+
+    this.data.bibleRef = format(bibleRefs[0].id);
+
     this.generateFirstSlide();
     this.generateSecondSlide();
     this.generateThirdSlide();

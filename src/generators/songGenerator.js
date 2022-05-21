@@ -3,7 +3,9 @@ import Generator from '../services/Generator';
 
 export default class SongGenerator extends Generator {
   createTitleSlide() {
-    const { title, copyright = '', authors = '', collection = '' } = this.data;
+    const {
+      song: { title, copyright = '', authors = '', collection = '' },
+    } = this.data;
 
     this.driver.addSlideFromTemplate('song', 0);
 
@@ -58,9 +60,14 @@ export default class SongGenerator extends Generator {
   }
 
   generate() {
-    const { repeat = false, lyrics } = this.data;
+    const { repeat = false, song } = this.data;
 
     this.createTitleSlide();
+
+    const lyrics =
+      this.data.lyrics ||
+      song.lyrics ||
+      console.error(`No lyrics for the song ${song.title}`);
 
     _.forEach(repeat ? [...lyrics, ...lyrics] : lyrics, (part, index) => {
       this.addNextLyrics(part, index);

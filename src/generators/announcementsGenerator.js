@@ -7,7 +7,7 @@ const contentHeight = documentHeight - 430;
 const contentPositionY = documentHeight - contentHeight - 100;
 const margin = 80;
 
-export default class AnnouncementGenerator extends Generator {
+export default class AnnouncementsGenerator extends Generator {
   generate() {
     const { items = [] } = this.data;
 

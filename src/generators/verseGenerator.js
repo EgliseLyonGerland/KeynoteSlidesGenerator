@@ -17,7 +17,7 @@ export default class VerseGenerator extends Generator {
   static currentTemplateIndex = templateRanges.verse[0];
 
   generate() {
-    const { bibleRef, excerpt } = this.data;
+    const { id: bibleRef, excerpt } = this.data;
 
     const templateIndex = getNextTemplateIndex();
 

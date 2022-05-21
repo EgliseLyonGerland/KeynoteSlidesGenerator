@@ -18,7 +18,7 @@ type Typography = Record<
 
 export type SlideType =
   | 'announcement'
-  | 'chapter'
+  | 'section'
   | 'goodbye'
   | 'sermon'
   | 'song'
@@ -29,7 +29,7 @@ export const templateRanges: Record<string, [number, number]> = Object.entries({
   goodbye: 2,
   sermon: 3,
   song: 1,
-  chapter: 1,
+  section: 1,
 })
   .reduce<[string, number, number][]>((acc, [key, count]) => {
     const prevIndex = acc[acc.length - 1]?.[2] ?? -1;
