@@ -1,87 +1,43 @@
-import _ from 'lodash';
-import { documentWidth, documentHeight } from '../config';
+/* eslint-disable guard-for-in */
+/* eslint-disable no-restricted-syntax */
+import { range } from 'lodash';
 import Generator from '../services/Generator';
-
-const contentWidth = documentWidth - 200;
-const contentHeight = documentHeight - 430;
-const contentPositionY = documentHeight - contentHeight - 100;
-const margin = 80;
 
 export default class AnnouncementsGenerator extends Generator {
   generate() {
+    this.driver.addSlideFromTemplate('announcements', 0);
+
+    const textElt = this.driver.findTextElement(/^Lorem ipsum/);
+
     const { items = [] } = this.data;
 
-    const background = this.driver.getNextRegularBackground();
+    textElt.objectText = '';
 
-    _.forEach(_.chunk(items, 6), (chunk, chunkIndex) => {
-      const withAnimation = chunkIndex === 0;
+    const detailIndexes = [];
 
-      this.driver.addSlide(background);
+    items.forEach(({ title, detail }) => {
+      textElt.objectText = `${textElt.objectText()}${title}`;
+      textElt.objectText = `${textElt.objectText()}${String.fromCharCode(
+        8232,
+      )}`;
 
-      const line = this.driver.addLine({ vertical: true, withAnimation });
-      this.driver.setElementY(
-        line,
-        (contentHeight - line.width()) / 2 + contentPositionY,
-      );
-      this.driver.setEffectStartup('onClick');
+      const currentIndex = textElt.objectText().length - 1;
 
-      const title = this.driver.addText('Annonces', 'title');
-      this.driver.setElementY(title, 90);
+      textElt.objectText = `${textElt.objectText()}${detail
+        .split('\n')
+        .join(String.fromCharCode(8232))}`;
 
-      if (withAnimation) {
-        this.driver.setFadeMoveEffect({
-          duration: 0.7,
-          direction: 'bottomToTop',
-          distance: 10,
-        });
-        this.driver.setEffectStartup('afterPrevious');
-      }
+      detailIndexes.push([currentIndex, textElt.objectText().length - 1]);
 
-      const itemWidth = (contentWidth - margin * 2) / 2;
-      const leftPartX = (documentWidth - contentWidth) / 2;
-      const rightPartX = leftPartX + itemWidth + margin * 2;
-      let currentY = contentPositionY;
+      textElt.objectText = `${textElt.objectText()}\n`;
+    });
 
-      _.forEach(chunk, (item, itemIndex) => {
-        const x = itemIndex / 3 < 1 ? leftPartX : rightPartX;
-        const y = currentY;
+    const defaultSize = textElt.objectText.characters[0].size();
 
-        const itemTitle = this.driver.addText(
-          item.title,
-          'announcementItemTitle',
-        );
-        itemTitle.width = itemWidth;
-
-        this.driver.setTextAlignment(itemTitle, 'left');
-        this.driver.setElementXY(itemTitle, x, y);
-        this.driver.setDissolveEffect({ duration: 0.7, appears: 'byChar' });
-
-        if (!itemIndex) {
-          this.driver.setEffectStartup('afterPrevious');
-        } else {
-          this.driver.setEffectStartup('withPrevious', 0.1);
-        }
-
-        if (item.detail) {
-          const itemDetail = this.driver.addText(
-            item.detail,
-            'announcementItemDetail',
-          );
-          itemDetail.width = itemWidth;
-
-          this.driver.setTextAlignment(itemDetail, 'left');
-          this.driver.setElementXY(itemDetail, x, y + itemTitle.height());
-          this.driver.setDissolveEffect({ duration: 0.7, appears: 'byChar' });
-          this.driver.setEffectStartup('withPrevious', 0.1);
-
-          currentY += itemDetail.height();
-        }
-
-        if (itemIndex === 2) {
-          currentY = contentPositionY;
-        } else {
-          currentY += itemTitle.height() + 60;
-        }
+    detailIndexes.forEach(([from, to]) => {
+      range(from, to + 1).forEach((i) => {
+        textElt.objectText.characters[i].font = 'SourceSansPro-Regular';
+        textElt.objectText.characters[i].size = defaultSize * 0.9;
       });
     });
   }

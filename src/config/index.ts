@@ -30,6 +30,7 @@ export type SlideType =
 export const templateRanges: Record<string, [number, number]> = Object.entries({
   welcome: 2,
   phone: 1,
+  announcements: 2,
   verse: 4,
   openDoors: 3,
   goodbye: 2,
