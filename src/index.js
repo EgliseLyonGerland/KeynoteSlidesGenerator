@@ -6,8 +6,11 @@ const entry = require('./entry.json');
 const doc = new Document('Slides.key');
 
 doc.generate(
-  entry
-    .reduce((acc, item) => {
+  [].concat(
+    { type: 'slide', data: { name: 'welcome' } },
+    { type: 'slide', data: { name: 'welcome', index: 1 } },
+    { type: 'slide', data: { name: 'phone' } },
+    ...entry.reduce((acc, item) => {
       if (item.type === 'songs') {
         acc.push(
           ...item.data.items.map((song) => ({
@@ -40,6 +43,8 @@ doc.generate(
       }
 
       return acc;
-    }, [])
-    .concat([{ type: 'goodbye' }]),
+    }, []),
+    { type: 'slide', data: { name: 'goodbye' } },
+    { type: 'slide', data: { name: 'goodbye', index: 1 } },
+  ),
 );

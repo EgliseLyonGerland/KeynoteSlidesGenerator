@@ -2,20 +2,22 @@ import Generator from '../services/Generator';
 import { parse } from '../utils/bibleRef';
 import { templateRanges } from '../config';
 
-function getNextTemplateIndex() {
-  const previousIndex = VerseGenerator.currentTemplateIndex;
-  VerseGenerator.currentTemplateIndex += 1;
+const totalTemplates = templateRanges.verse[1] - templateRanges.verse[0];
 
-  if (VerseGenerator.currentTemplateIndex > templateRanges.verse[1]) {
-    [VerseGenerator.currentTemplateIndex] = templateRanges.verse;
+let currentTemplateIndex = 0;
+
+function getNextTemplateIndex() {
+  const previousIndex = currentTemplateIndex;
+  currentTemplateIndex += 1;
+
+  if (currentTemplateIndex > totalTemplates) {
+    currentTemplateIndex = 0;
   }
 
   return previousIndex;
 }
 
 export default class VerseGenerator extends Generator {
-  static currentTemplateIndex = templateRanges.verse[0];
-
   generate() {
     const { id: bibleRef, excerpt } = this.data;
 

@@ -3,7 +3,7 @@ import Driver from './Driver';
 
 import AnnouncementsGenerator from '../generators/announcementsGenerator';
 import SectionGenerator from '../generators/sectionGenerator';
-import GoodbyeGenerator from '../generators/goodbyeGenerator';
+import SlideGenerator from '../generators/slideGenerator';
 import OpenDoorsGenerator from '../generators/openDoorsGenerator';
 import SermonGenerator from '../generators/sermonGenerator';
 import SongGenerator from '../generators/songGenerator';
@@ -12,7 +12,7 @@ import VerseGenerator from '../generators/verseGenerator';
 const generators = {
   AnnouncementsGenerator,
   SectionGenerator,
-  GoodbyeGenerator,
+  SlideGenerator,
   OpenDoorsGenerator,
   SermonGenerator,
   SongGenerator,

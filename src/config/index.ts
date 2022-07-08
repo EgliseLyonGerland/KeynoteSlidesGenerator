@@ -17,6 +17,8 @@ type Typography = Record<
 >;
 
 export type SlideType =
+  | 'welcome'
+  | 'phone'
   | 'announcement'
   | 'section'
   | 'goodbye'
@@ -26,6 +28,8 @@ export type SlideType =
   | 'openDoors';
 
 export const templateRanges: Record<string, [number, number]> = Object.entries({
+  welcome: 2,
+  phone: 1,
   verse: 4,
   openDoors: 3,
   goodbye: 2,
