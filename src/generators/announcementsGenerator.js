@@ -7,40 +7,51 @@ import Generator from '../services/Generator';
 export function createText(textElt, items) {
   textElt.objectText = '';
 
-  const detailIndexes = [];
+  const titleIndexes = [];
 
   items.forEach(({ title, detail }) => {
+    const currentIndex = Math.max(0, textElt.objectText().length - 1);
+
     textElt.objectText = `${textElt.objectText()}${title}`;
+
+    titleIndexes.push([currentIndex, textElt.objectText().length - 1]);
+
     textElt.objectText = `${textElt.objectText()}${String.fromCharCode(8232)}`;
-
-    const currentIndex = textElt.objectText().length - 1;
-
     textElt.objectText = `${textElt.objectText()}${detail
       .split('\n')
       .join(String.fromCharCode(8232))}`;
-
-    detailIndexes.push([currentIndex, textElt.objectText().length - 1]);
 
     textElt.objectText = `${textElt.objectText()}\n`;
   });
 
   const defaultSize = textElt.objectText.characters[0].size();
 
-  detailIndexes.forEach(([from, to]) => {
-    range(from, to + 1).forEach((i) => {
-      textElt.objectText.characters[i].font = 'SourceSansPro-Regular';
-      textElt.objectText.characters[i].size = defaultSize * 0.9;
-    });
-  });
+  return Promise.all(
+    titleIndexes.reduce(
+      (acc, [from, to]) => [
+        ...acc,
+        ...range(from, to + 1).map(
+          (i) =>
+            new Promise((resolve) => {
+              textElt.objectText.characters[i].font = 'SourceSansPro-Bold';
+              textElt.objectText.characters[i].size = defaultSize * 1.2;
+              textElt.objectText.characters[i].color = [65535, 65535, 65535];
+              resolve();
+            }),
+        ),
+      ],
+      [],
+    ),
+  );
 }
 
 export default class AnnouncementsGenerator extends Generator {
-  generate() {
+  async generate() {
     this.driver.addSlideFromTemplate('announcements', 0);
 
     const textElt = this.driver.findTextElement(/^Lorem ipsum/);
     const { items = [] } = this.data;
 
-    createText(textElt, items);
+    await createText(textElt, items);
   }
 }
