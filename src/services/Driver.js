@@ -5,7 +5,6 @@ import _ from 'lodash';
 import {
   documentWidth,
   documentHeight,
-  typography,
   regularBackgroundsNumber,
   templateRanges,
 } from '../config';
@@ -394,10 +393,6 @@ export default class Driver {
       // eslint-disable-next-line no-unused-expressions
       textProperties = format;
       format = null;
-    }
-
-    if (format) {
-      textProperties = { ...typography[format], ...textProperties };
     }
 
     const slide = this.doc.currentSlide;
