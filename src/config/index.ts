@@ -34,7 +34,7 @@ export const templateRanges: Record<string, [number, number]> = Object.entries({
   verse: 4,
   openDoors: 3,
   goodbye: 2,
-  sermon: 3,
+  sermon: 4,
   song: 1,
   section: 1,
 })

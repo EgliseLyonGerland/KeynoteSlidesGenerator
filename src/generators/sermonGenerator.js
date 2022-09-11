@@ -59,5 +59,7 @@ export default class SermonGenerator extends Generator {
     this.generateFirstSlide();
     this.generateSecondSlide();
     this.generateThirdSlide();
+
+    this.driver.addSlideFromTemplate('sermon', 3);
   }
 }
