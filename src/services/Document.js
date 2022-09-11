@@ -8,6 +8,7 @@ import OpenDoorsGenerator from '../generators/openDoorsGenerator';
 import SermonGenerator from '../generators/sermonGenerator';
 import SongGenerator from '../generators/songGenerator';
 import VerseGenerator from '../generators/verseGenerator';
+import GoodbyeGenerator from '../generators/goodbyeGenerator';
 
 const generators = {
   AnnouncementsGenerator,
@@ -17,6 +18,7 @@ const generators = {
   SermonGenerator,
   SongGenerator,
   VerseGenerator,
+  GoodbyeGenerator,
 };
 
 export default class Document {
