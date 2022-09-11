@@ -1,10 +1,19 @@
+/* eslint-disable no-param-reassign */
 import _ from 'lodash';
 import Generator from '../services/Generator';
+
+const applyLyrics = (elt, data, index) => {
+  elt.objectText = data.text.split('\n').join(`${' '.repeat(index)}\n`) || ' ';
+
+  if (data.type === 'chorus') {
+    elt.objectText.font = 'AdobeHebrew-BoldItalic';
+  }
+};
 
 export default class SongGenerator extends Generator {
   createTitleSlide() {
     const {
-      song: { title, copyright = '', authors = '', collection = '' },
+      song: { title, copyright = '', authors = '', collection = '', lyrics },
     } = this.data;
 
     this.driver.addSlideFromTemplate('song', 0);
@@ -21,64 +30,70 @@ export default class SongGenerator extends Generator {
 
     const creditsElt = this.driver.findTextElement(/^Credits:/);
     creditsElt.objectText = extras.join(' – ') || ' ';
-  }
 
-  addLyrics(lyrics, index) {
-    const lines = lyrics.text.split('\n');
-    const format = lyrics.type === 'chorus' ? 'songChorus' : 'songVerse';
-    const text = lines.join(`${' '.repeat(index)}\n`);
+    // Current lyrics
+    const currentLyricsElt = this.driver.findTextElement(/^Current:/);
+    applyLyrics(currentLyricsElt, lyrics[0], 0);
 
-    return this.driver.addText(text, format);
-  }
+    // Next lyrics
+    const nextLyricsElt = this.driver.findTextElement(/^Next:/);
 
-  addNextLyrics(lyrics, index) {
-    const textItem = this.addLyrics(lyrics, index);
-    textItem.opacity = index ? 50 : 0;
-    this.driver.setElementY(textItem, 648);
-
-    if (index) {
-      // Put text in background
-      this.driver.press('b', { shift: true, command: true });
+    if (!lyrics[1]) {
+      nextLyricsElt.delete();
+    } else {
+      applyLyrics(nextLyricsElt, lyrics[1], 1);
     }
-  }
-
-  addOverNextLyrics(lyrics, index) {
-    const textItem = this.addLyrics(lyrics, index);
-
-    textItem.opacity = index ? 50 : 0;
-    this.driver.setElementY(textItem, 648 * 2);
-
-    // Put text in background
-    this.driver.press('b', { shift: true, command: true });
-  }
-
-  addCurrentLyrics(lyrics, index) {
-    const textItem = this.addLyrics(lyrics, index);
-    const y = (600 - textItem.height()) / 2;
-
-    this.driver.setElementY(textItem, y);
   }
 
   generate() {
     const { repeat = false, song } = this.data;
-
-    this.createTitleSlide();
 
     const lyrics =
       this.data.lyrics ||
       song.lyrics ||
       console.error(`No lyrics for the song ${song.title}`);
 
-    _.forEach(repeat ? [...lyrics, ...lyrics] : lyrics, (part, index) => {
-      this.addNextLyrics(part, index);
+    this.createTitleSlide();
 
-      if (lyrics[index + 1]) {
-        this.addOverNextLyrics(lyrics[index + 1], index + 1);
+    _.forEach(repeat ? [...lyrics, ...lyrics] : lyrics, (current, index) => {
+      this.driver.addSlideFromTemplate('song', 1);
+
+      const previousElt = this.driver.findTextElement(/^Previous:/);
+
+      if (index === 0) {
+        previousElt.delete();
+      } else {
+        applyLyrics(previousElt, lyrics[index - 1], index - 1);
       }
 
-      this.driver.addSlide('backgroundSong');
-      this.addCurrentLyrics(part, index);
+      const currentElt = this.driver.findTextElement(/^Current:/);
+      const nextElt = this.driver.findTextElement(/^Next:/);
+      const afterNextElt = this.driver.findTextElement(/^AfterNext:/);
+
+      applyLyrics(currentElt, current, index);
+
+      if (!lyrics[index + 1]) {
+        nextElt.delete();
+        afterNextElt.delete();
+        return;
+      }
+
+      applyLyrics(nextElt, lyrics[index + 1], index + 1);
+
+      if (!lyrics[index + 2]) {
+        afterNextElt.delete();
+        return;
+      }
+
+      applyLyrics(afterNextElt, lyrics[index + 2], index + 2);
     });
+
+    // End slide
+    this.driver.addSlideFromTemplate('song', 2);
+
+    const previousElt = this.driver.findTextElement(/^Previous:/);
+    const lastIndex = lyrics.length - 1;
+    applyLyrics(previousElt, lyrics[lastIndex], lastIndex);
 
     if (this.nextBlock?.type !== 'song') {
       this.driver.addSlide('backgroundSong');

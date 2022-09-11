@@ -35,7 +35,7 @@ export const templateRanges: Record<string, [number, number]> = Object.entries({
   openDoors: 3,
   goodbye: 3,
   sermon: 4,
-  song: 1,
+  song: 3,
   section: 1,
 })
   .reduce<[string, number, number][]>((acc, [key, count]) => {
