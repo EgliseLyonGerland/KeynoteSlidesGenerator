@@ -3,7 +3,11 @@ import _ from 'lodash';
 import Generator from '../services/Generator';
 
 const applyLyrics = (elt, data, index) => {
-  elt.objectText = data.text.split('\n').join(`${' '.repeat(index)}\n`) || ' ';
+  elt.objectText =
+    data.text
+      .trim()
+      .split('\n')
+      .join(`${' '.repeat(index)}\n`) || ' ';
 
   if (data.type === 'chorus') {
     elt.objectText.font = 'AdobeHebrew-BoldItalic';
@@ -48,14 +52,18 @@ export default class SongGenerator extends Generator {
   generate() {
     const { repeat = false, song } = this.data;
 
-    const lyrics =
+    let lyrics =
       this.data.lyrics ||
       song.lyrics ||
       console.error(`No lyrics for the song ${song.title}`);
 
+    if (repeat) {
+      lyrics = [...lyrics, ...lyrics];
+    }
+
     this.createTitleSlide();
 
-    _.forEach(repeat ? [...lyrics, ...lyrics] : lyrics, (current, index) => {
+    _.forEach(lyrics, (current, index) => {
       this.driver.addSlideFromTemplate('song', 1);
 
       const previousElt = this.driver.findTextElement(/^Previous:/);
