@@ -6,8 +6,8 @@ import {
   documentWidth,
   documentHeight,
   regularBackgroundsNumber,
-  templateRanges,
 } from '../config';
+import * as slideUtils from '../utils/slide';
 
 const dictionary = {
   // Format
@@ -64,7 +64,13 @@ export default class Driver {
 
   backgrounds = [];
 
+  templates = {};
+
   constructor(filename) {
+    Object.entries(slideUtils).forEach(([name, fn]) => {
+      this[name] = (...args) => fn(this.doc.currentSlide, ...args);
+    });
+
     this.systemEvent = Application('System Events');
     this.keynote = Application('Keynote');
     this.mainWindow = this.systemEvent.processes.Keynote.windows.byName(
@@ -72,19 +78,12 @@ export default class Driver {
     );
 
     this.initDocument();
+    this.initTemplates();
     this.keynote.activate();
 
     while (!this.keynote.frontmost()) {
       delay(0);
     }
-  }
-
-  getNextRegularBackground() {
-    if (this.backgrounds.length === 0) {
-      this.backgrounds = _.shuffle(_.range(1, regularBackgroundsNumber));
-    }
-
-    return `backgroundR${this.backgrounds.pop()}`;
   }
 
   initDocument() {
@@ -98,6 +97,32 @@ export default class Driver {
 
     this.doc.width = documentWidth;
     this.doc.height = documentHeight;
+  }
+
+  initTemplates() {
+    for (let i = 0; i < this.doc.slides.length; i += 1) {
+      const slide = this.doc.slides[i];
+      const slideName = slideUtils.findTextElement(slide, /^slide:/);
+      const name = slideName.objectText().split(':')[1].trim();
+
+      if (name === 'end') {
+        break;
+      }
+
+      if (!this.templates[name]) {
+        this.templates[name] = [i, i];
+      }
+
+      this.templates[name][1] = i;
+    }
+  }
+
+  getNextRegularBackground() {
+    if (this.backgrounds.length === 0) {
+      this.backgrounds = _.shuffle(_.range(1, regularBackgroundsNumber));
+    }
+
+    return `backgroundR${this.backgrounds.pop()}`;
   }
 
   press(
@@ -523,7 +548,7 @@ export default class Driver {
   }
 
   addSlideFromTemplate(template, index = 0) {
-    const [firstIndex] = templateRanges[template];
+    const [firstIndex] = this.templates[template];
 
     this.duplicateSlide(firstIndex + index);
   }
@@ -538,35 +563,6 @@ export default class Driver {
 
   setElementXY(element, x, y) {
     element.position = { x, y };
-  }
-
-  findElement(matcher, from = 0, type = 'iworkItem') {
-    let matched = 0;
-    for (let i = 0; i < this.doc.currentSlide[`${type}s`].length; i += 1) {
-      const item = this.doc.currentSlide.iworkItems[i];
-
-      if (!matcher(item)) {
-        // eslint-disable-next-line no-continue
-        continue;
-      }
-      if (from === matched) {
-        return item;
-      }
-
-      matched += 1;
-    }
-
-    return null;
-  }
-
-  findTextElement(expr, from = 0) {
-    return this.findElement((item) => {
-      try {
-        return item.objectText().match(expr);
-      } catch (e) {
-        return false;
-      }
-    }, from);
   }
 
   deleteElement(element) {

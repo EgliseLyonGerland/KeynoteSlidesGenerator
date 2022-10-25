@@ -5,7 +5,6 @@ import { createText as createAnnouncementText } from './announcementsGenerator';
 
 export default class GoodbyeGenerator extends Generator {
   generate() {
-    console.log('toto');
     this.driver.addSlideFromTemplate('goodbye', 0);
     this.driver.addSlideFromTemplate('goodbye', 1);
 

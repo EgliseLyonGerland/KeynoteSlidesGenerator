@@ -32,6 +32,9 @@ export default class Document {
       const gen = new Generator(this.driver, block.data);
       gen.setPreviousBlock(data[index - 1] || null);
       gen.setNextBlock(data[index + 1] || null);
+      if (gen.init) {
+        gen.init();
+      }
       gen.generate();
     });
   }

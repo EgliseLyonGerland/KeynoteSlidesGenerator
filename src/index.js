@@ -7,7 +7,6 @@ const doc = new Document('Slides.key');
 
 const blocks = [].concat(
   { type: 'slide', data: { name: 'welcome' } },
-  { type: 'slide', data: { name: 'welcome', index: 1 } },
   { type: 'slide', data: { name: 'phone' } },
   ...entry.reduce((acc, item) => {
     if (item.type === 'songs') {
