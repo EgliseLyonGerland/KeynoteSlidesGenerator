@@ -17,7 +17,11 @@ const applyLyrics = (elt, data, index) => {
 export default class SongGenerator extends Generator {
   createTitleSlide() {
     const {
-      song: { title, copyright = '', authors = '', collection = '', lyrics },
+      title,
+      copyright = '',
+      authors = '',
+      collection = '',
+      lyrics,
     } = this.data;
 
     this.driver.addSlideFromTemplate('song', 0);
