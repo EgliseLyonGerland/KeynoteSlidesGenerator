@@ -1,4 +1,5 @@
 import { upperFirst } from 'lodash';
+import kleur from 'kleur';
 import Driver from './Driver';
 
 import AnnouncementsGenerator from '../generators/announcementsGenerator';
@@ -10,6 +11,7 @@ import SongGenerator from '../generators/songGenerator';
 import VerseGenerator from '../generators/verseGenerator';
 import GoodbyeGenerator from '../generators/goodbyeGenerator';
 import RecitationGenerator from '../generators/recitationGenerator';
+import { options } from '../config';
 
 const generators = {
   AnnouncementsGenerator,
@@ -23,13 +25,31 @@ const generators = {
   RecitationGenerator,
 };
 
+const { slide, from, to } = options;
+
 export default class Document {
   constructor(documentName) {
     this.driver = new Driver(documentName);
   }
 
   generate(data) {
+    console.log('Start generating');
+
     data.forEach((block, index) => {
+      const number = index + 1;
+      const title = ` • Slide #${number} (${block.type})`;
+
+      if (
+        (slide && slide !== number) ||
+        (from && from > number) ||
+        (to && to < number)
+      ) {
+        console.log(title, kleur.red('skipped'));
+        return;
+      }
+
+      console.log(title);
+
       const Generator = generators[`${upperFirst(block.type)}Generator`];
       const gen = new Generator(this.driver, block.data);
       gen.setPreviousBlock(data[index - 1] || null);
@@ -39,5 +59,7 @@ export default class Document {
       }
       gen.generate();
     });
+
+    console.log('Done generating');
   }
 }

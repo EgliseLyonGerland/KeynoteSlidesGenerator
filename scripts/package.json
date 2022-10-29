@@ -4,6 +4,8 @@
   "main": "index.js",
   "license": "MIT",
   "dependencies": {
-    "webpack": "^5.74.0"
+    "@types/yargs": "^17.0.13",
+    "webpack": "^5.74.0",
+    "yargs": "^17.6.0"
   }
 }

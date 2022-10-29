@@ -2,7 +2,21 @@
 
 import { spawn } from 'child_process';
 import { resolve } from 'path';
-import { Configuration, ProvidePlugin, webpack } from 'webpack';
+import {
+  Configuration,
+  DefinePlugin,
+  EnvironmentPlugin,
+  ProvidePlugin,
+  webpack,
+} from 'webpack';
+import yargs from 'yargs';
+import { hideBin } from 'yargs/helpers';
+
+const argv = yargs(hideBin(process.argv))
+  .option('slide', { alias: 's', type: 'number' })
+  .option('from', { alias: 'f', type: 'number' })
+  .option('to', { alias: 't', type: 'number' })
+  .parseSync();
 
 const rootPath = resolve(`${__dirname}/..`);
 const distPath = resolve(`${rootPath}/dist`);
@@ -28,9 +42,20 @@ const webpackConfig: Configuration = {
     extensions: ['.tsx', '.ts', '.js'],
   },
   plugins: [
+    new EnvironmentPlugin({
+      OPTIONS: JSON.stringify({
+        slide: argv.slide || argv.s,
+        from: argv.from || argv.f,
+        to: argv.to || argv.t,
+      }),
+    }),
     new ProvidePlugin({
       debug: [`${rootPath}/src/utils/debug`, 'debug'],
+      'console.log': [`${rootPath}/src/utils/debug`, 'debug'],
       debugElements: [`${rootPath}/src/utils/debugElements`, 'debugElements'],
+    }),
+    new DefinePlugin({
+      'process.env': '{}',
     }),
   ],
 };
