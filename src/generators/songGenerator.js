@@ -108,7 +108,7 @@ export default class SongGenerator extends Generator {
     applyLyrics(previousElt, lyrics[lastIndex], lastIndex);
 
     if (this.nextBlock?.type !== 'song') {
-      this.driver.addSlide('backgroundSong');
+      this.driver.addSlide('bg6');
     }
   }
 }
