@@ -32,7 +32,6 @@ export default class OpenDoorsGenerator extends Generator {
     const descElt = this.driver.findTextElement(/^Description:/);
     descElt.objectText = detail;
 
-    this.driver.setElementY(titleElt, 80);
     this.distribute([titleElt, descElt], { vertical: true, spacing: 32 });
 
     const topicsElt = this.driver.findTextElement(`Topics:`);
