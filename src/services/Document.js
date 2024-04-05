@@ -1,6 +1,5 @@
 import { upperFirst } from 'lodash';
 import kleur from 'kleur';
-import Driver from './Driver';
 
 import AnnouncementsGenerator from '../generators/announcementsGenerator';
 import SectionGenerator from '../generators/sectionGenerator';
@@ -12,6 +11,7 @@ import VerseGenerator from '../generators/verseGenerator';
 import GoodbyeGenerator from '../generators/goodbyeGenerator';
 import RecitationGenerator from '../generators/recitationGenerator';
 import { options } from '../config';
+import Driver from './Driver';
 
 const generators = {
   AnnouncementsGenerator,
@@ -40,9 +40,9 @@ export default class Document {
       const title = ` • Slide #${number} (${block.type})`;
 
       if (
-        (slide && slide !== number) ||
-        (from && from > number) ||
-        (to && to < number)
+        (slide && slide !== number)
+        || (from && from > number)
+        || (to && to < number)
       ) {
         console.log(title, kleur.red('skipped'));
         return;

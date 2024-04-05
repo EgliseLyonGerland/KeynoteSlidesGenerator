@@ -1,4 +1,4 @@
-const _ = require('lodash');
+import _ from 'lodash';
 
 const { log } = console;
 
@@ -24,13 +24,13 @@ export function debugElements(
     log(
       '  '.repeat(level),
       index,
-      ...properties.map((property) => element[property]()),
+      ...properties.map(property => element[property]()),
     );
 
     if (
-      recursive &&
-      (maxDepth === 0 || level < maxDepth - 1) &&
-      element.uiElements
+      recursive
+      && (maxDepth === 0 || level < maxDepth - 1)
+      && element.uiElements
     ) {
       debugElements(
         element.uiElements,

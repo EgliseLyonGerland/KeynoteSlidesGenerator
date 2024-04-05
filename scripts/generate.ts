@@ -1,9 +1,7 @@
-/* eslint-disable no-console */
-
-import { spawn } from 'child_process';
-import { resolve } from 'path';
+import { spawn } from 'node:child_process';
+import { resolve } from 'node:path';
 import {
-  Configuration,
+  type Configuration,
   DefinePlugin,
   EnvironmentPlugin,
   ProvidePlugin,
@@ -18,7 +16,7 @@ const argv = yargs(hideBin(process.argv))
   .option('to', { alias: 't', type: 'number' })
   .parseSync();
 
-const rootPath = resolve(`${__dirname}/..`);
+const rootPath = resolve(__dirname, `..`);
 const distPath = resolve(`${rootPath}/dist`);
 
 const webpackConfig: Configuration = {
@@ -57,9 +55,9 @@ const webpackConfig: Configuration = {
       }),
     }),
     new ProvidePlugin({
-      debug: [`${rootPath}/src/utils/debug`, 'debug'],
+      'debug': [`${rootPath}/src/utils/debug`, 'debug'],
       'console.log': [`${rootPath}/src/utils/debug`, 'debug'],
-      debugElements: [`${rootPath}/src/utils/debugElements`, 'debugElements'],
+      'debugElements': [`${rootPath}/src/utils/debugElements`, 'debugElements'],
     }),
     new DefinePlugin({
       'process.env': '{}',
@@ -67,8 +65,8 @@ const webpackConfig: Configuration = {
   ],
 };
 
-function exec(cmd: string, args?: string[]) {
-  return new Promise((done) => {
+async function exec(cmd: string, args?: string[]) {
+  return await new Promise((done) => {
     const child = spawn(cmd, args);
 
     child.stdout.on('data', (data) => {

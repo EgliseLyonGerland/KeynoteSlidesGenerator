@@ -5,8 +5,8 @@ let currentTemplateIndex = 0;
 
 export default class VerseGenerator extends Generator {
   init() {
-    this.totalTemplates =
-      this.driver.templates.verse[1] - this.driver.templates.verse[0];
+    this.totalTemplates
+      = this.driver.templates.verse[1] - this.driver.templates.verse[0];
   }
 
   getNextTemplateIndex() {
@@ -39,7 +39,8 @@ export default class VerseGenerator extends Generator {
     let bibleRefText = `${parsedBibleRef.book} ${parsedBibleRef.chapterStart}`;
     if (parsedBibleRef.verseStart && !parsedBibleRef.verseEnd) {
       bibleRefText += ` • ${parsedBibleRef.verseStart}`;
-    } else if (parsedBibleRef.verseStart && parsedBibleRef.verseEnd) {
+    }
+    else if (parsedBibleRef.verseStart && parsedBibleRef.verseEnd) {
       bibleRefText += ` • ${parsedBibleRef.verseStart}–${parsedBibleRef.verseEnd}`;
     }
 

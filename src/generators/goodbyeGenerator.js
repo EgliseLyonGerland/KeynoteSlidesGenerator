@@ -1,5 +1,3 @@
-/* eslint-disable guard-for-in */
-/* eslint-disable no-restricted-syntax */
 import Generator from '../services/Generator';
 import { createText as createAnnouncementText } from './announcementsGenerator';
 

@@ -1,4 +1,4 @@
-const { documentHeight } = require('../config');
+import { documentHeight } from '../config';
 
 let driver;
 

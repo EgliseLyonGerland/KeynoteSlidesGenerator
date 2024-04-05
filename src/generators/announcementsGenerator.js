@@ -1,10 +1,7 @@
-/* eslint-disable no-param-reassign */
-/* eslint-disable guard-for-in */
-/* eslint-disable no-restricted-syntax */
 import { range } from 'lodash';
 import Generator from '../services/Generator';
 
-export function createText(textElt, items) {
+export async function createText(textElt, items) {
   textElt.objectText = '';
 
   const titleIndexes = [];
@@ -25,13 +22,13 @@ export function createText(textElt, items) {
     textElt.objectText = `${textElt.objectText()}\n`;
   });
 
-  return Promise.all(
+  return await Promise.all(
     titleIndexes.reduce(
       (acc, [from, to]) => [
         ...acc,
         ...range(from, to + 1).map(
-          (i) =>
-            new Promise((resolve) => {
+          async i =>
+            await new Promise((resolve) => {
               textElt.objectText.characters[i].font = 'SourceSansPro-Bold';
               textElt.objectText.characters[i].color = [65535, 65535, 65535];
               resolve();

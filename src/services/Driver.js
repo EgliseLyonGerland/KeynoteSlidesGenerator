@@ -1,40 +1,37 @@
-/* eslint-disable class-methods-use-this */
-/* eslint-disable no-param-reassign */
-
 import _ from 'lodash';
 import {
-  documentWidth,
   documentHeight,
+  documentWidth,
   regularBackgroundsNumber,
 } from '../config';
 import * as slideUtils from '../utils/slide';
 
 const dictionary = {
   // Format
-  Texte: 'Text',
-  Numéros: 'Numbers',
-  Opacité: 'Opacity',
+  'Texte': 'Text',
+  'Numéros': 'Numbers',
+  'Opacité': 'Opacity',
 
   // Animate
-  Entrée: 'Build In',
-  Action: 'Action',
-  Sortie: 'Build Out',
+  'Entrée': 'Build In',
+  'Action': 'Action',
+  'Sortie': 'Build Out',
 
   'Ordre de composition': 'Build Order',
   'Ajouter un effet': 'Add an Effect',
   'Tracé de ligne': 'Line Draw',
-  Disparition: 'Disappear',
-  Dissolution: 'Dissolve',
+  'Disparition': 'Disappear',
+  'Dissolution': 'Dissolve',
   'Fondu et déplacement': 'Fade and Move',
   'Fondu et échelle': 'Fade and Scale',
 
   'Du milieu aux extrémités': 'Middle to Ends',
 
-  "Vers l'avant": 'Forward',
-  "Vers l'arrière": 'Backward',
+  'Vers l\'avant': 'Forward',
+  'Vers l\'arrière': 'Backward',
   'À partir du center': 'From Center',
   'À partir des bords': 'From Edges',
-  Aléatoire: 'Random',
+  'Aléatoire': 'Random',
 
   'alignement de paragraphe': 'paragraph alignment',
 
@@ -73,9 +70,8 @@ export default class Driver {
 
     this.systemEvent = Application('System Events');
     this.keynote = Application('Keynote');
-    this.mainWindow = this.systemEvent.processes.Keynote.windows.byName(
-      filename,
-    );
+    this.mainWindow
+      = this.systemEvent.processes.Keynote.windows.byName(filename);
 
     this.initDocument();
     this.initTemplates();
@@ -88,9 +84,9 @@ export default class Driver {
 
   initDocument() {
     if (this.keynote.documents.length) {
-      // eslint-disable-next-line prefer-destructuring
       this.doc = this.keynote.documents[0];
-    } else {
+    }
+    else {
       this.doc = this.keynote.Document();
       this.keynote.documents.push(this.doc);
     }
@@ -130,10 +126,10 @@ export default class Driver {
     { shift = false, command = false, option = false, control = false } = {},
   ) {
     const using = [];
-    if (shift) using.push('shift down');
-    if (command) using.push('command down');
-    if (control) using.push('control down');
-    if (option) using.push('option down');
+    if (shift) { using.push('shift down'); }
+    if (command) { using.push('command down'); }
+    if (control) { using.push('control down'); }
+    if (option) { using.push('option down'); }
 
     this.systemEvent.keystroke(key, { using });
     delay(0.2);
@@ -169,7 +165,6 @@ export default class Driver {
   }
 
   selectSlide(index) {
-    // eslint-disable-next-line prefer-destructuring
     this.doc.currentSlide = this.doc.slides[index];
   }
 
@@ -260,14 +255,14 @@ export default class Driver {
   /**
    * Set current effect startup options
    * @param {string} begin 'onClick' or 'afterPrevious' or 'withPrevious'
-   * @param {int} delay$ Delay
+   * @param {int} delay Delay
    */
   setEffectStartup(begin, delay = 0) {
     const win = this.getBuildOrderWindow();
 
     let beginIndex = 0;
-    if (begin === 'withPrevious') beginIndex = 1;
-    else if (begin === 'afterPrevious') beginIndex = 2;
+    if (begin === 'withPrevious') { beginIndex = 1; }
+    else if (begin === 'afterPrevious') { beginIndex = 2; }
 
     this.setSelectBoxIndex(win.popUpButtons[0], beginIndex);
 
@@ -309,22 +304,28 @@ export default class Driver {
 
     if (appears === 'byWord') {
       this.setSelectBoxValue(appearsSelect, t('Par mot'));
-    } else if (appears === 'byChar') {
+    }
+    else if (appears === 'byChar') {
       this.setSelectBoxValue(appearsSelect, t('Par caractère'));
-    } else {
+    }
+    else {
       this.setSelectBoxValue(appearsSelect, t('Par objet'));
     }
 
     if (startsFrom === 'bottom') {
-      this.setSelectBoxValue(startsFromSelect, t("Vers l'arrière"));
-    } else if (startsFrom === 'center') {
+      this.setSelectBoxValue(startsFromSelect, t('Vers l\'arrière'));
+    }
+    else if (startsFrom === 'center') {
       this.setSelectBoxValue(startsFromSelect, t('À partir du center'));
-    } else if (startsFrom === 'edges') {
+    }
+    else if (startsFrom === 'edges') {
       this.setSelectBoxValue(startsFromSelect, t('À partir des bords'));
-    } else if (startsFrom === 'random') {
+    }
+    else if (startsFrom === 'random') {
       this.setSelectBoxValue(startsFromSelect, t('Aléatoire'));
-    } else {
-      this.setSelectBoxValue(startsFromSelect, t("Vers l'avant"));
+    }
+    else {
+      this.setSelectBoxValue(startsFromSelect, t('Vers l\'avant'));
     }
   }
 
@@ -341,13 +342,13 @@ export default class Driver {
     this.setEffectDuration(duration);
 
     let directionIndex = 3;
-    if (direction === 'leftToRight') directionIndex = 0;
-    else if (direction === 'rightToLeft') directionIndex = 1;
-    else if (direction === 'topToBottom') directionIndex = 2;
-    else if (direction === 'topLeftToBottomRight') directionIndex = 4;
-    else if (direction === 'topRightToBottomLeft') directionIndex = 5;
-    else if (direction === 'bottomLeftToTopRight') directionIndex = 6;
-    else if (direction === 'bottomRightToTopLeft') directionIndex = 7;
+    if (direction === 'leftToRight') { directionIndex = 0; }
+    else if (direction === 'rightToLeft') { directionIndex = 1; }
+    else if (direction === 'topToBottom') { directionIndex = 2; }
+    else if (direction === 'topLeftToBottomRight') { directionIndex = 4; }
+    else if (direction === 'topRightToBottomLeft') { directionIndex = 5; }
+    else if (direction === 'bottomLeftToTopRight') { directionIndex = 6; }
+    else if (direction === 'bottomRightToTopLeft') { directionIndex = 7; }
 
     const scrollArea = this.mainWindow.scrollAreas[0];
     const directionSelect = scrollArea.popUpButtons[0];
@@ -415,7 +416,6 @@ export default class Driver {
     let [format, textProperties = {}] = args;
 
     if (args.length === 1 && typeof format === 'object') {
-      // eslint-disable-next-line no-unused-expressions
       textProperties = format;
       format = null;
     }
@@ -458,14 +458,16 @@ export default class Driver {
     const scrollArea = this.mainWindow.scrollAreas[0];
     const group = _.find(
       scrollArea.groups,
-      (item) => item.description() === t('alignement de paragraphe'),
+      item => item.description() === t('alignement de paragraphe'),
     );
 
     if (align === 'left') {
       group.checkboxes[0].click();
-    } else if (align === 'right') {
+    }
+    else if (align === 'right') {
       group.checkboxes[2].click();
-    } else {
+    }
+    else {
       group.checkboxes[1].click();
     }
   }
@@ -495,8 +497,8 @@ export default class Driver {
     const { currentSlide: slide } = this.doc;
 
     let size;
-    if (width) size = width;
-    else size = vertical ? 600 : 800;
+    if (width) { size = width; }
+    else { size = vertical ? 600 : 800; }
 
     const line = this.keynote.Line(
       vertical

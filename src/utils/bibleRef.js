@@ -1,4 +1,4 @@
-const _ = require('lodash');
+import _ from 'lodash';
 
 function merge(fields, values) {
   return fields.reduce(

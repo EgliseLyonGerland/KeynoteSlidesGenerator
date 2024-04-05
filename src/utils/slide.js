@@ -4,7 +4,6 @@ export function findElement(slide, matcher, from = 0, type = 'iworkItem') {
     const item = slide.iworkItems[i];
 
     if (!matcher(item)) {
-      // eslint-disable-next-line no-continue
       continue;
     }
     if (from === matched) {
@@ -23,7 +22,8 @@ export function findTextElement(slide, expr, from = 0) {
     (item) => {
       try {
         return item.objectText().match(expr);
-      } catch (e) {
+      }
+      catch (e) {
         return false;
       }
     },

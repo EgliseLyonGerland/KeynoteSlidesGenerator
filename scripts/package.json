@@ -1,12 +1,12 @@
 {
   "name": "scripts",
   "version": "1.0.0",
-  "main": "index.js",
   "license": "MIT",
+  "main": "index.js",
   "dependencies": {
-    "@types/yargs": "^17.0.13",
-    "source-map-loader": "^4.0.1",
-    "webpack": "^5.74.0",
-    "yargs": "^17.6.0"
+    "@types/yargs": "^17.0.32",
+    "source-map-loader": "^5.0.0",
+    "webpack": "^5.91.0",
+    "yargs": "^17.7.2"
   }
 }

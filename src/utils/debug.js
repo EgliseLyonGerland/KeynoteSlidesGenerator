@@ -1,18 +1,16 @@
-/* eslint-disable import/no-extraneous-dependencies */
-/* eslint-disable no-use-before-define */
-const map = require('lodash/map');
-const size = require('lodash/size');
-const repeat = require('lodash/repeat');
-const isArray = require('lodash/isArray');
-const isPlainObject = require('lodash/isPlainObject');
-const isObjectLike = require('lodash/isObjectLike');
-const isString = require('lodash/isString');
-const isBoolean = require('lodash/isBoolean');
-const isNumber = require('lodash/isNumber');
-const isFunction = require('lodash/isFunction');
-const isNaN = require('lodash/isNaN');
-const isUndefined = require('lodash/isUndefined');
-const kleur = require('kleur');
+import map from 'lodash/map';
+import size from 'lodash/size';
+import repeat from 'lodash/repeat';
+import isArray from 'lodash/isArray';
+import isPlainObject from 'lodash/isPlainObject';
+import isObjectLike from 'lodash/isObjectLike';
+import isString from 'lodash/isString';
+import isBoolean from 'lodash/isBoolean';
+import isNumber from 'lodash/isNumber';
+import isFunction from 'lodash/isFunction';
+import isNaN from 'lodash/isNaN';
+import isUndefined from 'lodash/isUndefined';
+import kleur from 'kleur';
 
 const DEPTH_MAX = 3;
 
@@ -98,7 +96,8 @@ function stringifyObject(data, level = 0, indentSize = 0) {
   let content;
   if (multiline) {
     content = parts.join(`,\n${indent(indentSize + 2)}`);
-  } else {
+  }
+  else {
     content = parts.join(', ');
   }
 
@@ -136,7 +135,8 @@ function stringifyArray(data, level = 0, indentSize = 0) {
   let content;
   if (multiline) {
     content = parts.join(`,\n${indent(indentSize + 2)}`);
-  } else {
+  }
+  else {
     content = parts.join(', ');
   }
 

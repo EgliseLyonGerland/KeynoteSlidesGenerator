@@ -1,10 +1,9 @@
-/* eslint-disable no-param-reassign */
 import _ from 'lodash';
 import Generator from '../services/Generator';
 
-const applyLyrics = (elt, data, index) => {
-  elt.objectText =
-    data.text
+function applyLyrics(elt, data, index) {
+  elt.objectText
+    = data.text
       .trim()
       .split('\n')
       .join(`${' '.repeat(index)}\n`) || ' ';
@@ -12,7 +11,7 @@ const applyLyrics = (elt, data, index) => {
   if (data.type === 'chorus') {
     elt.objectText.font = 'AdobeHebrew-BoldItalic';
   }
-};
+}
 
 export default class SongGenerator extends Generator {
   createTitleSlide() {
@@ -33,8 +32,8 @@ export default class SongGenerator extends Generator {
     authorsElt.objectText = authors || ' ';
 
     const extras = [];
-    if (copyright) extras.push(`© ${copyright}`);
-    if (collection) extras.push(collection);
+    if (copyright) { extras.push(`© ${copyright}`); }
+    if (collection) { extras.push(collection); }
 
     const creditsElt = this.driver.findTextElement(/^Credits:/);
     creditsElt.objectText = extras.join(' – ') || ' ';
@@ -48,7 +47,8 @@ export default class SongGenerator extends Generator {
 
     if (!lyrics[1]) {
       nextLyricsElt.delete();
-    } else {
+    }
+    else {
       applyLyrics(nextLyricsElt, lyrics[1], 1);
     }
   }
@@ -56,10 +56,10 @@ export default class SongGenerator extends Generator {
   generate() {
     const { repeat = false, song } = this.data;
 
-    let lyrics =
-      this.data.lyrics ||
-      song.lyrics ||
-      console.error(`No lyrics for the song ${song.title}`);
+    let lyrics
+      = this.data.lyrics
+      || song.lyrics
+      || console.error(`No lyrics for the song ${song.title}`);
 
     if (repeat) {
       lyrics = [...lyrics, ...lyrics];
@@ -74,7 +74,8 @@ export default class SongGenerator extends Generator {
 
       if (index === 0) {
         previousElt.delete();
-      } else {
+      }
+      else {
         applyLyrics(previousElt, lyrics[index - 1], index - 1);
       }
 

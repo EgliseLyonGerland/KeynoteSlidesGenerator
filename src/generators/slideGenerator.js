@@ -2,7 +2,7 @@ import Generator from '../services/Generator';
 
 export default class GoodbyeGenerator extends Generator {
   generate() {
-    const { name, from = 0, to = Infinity } = this.data;
+    const { name, from = 0, to = Number.POSITIVE_INFINITY } = this.data;
 
     if (!this.driver.templates[name]) {
       throw new Error(`Template ${name} not found`);

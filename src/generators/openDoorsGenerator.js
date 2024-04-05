@@ -34,8 +34,8 @@ export default class OpenDoorsGenerator extends Generator {
 
     this.distribute([titleElt, descElt], { vertical: true, spacing: 32 });
 
-    const topicsElt = this.driver.findTextElement(`Topics:`);
-    topicsElt.objectText = prayerTopics.map((topic) => topic.text).join('\n\n');
+    const topicsElt = this.driver.findTextElement('Topics:');
+    topicsElt.objectText = prayerTopics.map(topic => topic.text).join('\n\n');
 
     this.driver.addSlideFromTemplate('openDoors', 2);
   }
