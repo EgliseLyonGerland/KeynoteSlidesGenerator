@@ -21,27 +21,27 @@ function createSlide() {
 
   const initialDigits = getDigits(duration);
 
-  let minute1 = driver.addText(initialDigits.minute1, 'countdown');
+  let minute1 = driver.addText(initialDigits.minute1);
   driver.setElementXY(minute1, 816, documentHeight / 2);
   driver.setDissolveEffect({ duration: 0.7 });
   driver.setEffectStartup('withPrevious', 0.1);
 
-  let minute2 = driver.addText(initialDigits.minute2, 'countdown');
+  let minute2 = driver.addText(initialDigits.minute2);
   driver.setElementXY(minute2, 877, documentHeight / 2);
   driver.setDissolveEffect({ duration: 0.7 });
   driver.setEffectStartup('withPrevious', 0.1);
 
-  const colon = driver.addText(':', 'countdown');
+  const colon = driver.addText(':');
   driver.setElementXY(colon, 946, documentHeight / 2);
   driver.setDissolveEffect({ duration: 0.7 });
   driver.setEffectStartup('withPrevious', 0.1);
 
-  let second1 = driver.addText(initialDigits.second1, 'countdown');
+  let second1 = driver.addText(initialDigits.second1);
   driver.setElementXY(second1, 983, documentHeight / 2);
   driver.setDissolveEffect({ duration: 0.7 });
   driver.setEffectStartup('withPrevious', 0.1);
 
-  let second2 = driver.addText(initialDigits.second2, 'countdown');
+  let second2 = driver.addText(initialDigits.second2);
   driver.setElementXY(second2, 1043, documentHeight / 2);
   driver.setDissolveEffect({ duration: 0.7 });
   driver.setEffectStartup('withPrevious', 0.1);
@@ -53,7 +53,7 @@ function createSlide() {
     driver.setFadeScaleOutEffect({ duration: 0.4, scale: 50 });
     driver.setEffectStartup('withPrevious', 0.6);
 
-    second2 = driver.addText(digits.second2, 'countdown');
+    second2 = driver.addText(digits.second2);
     driver.setElementXY(second2, 1043, documentHeight / 2);
     driver.setFadeScaleEffect({ duration: 0.4, scale: 150 });
     driver.setEffectStartup('withPrevious');
@@ -63,7 +63,7 @@ function createSlide() {
       driver.setFadeScaleOutEffect({ duration: 0.4, scale: 50 });
       driver.setEffectStartup('withPrevious');
 
-      second1 = driver.addText(digits.second1, 'countdown');
+      second1 = driver.addText(digits.second1);
       driver.setElementXY(second1, 983, documentHeight / 2);
       driver.setFadeScaleEffect({ duration: 0.4, scale: 150 });
       driver.setEffectStartup('withPrevious');
@@ -73,7 +73,7 @@ function createSlide() {
         driver.setFadeScaleOutEffect({ duration: 0.4, scale: 50 });
         driver.setEffectStartup('withPrevious');
 
-        minute2 = driver.addText(digits.minute2, 'countdown');
+        minute2 = driver.addText(digits.minute2);
         driver.setElementXY(minute2, 877, documentHeight / 2);
         driver.setFadeScaleEffect({ duration: 0.4, scale: 150 });
         driver.setEffectStartup('withPrevious');
@@ -83,7 +83,7 @@ function createSlide() {
           driver.setFadeScaleOutEffect({ duration: 0.4, scale: 50 });
           driver.setEffectStartup('withPrevious');
 
-          minute1 = driver.addText(digits.minute1, 'countdown');
+          minute1 = driver.addText(digits.minute1);
           driver.setElementXY(minute1, 816, documentHeight / 2);
           driver.setFadeScaleEffect({ duration: 0.4, scale: 150 });
           driver.setEffectStartup('withPrevious');

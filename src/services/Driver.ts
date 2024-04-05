@@ -5,84 +5,28 @@ import {
   regularBackgroundsNumber,
 } from '../config';
 import * as slideUtils from '../utils/slide';
-
-const dictionary = {
-  // Format
-  'Texte': 'Text',
-  'Numéros': 'Numbers',
-  'Opacité': 'Opacity',
-
-  // Animate
-  'Entrée': 'Build In',
-  'Action': 'Action',
-  'Sortie': 'Build Out',
-
-  'Ordre de composition': 'Build Order',
-  'Ajouter un effet': 'Add an Effect',
-  'Tracé de ligne': 'Line Draw',
-  'Disparition': 'Disappear',
-  'Dissolution': 'Dissolve',
-  'Fondu et déplacement': 'Fade and Move',
-  'Fondu et échelle': 'Fade and Scale',
-
-  'Du milieu aux extrémités': 'Middle to Ends',
-
-  'Vers l\'avant': 'Forward',
-  'Vers l\'arrière': 'Backward',
-  'À partir du center': 'From Center',
-  'À partir des bords': 'From Edges',
-  'Aléatoire': 'Random',
-
-  'alignement de paragraphe': 'paragraph alignment',
-
-  'Par caractère': 'By Character',
-  'Par mot': 'By Word',
-  'Par objet': 'By Object',
-};
-
-function t(term) {
-  if (!dictionary[term]) {
-    throw new Error(`No translation for "${term}"`);
-  }
-
-  return dictionary[term];
-}
+import { t } from '../utils/t';
 
 export default class Driver {
   systemEvent;
-
-  keynote;
-
+  keynote: any;
   mainWindow;
-
   doc;
+  currentClipboard?: number;
+  backgrounds: number[] = [];
+  templates: Record<string, number[]> = {};
+  findElement;
+  findTextElement;
 
-  currentClipboard;
-
-  backgrounds = [];
-
-  templates = {};
-
-  constructor(filename) {
-    Object.entries(slideUtils).forEach(([name, fn]) => {
-      this[name] = (...args) => fn(this.doc.currentSlide, ...args);
-    });
+  constructor(filename: string) {
+    this.findElement = (...args: ParametersExceptFirst<typeof slideUtils.findElement>) => slideUtils.findElement(this.doc.currentSlide, ...args);
+    this.findTextElement = (...args: ParametersExceptFirst<typeof slideUtils.findTextElement>) => slideUtils.findTextElement(this.doc.currentSlide, ...args);
 
     this.systemEvent = Application('System Events');
     this.keynote = Application('Keynote');
     this.mainWindow
       = this.systemEvent.processes.Keynote.windows.byName(filename);
 
-    this.initDocument();
-    this.initTemplates();
-    this.keynote.activate();
-
-    while (!this.keynote.frontmost()) {
-      delay(0);
-    }
-  }
-
-  initDocument() {
     if (this.keynote.documents.length) {
       this.doc = this.keynote.documents[0];
     }
@@ -93,12 +37,24 @@ export default class Driver {
 
     this.doc.width = documentWidth;
     this.doc.height = documentHeight;
+
+    this.initTemplates();
+    this.keynote.activate();
+
+    while (!this.keynote.frontmost()) {
+      delay(0);
+    }
   }
 
   initTemplates() {
     for (let i = 0; i < this.doc.slides.length; i += 1) {
       const slide = this.doc.slides[i];
       const slideName = slideUtils.findTextElement(slide, /^slide:/);
+
+      if (!slideName) {
+        break;
+      }
+
       const name = slideName.objectText().split(':')[1].trim();
 
       if (name === 'end') {
@@ -121,16 +77,7 @@ export default class Driver {
     return `backgroundR${this.backgrounds.pop()}`;
   }
 
-  press(
-    key,
-    { shift = false, command = false, option = false, control = false } = {},
-  ) {
-    const using = [];
-    if (shift) { using.push('shift down'); }
-    if (command) { using.push('command down'); }
-    if (control) { using.push('control down'); }
-    if (option) { using.push('option down'); }
-
+  press(key: string, using: KeystrokeUsingOption) {
     this.systemEvent.keystroke(key, { using });
     delay(0.2);
   }
@@ -140,55 +87,55 @@ export default class Driver {
     this.systemEvent.keyCode(36);
   }
 
-  // function pressEscape() {
-  //   this.systemEvent.press(53);
-  // }
-
   pressBackspace() {
     this.systemEvent.keyCode(51);
   }
+
+  // function pressEscape() {
+  //   this.systemEvent.press(53);
+  // }
 
   // function pressTab() {
   //   this.systemEvent.press(48);
   // }
 
-  setTextFieldValue(textField, value) {
+  setTextFieldValue(textField: any, value: string) {
     textField.focused = true;
     textField.value = `${value}`;
     textField.focused = false;
     textField.confirm();
   }
 
-  selectElement(element) {
+  selectElement(element: any) {
     element.locked = true;
     element.locked = false;
   }
 
-  selectSlide(index) {
+  selectSlide(index: number) {
     this.doc.currentSlide = this.doc.slides[index];
   }
 
-  duplicateSlide(index) {
+  duplicateSlide(index: number) {
     this.doc.slides[index].duplicate();
     delay(0.1);
     this.doc.currentSlide.skipped = false;
   }
 
-  copyPasteObjectsFromSlide(slideIndex) {
+  copyPasteObjectsFromSlide(slideIndex: number) {
     if (this.currentClipboard !== slideIndex) {
       const currentSlideIndex = _.indexOf(
         this.doc.slides,
         this.doc.currentSlide,
       );
       this.selectSlide(slideIndex);
-      this.press('a', { command: true });
-      this.press('c', { command: true });
+      this.press('a', 'command down');
+      this.press('c', 'command down');
       delay(0.5);
       this.selectSlide(currentSlideIndex);
       this.currentClipboard = slideIndex;
     }
 
-    this.press('v', { command: true });
+    this.press('v', 'command down');
     delay(0.2);
   }
 
@@ -206,7 +153,7 @@ export default class Driver {
     }
   }
 
-  selectInspectorTab(tab) {
+  selectInspectorTab(tab: string) {
     this.mainWindow.radioGroups[0].radioButtons.byName(tab).click();
   }
 
@@ -227,12 +174,12 @@ export default class Driver {
    * Form helpers
    */
 
-  setSelectBoxValue(selectBox, name) {
+  setSelectBoxValue(selectBox: any, name: string) {
     selectBox.click();
     selectBox.menus[0].menuItems.byName(name).click();
   }
 
-  setSelectBoxIndex(selectBox, index) {
+  setSelectBoxIndex(selectBox: any, index: number) {
     selectBox.click();
     const size = _.size(selectBox.menus[0].menuItems);
     selectBox.menus[0].menuItems[Math.min(index, size - 1)].click();
@@ -242,7 +189,7 @@ export default class Driver {
    * Effect helpers
    */
 
-  selectEffect(effect) {
+  selectEffect(effect: string) {
     const addEffectButton = this.mainWindow.buttons.byName(
       t('Ajouter un effet'),
     );
@@ -257,12 +204,16 @@ export default class Driver {
    * @param {string} begin 'onClick' or 'afterPrevious' or 'withPrevious'
    * @param {int} delay Delay
    */
-  setEffectStartup(begin, delay = 0) {
+  setEffectStartup(begin: 'onClick' | 'afterPrevious' | 'withPrevious', delay = 0) {
     const win = this.getBuildOrderWindow();
 
     let beginIndex = 0;
-    if (begin === 'withPrevious') { beginIndex = 1; }
-    else if (begin === 'afterPrevious') { beginIndex = 2; }
+    if (begin === 'withPrevious') {
+      beginIndex = 1;
+    }
+    else if (begin === 'afterPrevious') {
+      beginIndex = 2;
+    }
 
     this.setSelectBoxIndex(win.popUpButtons[0], beginIndex);
 
@@ -270,7 +221,7 @@ export default class Driver {
     this.setTextFieldValue(delayTextField, `${delay}`.replace('.', ','));
   }
 
-  setEffectDuration(duration) {
+  setEffectDuration(duration: number) {
     const scrollArea = this.mainWindow.scrollAreas[0];
     scrollArea.sliders[0].value = Math.log(duration + 1);
   }
@@ -342,13 +293,27 @@ export default class Driver {
     this.setEffectDuration(duration);
 
     let directionIndex = 3;
-    if (direction === 'leftToRight') { directionIndex = 0; }
-    else if (direction === 'rightToLeft') { directionIndex = 1; }
-    else if (direction === 'topToBottom') { directionIndex = 2; }
-    else if (direction === 'topLeftToBottomRight') { directionIndex = 4; }
-    else if (direction === 'topRightToBottomLeft') { directionIndex = 5; }
-    else if (direction === 'bottomLeftToTopRight') { directionIndex = 6; }
-    else if (direction === 'bottomRightToTopLeft') { directionIndex = 7; }
+    if (direction === 'leftToRight') {
+      directionIndex = 0;
+    }
+    else if (direction === 'rightToLeft') {
+      directionIndex = 1;
+    }
+    else if (direction === 'topToBottom') {
+      directionIndex = 2;
+    }
+    else if (direction === 'topLeftToBottomRight') {
+      directionIndex = 4;
+    }
+    else if (direction === 'topRightToBottomLeft') {
+      directionIndex = 5;
+    }
+    else if (direction === 'bottomLeftToTopRight') {
+      directionIndex = 6;
+    }
+    else if (direction === 'bottomRightToTopLeft') {
+      directionIndex = 7;
+    }
 
     const scrollArea = this.mainWindow.scrollAreas[0];
     const directionSelect = scrollArea.popUpButtons[0];
@@ -412,22 +377,22 @@ export default class Driver {
     this.copyPasteObjectsFromSlide(2);
   }
 
-  addText(text, ...args) {
-    let [format, textProperties = {}] = args;
-
-    if (args.length === 1 && typeof format === 'object') {
-      textProperties = format;
-      format = null;
-    }
-
+  addText(text: string, textProperties: {
+    size: number
+    font: number
+    opacity: number
+  }) {
     const slide = this.doc.currentSlide;
     const textItem = this.keynote.TextItem({
       objectText: text,
     });
     slide.textItems.push(textItem);
-    textItem.objectText.size = textProperties.size;
-    textItem.objectText.font = textProperties.font;
-    textItem.objectText.color = [65535, 65535, 65535];
+
+    textItem.objectText = {
+      size: textProperties.size,
+      font: textProperties.font,
+      color: [65535, 65535, 65535],
+    };
 
     if (textProperties.opacity) {
       textItem.opacity = textProperties.opacity;
@@ -438,7 +403,7 @@ export default class Driver {
     return textItem;
   }
 
-  setTextLineHeight(textItem, value) {
+  setTextLineHeight(textItem: JXAKeynote.TextItem, value: string) {
     this.selectElement(textItem);
 
     this.openInspector(0);
@@ -449,7 +414,7 @@ export default class Driver {
     this.setTextFieldValue(textField, `${value}`.replace('.', ','));
   }
 
-  setTextAlignment(textItem, align) {
+  setTextAlignment(textItem: JXAKeynote.TextItem, align?: 'left' | 'right') {
     this.selectElement(textItem);
 
     this.openInspector(0);
@@ -460,6 +425,10 @@ export default class Driver {
       scrollArea.groups,
       item => item.description() === t('alignement de paragraphe'),
     );
+
+    if (!group) {
+      return;
+    }
 
     if (align === 'left') {
       group.checkboxes[0].click();
@@ -472,7 +441,7 @@ export default class Driver {
     }
   }
 
-  setTextNumbered(textItem, number, indent = null) {
+  setTextNumbered(textItem: JXAKeynote.TextItem, number: number, indent = null) {
     this.selectElement(textItem);
 
     this.openInspector(0);
@@ -493,12 +462,20 @@ export default class Driver {
     }
   }
 
-  addLine({ vertical = false, withAnimation = true, width } = {}) {
+  addLine({ vertical = false, withAnimation = true, width }: {
+    vertical?: boolean
+    withAnimation?: boolean
+    width?: number
+  } = { }) {
     const { currentSlide: slide } = this.doc;
 
     let size;
-    if (width) { size = width; }
-    else { size = vertical ? 600 : 800; }
+    if (width) {
+      size = width;
+    }
+    else {
+      size = vertical ? 600 : 800;
+    }
 
     const line = this.keynote.Line(
       vertical
@@ -533,7 +510,7 @@ export default class Driver {
     return line;
   }
 
-  addSlide(backgroundName) {
+  addSlide(backgroundName: string) {
     const slide = this.keynote.Slide({
       baseLayout: this.doc.slideLayouts.byName(backgroundName),
     });
@@ -549,25 +526,25 @@ export default class Driver {
     return slide;
   }
 
-  addSlideFromTemplate(template, index = 0) {
+  addSlideFromTemplate(template: string, index = 0) {
     const [firstIndex] = this.templates[template];
 
     this.duplicateSlide(firstIndex + index);
   }
 
-  setElementX(element, x) {
+  setElementX(element: any, x: number) {
     element.position = { x, y: element.position().y };
   }
 
-  setElementY(element, y) {
+  setElementY(element: any, y: number) {
     element.position = { x: element.position().x, y };
   }
 
-  setElementXY(element, x, y) {
+  setElementXY(element: any, x: number, y: number) {
     element.position = { x, y };
   }
 
-  deleteElement(element) {
+  deleteElement(element: any) {
     this.selectElement(element);
     delay(0.5);
     this.pressBackspace();
