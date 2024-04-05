@@ -92,8 +92,8 @@ webpack(webpackConfig, async (err) => {
     '-l',
     'JavaScript',
     '-o',
-    `${distPath}/index.scpt`,
+    `${distPath}/index.app`,
     `${distPath}/index.jxa`,
   ]);
-  await exec('osascript', ['-l', 'JavaScript', `${distPath}/index.scpt`]);
+  await exec('osascript', ['-l', 'JavaScript', `${distPath}/index.app`, '-i']);
 });
