@@ -12,19 +12,18 @@ export function createText(textElt, items) {
   items.forEach(({ title, detail }) => {
     const currentIndex = Math.max(0, textElt.objectText().length - 1);
 
-    textElt.objectText = `${textElt.objectText()}${title}`;
+    textElt.objectText = `${textElt.objectText()}${title.trim()}`;
 
     titleIndexes.push([currentIndex, textElt.objectText().length - 1]);
 
     textElt.objectText = `${textElt.objectText()}${String.fromCharCode(8232)}`;
     textElt.objectText = `${textElt.objectText()}${detail
+      .trim()
       .split('\n')
       .join(String.fromCharCode(8232))}`;
 
     textElt.objectText = `${textElt.objectText()}\n`;
   });
-
-  const defaultSize = textElt.objectText.characters[0].size();
 
   return Promise.all(
     titleIndexes.reduce(
@@ -34,7 +33,6 @@ export function createText(textElt, items) {
           (i) =>
             new Promise((resolve) => {
               textElt.objectText.characters[i].font = 'SourceSansPro-Bold';
-              textElt.objectText.characters[i].size = defaultSize * 1.2;
               textElt.objectText.characters[i].color = [65535, 65535, 65535];
               resolve();
             }),
