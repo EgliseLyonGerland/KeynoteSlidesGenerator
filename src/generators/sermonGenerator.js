@@ -30,7 +30,7 @@ export default class SermonGenerator extends Generator {
     refElt.objectText = bibleRef;
 
     const planTxt = plan
-      .map((item) => item.text.replace('(v. ', '('))
+      .map((item) => item.text.replace('(v. ', '(v. '))
       .join('\n');
 
     for (let i = 0; i < 2; i += 1) {
