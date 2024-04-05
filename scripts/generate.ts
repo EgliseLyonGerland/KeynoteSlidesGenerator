@@ -23,23 +23,30 @@ const distPath = resolve(`${rootPath}/dist`);
 
 const webpackConfig: Configuration = {
   mode: 'development',
-  devtool: false,
+  devtool: 'source-map',
   entry: `${rootPath}/src/index.js`,
   output: {
     path: distPath,
     filename: 'index.jxa',
   },
+  resolve: {
+    extensions: ['.ts', '.js'],
+    extensionAlias: {
+      '.js': ['.js', '.ts'],
+    },
+  },
   module: {
     rules: [
       {
-        test: /\.tsx?$/,
-        use: 'ts-loader',
-        exclude: /node_modules/,
+        enforce: 'pre',
+        test: /\.(js|ts)$/,
+        loader: require.resolve('source-map-loader'),
+      },
+      {
+        test: /\.(ts)$/,
+        loader: 'ts-loader',
       },
     ],
-  },
-  resolve: {
-    extensions: ['.tsx', '.ts', '.js'],
   },
   plugins: [
     new EnvironmentPlugin({

@@ -5,6 +5,7 @@
   "license": "MIT",
   "dependencies": {
     "@types/yargs": "^17.0.13",
+    "source-map-loader": "^4.0.1",
     "webpack": "^5.74.0",
     "yargs": "^17.6.0"
   }
