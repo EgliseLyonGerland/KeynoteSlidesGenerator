@@ -10,6 +10,7 @@
   ],
   "scripts": {
     "generate": "ts-node scripts/generate.ts",
+    "infos": "ts-node scripts/infos.ts",
     "lint": "eslint ."
   },
   "dependencies": {
