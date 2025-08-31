@@ -33,10 +33,8 @@ export default class SermonGenerator extends Generator {
       .map(item => item.text.replace('(v. ', '(v. '))
       .join('\n');
 
-    for (let i = 0; i < 2; i += 1) {
-      const planElt = this.driver.findTextElement(/^Plan:/);
-      planElt.objectText = planTxt;
-    }
+    const planElt = this.driver.findTextElement(/^Plan:/);
+    planElt.objectText = planTxt;
   }
 
   generateThirdSlide() {
