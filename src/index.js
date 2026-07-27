@@ -10,7 +10,7 @@ const blocks = []
     { type: 'slide', data: { name: 'welcome' } },
     { type: 'slide', data: { name: 'phone' } },
   )
-  .concat(entry);
+  .concat(entry.slides);
 
 const announcements = find(blocks, ['type', 'announcements']);
 
