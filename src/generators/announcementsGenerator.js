@@ -43,6 +43,8 @@ export async function createText(textElt, items) {
 export default class AnnouncementsGenerator extends Generator {
   async generate() {
     this.driver.addSlideFromTemplate('announcements', 0);
+    this.driver.addSlideFromTemplate('announcements', 1);
+    this.driver.addSlideFromTemplate('announcements', 2);
 
     const textElt = this.driver.findTextElement(/^Lorem ipsum/);
     const { items = [] } = this.data;
