@@ -7,7 +7,7 @@
   "license": "MIT",
   "main": "index.js",
   "scripts": {
-    "generate": "ts-node scripts/generate.ts",
+    "build": "ts-node scripts/build.ts",
     "infos": "ts-node scripts/infos.ts",
     "lint": "eslint ."
   },
