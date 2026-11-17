@@ -45,6 +45,7 @@ export default class AnnouncementsGenerator extends Generator {
     this.driver.addSlideFromTemplate('announcements', 0);
     this.driver.addSlideFromTemplate('announcements', 1);
     this.driver.addSlideFromTemplate('announcements', 2);
+    this.driver.addSlideFromTemplate('announcements', 3);
 
     const textElt = this.driver.findTextElement(/^Lorem ipsum/);
     const { items = [] } = this.data;
