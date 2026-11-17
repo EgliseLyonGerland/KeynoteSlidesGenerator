@@ -8,10 +8,16 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: macos-release-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   build:
     runs-on: macos-15
     timeout-minutes: 15
+    outputs:
+      version: ${{ steps.version.outputs.version }}
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -35,3 +41,36 @@ jobs:
           path: dist/KeynoteSlidesGenerator-${{ steps.version.outputs.version }}.zip
           if-no-files-found: error
           retention-days: 90
+
+  release:
+    if: github.ref == 'refs/heads/main'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: KeynoteSlidesGenerator-${{ needs.build.outputs.version }}-macOS
+      - name: Publish versioned release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          APP_VERSION: ${{ needs.build.outputs.version }}
+          COMMIT_SHA: ${{ github.sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          tag="v${APP_VERSION}"
+          releases=$(gh api --paginate "repos/${GH_REPO}/releases")
+          existing=$(echo "$releases" | jq -s --arg tag "$tag" '[.[][] | select(.tag_name == $tag)][0] // empty')
+          if [ -n "$existing" ]; then
+            if [ "$(echo "$existing" | jq -r '.draft')" = "false" ]; then
+              echo "Release ${tag} already published; increment package.json to publish changes."
+              exit 0
+            fi
+          else
+            gh release create "$tag" --draft --target "$COMMIT_SHA" --title "KeynoteSlidesGenerator ${APP_VERSION}" --notes "Application macOS ${APP_VERSION}. Téléchargez et décompressez le fichier ZIP ci-dessous."
+          fi
+          gh release upload "$tag" "KeynoteSlidesGenerator-${APP_VERSION}.zip" --clobber
+          gh release edit "$tag" --draft=false

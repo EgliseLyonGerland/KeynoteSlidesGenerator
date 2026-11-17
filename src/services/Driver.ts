@@ -26,7 +26,7 @@ export default class Driver {
     this.systemEvent = Application('System Events');
     this.keynote = Application('Keynote');
     if (this.keynote.documents.length !== 1) {
-      throw new Error('Ouvrez uniquement une copie du modele dans Keynote avant de lancer la generation.');
+      throw new Error('Ouvrez uniquement une copie du modèle dans Keynote avant de lancer la génération.');
     }
 
     this.doc = this.keynote.documents[0];
@@ -34,7 +34,7 @@ export default class Driver {
       = this.systemEvent.processes.Keynote.windows.byName(this.doc.name());
     this.initTemplates();
     if (!this.templates.welcome || !this.templates.phone) {
-      throw new Error('La presentation ouverte ne contient pas les modeles "welcome" et "phone". Ouvrez le modele Keynote a jour.');
+      throw new Error('La présentation ouverte ne contient pas les modèles "welcome" et "phone". Ouvrez le modèle Keynote à jour.');
     }
     this.doc.width = documentWidth;
     this.doc.height = documentHeight;

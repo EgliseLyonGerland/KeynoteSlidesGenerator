@@ -71,6 +71,7 @@ const webpackConfig: Configuration = {
       'debugElements': [`${rootPath}/src/utils/debugElements`, 'debugElements'],
     }),
     new DefinePlugin({
+      'process.env.APP_VERSION': JSON.stringify(version),
       'process.env': '{}',
     }),
   ],
