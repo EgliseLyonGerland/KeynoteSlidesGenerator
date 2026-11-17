@@ -21,6 +21,9 @@ importers:
       '@antfu/eslint-config':
         specifier: 2.17.0
         version: 2.17.0(@vue/compiler-sfc@3.5.13)(eslint@9.2.0)(typescript@5.4.5)
+      '@jxa/types':
+        specifier: 1.4.0
+        version: 1.4.0
       '@types/lodash':
         specifier: 4.17.1
         version: 4.17.1
@@ -242,6 +245,9 @@ packages:
   '@jsdevtools/ez-spawn@3.0.4':
     resolution: {integrity: sha512-f5DRIOZf7wxogefH03RjMPMdBF7ADTWUMoOs9kaJo06EfwF+aFhMZMDZxHg/Xe12hptN9xoZjGso2fdjapBRIA==}
     engines: {node: '>=10'}
+
+  '@jxa/types@1.4.0':
+    resolution: {integrity: sha512-3MNk9eYHAdNVUGASHrfvadVL5sE/NMet0CAugHERsofmLp4SYRGCD+sXAMjlnpRjL1g3q7nkAU9wUL2h0Z+LQA==}
 
   '@nodelib/fs.scandir@2.1.5':
     resolution: {integrity: sha512-vq24Bq3ym5HEQm2NKCr3yXDwjc7vTsEThRDnkp2DK9p1uqLR+DHurm/NOTo0KG7HYHU7eppKZj3MyqYuMBf62g==}
@@ -2044,6 +2050,8 @@ snapshots:
       cross-spawn: 7.0.3
       string-argv: 0.3.2
       type-detect: 4.0.8
+
+  '@jxa/types@1.4.0': {}
 
   '@nodelib/fs.scandir@2.1.5':
     dependencies:

@@ -27,9 +27,28 @@ const generators = {
 
 const { slide, from, to } = options;
 
+export function validateEntry(entry) {
+  if (!entry || !Array.isArray(entry.slides)) {
+    throw new Error('Le fichier .json n’est pas valide');
+  }
+
+  entry.slides.forEach((block, index) => {
+    if (
+      !block
+      || typeof block.type !== 'string'
+      || !Object.prototype.hasOwnProperty.call(generators, `${upperFirst(block.type)}Generator`)
+      || !block.data
+      || typeof block.data !== 'object'
+      || Array.isArray(block.data)
+    ) {
+      throw new Error(`Le bloc ${index + 1} du fichier .json est invalide (type ou données).`);
+    }
+  });
+}
+
 export default class Document {
-  constructor(documentName) {
-    this.driver = new Driver(documentName);
+  constructor() {
+    this.driver = new Driver();
   }
 
   generate(data) {

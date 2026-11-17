@@ -1,0 +1,32 @@
+name: Build macOS application
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: macos-15
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build
+      - run: pnpm test
+      - name: Archive application preserving macOS metadata
+        run: ditto -c -k --sequesterRsrc --keepParent dist/KeynoteSlidesGenerator.app dist/KeynoteSlidesGenerator.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: KeynoteSlidesGenerator-macOS
+          path: dist/KeynoteSlidesGenerator.zip
+          if-no-files-found: error
+          retention-days: 90

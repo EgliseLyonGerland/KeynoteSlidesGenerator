@@ -1,3 +1,4 @@
+import type { Keynote } from '@jxa/types/src/core/Keynote';
 import _ from 'lodash';
 import {
   documentHeight,
@@ -18,27 +19,26 @@ export default class Driver {
   findElement;
   findTextElement;
 
-  constructor(filename: string) {
+  constructor() {
     this.findElement = (...args: ParametersExceptFirst<typeof slideUtils.findElement>) => slideUtils.findElement(this.doc.currentSlide, ...args);
     this.findTextElement = (...args: ParametersExceptFirst<typeof slideUtils.findTextElement>) => slideUtils.findTextElement(this.doc.currentSlide, ...args);
 
     this.systemEvent = Application('System Events');
     this.keynote = Application('Keynote');
+    if (this.keynote.documents.length !== 1) {
+      throw new Error('Ouvrez uniquement une copie du modele dans Keynote avant de lancer la generation.');
+    }
+
+    this.doc = this.keynote.documents[0];
     this.mainWindow
-      = this.systemEvent.processes.Keynote.windows.byName(filename);
-
-    if (this.keynote.documents.length) {
-      this.doc = this.keynote.documents[0];
+      = this.systemEvent.processes.Keynote.windows.byName(this.doc.name());
+    this.initTemplates();
+    if (!this.templates.welcome || !this.templates.phone) {
+      throw new Error('La presentation ouverte ne contient pas les modeles "welcome" et "phone". Ouvrez le modele Keynote a jour.');
     }
-    else {
-      this.doc = this.keynote.Document();
-      this.keynote.documents.push(this.doc);
-    }
-
     this.doc.width = documentWidth;
     this.doc.height = documentHeight;
 
-    this.initTemplates();
     this.keynote.activate();
 
     while (!this.keynote.frontmost()) {
@@ -403,7 +403,7 @@ export default class Driver {
     return textItem;
   }
 
-  setTextLineHeight(textItem: JXAKeynote.TextItem, value: string) {
+  setTextLineHeight(textItem: Keynote.TextItem, value: string) {
     this.selectElement(textItem);
 
     this.openInspector(0);
@@ -414,7 +414,7 @@ export default class Driver {
     this.setTextFieldValue(textField, `${value}`.replace('.', ','));
   }
 
-  setTextAlignment(textItem: JXAKeynote.TextItem, align?: 'left' | 'right') {
+  setTextAlignment(textItem: Keynote.TextItem, align?: 'left' | 'right') {
     this.selectElement(textItem);
 
     this.openInspector(0);
@@ -441,7 +441,7 @@ export default class Driver {
     }
   }
 
-  setTextNumbered(textItem: JXAKeynote.TextItem, number: number, indent = null) {
+  setTextNumbered(textItem: Keynote.TextItem, number: number, indent = null) {
     this.selectElement(textItem);
 
     this.openInspector(0);

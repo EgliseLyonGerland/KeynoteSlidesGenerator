@@ -1,6 +1,7 @@
 import { spawn } from 'node:child_process';
 import { resolve } from 'node:path';
 import {
+  BannerPlugin,
   type Configuration,
   DefinePlugin,
   EnvironmentPlugin,
@@ -14,6 +15,8 @@ const argv = yargs(hideBin(process.argv))
   .option('slide', { alias: 's', type: 'number' })
   .option('from', { alias: 'f', type: 'number' })
   .option('to', { alias: 't', type: 'number' })
+  .option('run', { type: 'boolean', default: false })
+  .option('entry', { type: 'string', implies: 'run' })
   .parseSync();
 
 const rootPath = resolve(__dirname, `..`);
@@ -26,6 +29,7 @@ const webpackConfig: Configuration = {
   output: {
     path: distPath,
     filename: 'index.jxa',
+    library: { name: 'SlidesGenerator', type: 'var' },
   },
   resolve: {
     extensions: ['.ts', '.js'],
@@ -43,10 +47,16 @@ const webpackConfig: Configuration = {
       {
         test: /\.(ts)$/,
         loader: 'ts-loader',
+        options: { onlyCompileBundledFiles: true },
       },
     ],
   },
   plugins: [
+    new BannerPlugin({
+      banner: 'function run(argv) { return SlidesGenerator.run(argv); }',
+      raw: true,
+      footer: true,
+    }),
     new EnvironmentPlugin({
       OPTIONS: JSON.stringify({
         slide: argv.slide || argv.s,
@@ -65,33 +75,51 @@ const webpackConfig: Configuration = {
   ],
 };
 
-async function exec(cmd: string, args?: string[]) {
-  return await new Promise((done) => {
-    const child = spawn(cmd, args);
-
-    child.stdout.on('data', (data) => {
-      console.log(data.toString().trim());
+async function exec(cmd: string, args: string[]) {
+  return await new Promise<void>((done, reject) => {
+    const child = spawn(cmd, args, { stdio: 'inherit' });
+    child.on('error', reject);
+    child.on('close', (code, signal) => {
+      if (code !== 0) {
+        reject(new Error(`${cmd} failed (${signal || `exit code ${code}`})`));
+        return;
+      }
+      done();
     });
-
-    child.stderr.on('data', (data) => {
-      console.error(data.toString().trim());
-    });
-
-    child.on('exit', done);
   });
 }
 
-webpack(webpackConfig, async (err) => {
-  if (err) {
-    throw err;
-  }
+async function main() {
+  await new Promise<void>((done, reject) => {
+    webpack(webpackConfig, (err, stats) => {
+      if (err) {
+        reject(err);
+        return;
+      }
+      if (!stats || stats.hasErrors()) {
+        reject(new Error(stats ? stats.toString({ colors: false }) : 'Webpack returned no build result'));
+        return;
+      }
+      console.log(stats.toString({ colors: process.stdout.isTTY }));
+      done();
+    });
+  });
 
+  const appPath = resolve(distPath, 'KeynoteSlidesGenerator.app');
   await exec('osacompile', [
     '-l',
     'JavaScript',
     '-o',
-    `${distPath}/index.app`,
+    appPath,
     `${distPath}/index.jxa`,
   ]);
-  await exec('osascript', ['-l', 'JavaScript', `${distPath}/index.app`, '-i']);
+  if (argv.run) {
+    const args = argv.entry ? [resolve(argv.entry)] : [];
+    await exec('osascript', ['-l', 'JavaScript', appPath, ...args]);
+  }
+}
+
+main().catch((error: unknown) => {
+  console.error(error);
+  process.exitCode = 1;
 });
