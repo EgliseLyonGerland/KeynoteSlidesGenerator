@@ -222,6 +222,30 @@ test('bundle contains no embedded entry.json module', () => {
   assert.doesNotMatch(bundle, /src\/entry\.json/);
 });
 
+test('compiled app metadata matches the package version and its signature remains valid', {
+  skip: process.platform !== 'darwin',
+}, () => {
+  const { version } = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8'));
+  const appPath = fileURLToPath(new URL('../dist/KeynoteSlidesGenerator.app', import.meta.url));
+  for (const key of ['CFBundleShortVersionString', 'CFBundleVersion']) {
+    const result = spawnSync('plutil', [
+      '-extract',
+      key,
+      'raw',
+      `${appPath}/Contents/Info.plist`,
+    ], { encoding: 'utf8', timeout: 15000 });
+    assert.ifError(result.error);
+    assert.equal(result.status, 0, result.stderr);
+    assert.equal(result.stdout.trim(), version);
+  }
+  const signature = spawnSync('codesign', ['--verify', '--deep', '--strict', appPath], {
+    encoding: 'utf8',
+    timeout: 15000,
+  });
+  assert.ifError(signature.error);
+  assert.equal(signature.status, 0, signature.stderr);
+});
+
 test('compiled app invokes run and reads an external UTF-8 JSON with osascript', {
   skip: process.platform !== 'darwin',
 }, () => {

@@ -10,6 +10,7 @@ import {
 } from 'webpack';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
+import { version } from '../package.json';
 
 const argv = yargs(hideBin(process.argv))
   .option('slide', { alias: 's', type: 'number' })
@@ -113,6 +114,12 @@ async function main() {
     appPath,
     `${distPath}/index.jxa`,
   ]);
+  const infoPath = resolve(appPath, 'Contents/Info.plist');
+  for (const key of ['CFBundleShortVersionString', 'CFBundleVersion']) {
+    await exec('plutil', ['-replace', key, '-string', version, infoPath]);
+  }
+  // Updating the bundle metadata invalidates osacompile's ad-hoc signature.
+  await exec('codesign', ['--force', '--sign', '-', appPath]);
   if (argv.run) {
     const args = argv.entry ? [resolve(argv.entry)] : [];
     await exec('osascript', ['-l', 'JavaScript', appPath, ...args]);

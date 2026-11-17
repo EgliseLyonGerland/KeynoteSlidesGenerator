@@ -6,8 +6,8 @@ Il faut un Mac avec Keynote. Il n'est pas necessaire d'installer Node.js, pnpm o
 
 1. Recuperez le modele Keynote a jour aupres de l'equipe, faites-en une copie et ouvrez cette copie. Fermez les autres presentations Keynote.
 2. Ouvrez [GitHub Actions](https://github.com/EgliseLyonGerland/KeynoteSlidesGenerator/actions/workflows/build.yml), puis la derniere execution reussie de **Build macOS application** sur `main`.
-3. Dans **Artifacts**, telechargez **KeynoteSlidesGenerator-macOS**. Il faut etre connecte a GitHub et avoir acces au depot.
-4. Decompressez l'artefact, puis l'archive `KeynoteSlidesGenerator.zip` qu'il contient. Deplacez `KeynoteSlidesGenerator.app` dans un emplacement fixe, par exemple Applications.
+3. Dans **Artifacts**, telechargez **KeynoteSlidesGenerator-VERSION-macOS** (par exemple **KeynoteSlidesGenerator-14.5.0-macOS**). Il faut etre connecte a GitHub et avoir acces au depot.
+4. Decompressez l'artefact, puis l'archive `KeynoteSlidesGenerator-VERSION.zip` qu'il contient. Deplacez `KeynoteSlidesGenerator.app` dans un emplacement fixe, par exemple Applications.
 5. Telechargez le fichier JSON des slides.
 6. Double-cliquez sur l'application, puis selectionnez le fichier JSON dans la fenetre qui s'ouvre. Annuler ferme l'application sans modifier la presentation.
 7. Pendant la generation, laissez Keynote au premier plan et n'utilisez ni le clavier ni la souris : le generateur pilote son interface.
@@ -24,6 +24,14 @@ Autorisez l'application a controler **Keynote** et **System Events** lorsque mac
 En cas d'erreur, l'application affiche un message. Si des slides ont deja ete ajoutees, fermez la presentation sans enregistrer et repartez d'une copie intacte du modele avant de reessayer.
 
 ## Developpement
+
+### Version
+
+La version de `package.json` est la source de reference : `14.5.N` indique le support de Keynote **14.5**, avec un compteur de changements **N** (`14.5.0`, `14.5.1`, etc.). Ce compteur est mis a jour manuellement, sans increment automatique par la CI.
+
+Le build inscrit cette version dans `CFBundleShortVersionString` et `CFBundleVersion` de l'application ; elle est visible dans **Lire les informations** du Finder. Le nom de l'archive et de l'artefact CI inclut aussi la version. Cela indique la version de Keynote supportee, sans ajouter de blocage automatique des autres versions de Keynote.
+
+### Commandes
 
 ```sh
 pnpm install --frozen-lockfile

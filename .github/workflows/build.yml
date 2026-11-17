@@ -22,11 +22,16 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm build
       - run: pnpm test
+      - name: Read application version
+        id: version
+        run: echo "version=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
       - name: Archive application preserving macOS metadata
-        run: ditto -c -k --sequesterRsrc --keepParent dist/KeynoteSlidesGenerator.app dist/KeynoteSlidesGenerator.zip
+        env:
+          APP_VERSION: ${{ steps.version.outputs.version }}
+        run: ditto -c -k --sequesterRsrc --keepParent dist/KeynoteSlidesGenerator.app "dist/KeynoteSlidesGenerator-${APP_VERSION}.zip"
       - uses: actions/upload-artifact@v4
         with:
-          name: KeynoteSlidesGenerator-macOS
-          path: dist/KeynoteSlidesGenerator.zip
+          name: KeynoteSlidesGenerator-${{ steps.version.outputs.version }}-macOS
+          path: dist/KeynoteSlidesGenerator-${{ steps.version.outputs.version }}.zip
           if-no-files-found: error
           retention-days: 90
