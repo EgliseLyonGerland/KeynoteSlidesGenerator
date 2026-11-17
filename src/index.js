@@ -1,5 +1,6 @@
 import { find } from 'lodash';
 import Document, { validateEntry } from './services/Document';
+import { checkForUpdates } from './services/updates';
 
 function generate(entry) {
   validateEntry(entry);
@@ -34,6 +35,9 @@ export function run(argv = []) {
 
   if (interactive) {
     app.activate();
+    if (!checkForUpdates(app)) {
+      return;
+    }
     try {
       file = app.chooseFile({
         withPrompt: 'Choisissez le fichier .json contenant les slides.',
@@ -63,7 +67,7 @@ export function run(argv = []) {
       null,
     );
     if (content.isNil()) {
-      throw new Error(`Impossible de lire le fichier .json en UTF-8 : ${String(file)}. Verifiez son contenu et les autorisations d'acces.`);
+      throw new Error(`Impossible de lire le fichier .json en UTF-8 : ${String(file)}. Vérifiez son contenu et les autorisations d'accès.`);
     }
 
     generate(JSON.parse(ObjC.unwrap(content)));
@@ -80,8 +84,8 @@ export function run(argv = []) {
       throw error;
     }
     app.activate();
-    app.displayAlert('La generation a echoué', {
-      message: `${error.message}\n\nVerifiez le fichier .json, le modèle Keynote et les autorisations macOS. Si la generation a deja commencé, repartez d'une copie du modèle original.`,
+    app.displayAlert('La génération a échoué', {
+      message: `${error.message}\n\nVérifiez le fichier .json, le modèle Keynote et les autorisations macOS. Si la génération a déjà commencé, repartez d'une copie du modèle original.`,
       as: 'critical',
     });
   }
